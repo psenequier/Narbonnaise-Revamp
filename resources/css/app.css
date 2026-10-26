@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@source "../views";
+
+/* Palette des maquettes (Design) */
+@theme {
+    --font-sans: "Manrope", system-ui, sans-serif;
+    --color-sapin: #12433F;
+    --color-sapin-clair: #E4F0EE;
+    --color-encre: #1A2330;
+    --color-gris: #5B6673;
+    --color-fond: #F3F5F7;
+    --color-bord: #DDE3E8;
+}

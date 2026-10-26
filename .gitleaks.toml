@@ -1,0 +1,10 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Valeurs factices des tests et de la CI"
+paths = [
+  '''phpunit\.xml''',
+  '''\.env\.example''',
+  '''\.env\.ci''',
+]

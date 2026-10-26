@@ -1,0 +1,3 @@
+# Exceptions ZAP : identifiant de règle, action (IGNORE, WARN, FAIL), justification.
+# Chaque ligne ajoutée est relue en pull request. Par défaut tout est FAIL au-delà de « faible ».
+10096	IGNORE	Horodatage dans les réponses : dates du calendrier, attendues.

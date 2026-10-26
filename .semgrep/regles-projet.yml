@@ -1,0 +1,33 @@
+rules:
+  - id: http-sans-filtre-ssrf
+    message: >-
+      Appel HTTP vers une URL non validée. Passez-la par App\Domain\Sources\UrlSourceSure
+      (US-607-N2, OWASP 2025 A01).
+    languages: [php]
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: Http::get($URL, ...)
+          - pattern: Http::post($URL, ...)
+          - pattern: file_get_contents($URL)
+      - pattern-not: Http::get("...", ...)
+      - pattern-not-inside: |
+          $URL = $F->valider(...);
+          ...
+
+  - id: requete-sql-brute-concatenee
+    message: Requête SQL construite par concaténation. Utilisez des paramètres liés (A05).
+    languages: [php]
+    severity: ERROR
+    pattern-either:
+      - pattern: DB::$M("..." . $X, ...)
+      - pattern: DB::raw("..." . $X)
+      - pattern: $Q->whereRaw("..." . $X, ...)
+
+  - id: blade-non-echappe
+    message: "{!! !!} affiche du HTML sans échappement (US-301-N7). Utilisez {{ }}."
+    languages: [generic]
+    paths:
+      include: ["*.blade.php"]
+    severity: ERROR
+    pattern: "{!! ... !!}"

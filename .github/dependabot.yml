@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: composer
+    directory: /
+    schedule: { interval: weekly, day: monday }
+    groups:
+      laravel: { patterns: ["laravel/*", "livewire/*"] }
+      outils: { patterns: ["pestphp/*", "larastan/*", "vimeo/psalm", "psalm/*"] }
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly, day: monday }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly, day: monday }

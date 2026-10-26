@@ -1,0 +1,18 @@
+# Export des critères d'acceptation : identifiant, lot, type de test.
+# À régénérer depuis le document des user stories à chaque modification.
+# Amorce : seuls les critères déjà couverts sont listés ; le job « tests »
+# lance la vérification avec --lot=MVP, qui deviendra bloquante quand la
+# liste sera complète (tâche du plan de dev, semaine 1).
+US-301-P1 MVP [fonctionnel]
+US-301-P2 MVP [fonctionnel]
+US-301-P3 MVP [fonctionnel]
+US-301-N1 MVP [fonctionnel]
+US-301-N2 MVP [fonctionnel]
+US-301-N3 MVP [fonctionnel]
+US-301-N4 MVP [fonctionnel]
+US-301-N6 MVP [fonctionnel]
+US-311-N1 Lot2 [fonctionnel]
+US-311-P3 Lot2 [fonctionnel]
+US-401-P1 MVP [fonctionnel]
+US-607-N1 Lot2 [fonctionnel]
+US-607-N2 Lot2 [fonctionnel]

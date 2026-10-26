@@ -1,0 +1,189 @@
+# Chaîne CI (ADR 016, RFC « Environnement d'intégration continue »).
+# Avant la première fusion : épingler chaque action par empreinte SHA
+# (`pinact run` ou à la main), Dependabot tiendra ensuite les SHA à jour.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch: # utilisé par le job « temoin » du workflow hebdo
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PHP_VERSION: "8.5"
+
+jobs:
+  tests:
+    name: tests (MySQL ${{ matrix.mysql }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        mysql: ["8.0", "8.4"]
+    services:
+      mysql:
+        image: mysql:${{ matrix.mysql }}
+        env:
+          MYSQL_DATABASE: test
+          MYSQL_ROOT_PASSWORD: test
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -ptest" --health-interval=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: pcov
+          extensions: pdo_mysql, sockets
+      - uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('composer.lock') }}
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: vendor/bin/pest --ci --coverage --min=90 --exclude-group=browser
+      - run: vendor/bin/phpstan analyse --no-progress
+      - name: Chaque critère d'acceptation a son test
+        run: php scripts/verifier-criteres.php --lot=MVP
+
+  sast:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Psalm, analyse de propagation (injections, SSRF, XSS)
+        run: vendor/bin/psalm --taint-analysis --no-progress --report=psalm.sarif
+      - name: Semgrep, règles OWASP Top 10 et PHP
+        run: |
+          pipx install semgrep
+          semgrep scan --config p/owasp-top-ten --config p/php --config .semgrep/ \
+            --sarif --output semgrep.sarif --error --severity ERROR
+      - if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: psalm.sarif
+          category: psalm
+      - if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep
+
+  dependances:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # tout l'historique pour Gitleaks
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+      - run: composer audit --locked
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm ci && npm audit --audit-level=high
+      - name: Aucun fichier .env commis
+        run: "! git ls-files | grep -E '(^|/)\\.env$'"
+      - name: Gitleaks (ligne de commande, licence libre)
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_linux_x64.tar.gz | tar xz gitleaks
+          ./gitleaks git --redact --exit-code 1 --config .gitleaks.toml
+
+  interface:
+    needs: [tests, sast, dependances]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: e2e
+          MYSQL_ROOT_PASSWORD: e2e
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -pe2e" --health-interval=5s --health-retries=20
+    env:
+      DB_DATABASE: e2e
+      DB_PASSWORD: e2e
+      APP_URL: http://127.0.0.1:8000
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: pdo_mysql, sockets
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: npm ci && npm run build
+      - run: cp .env.ci .env && php artisan key:generate
+      - name: Site éphémère avec données fictives
+        run: |
+          php artisan migrate --seed --seeder=DonneesFictivesSeeder --force
+          php artisan serve --port=8000 > storage/logs/serve.log 2>&1 &
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Tests d'interface (Chrome, WebKit, iPhone) et accessibilité
+        run: vendor/bin/pest --ci --group=browser --parallel
+      - name: Scan ZAP passif, connecté avec un compte de test
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: http://127.0.0.1:8000
+          rules_file_name: .zap/regles.tsv
+          # Scan connecté : à ajouter avec la page de connexion (plan de dev, lot MVP 1).
+          fail_action: true
+          allow_issue_writing: false
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: traces-interface
+          path: |
+            tests/Browser/Screenshots
+            storage/logs
+          retention-days: 7
+
+  deploiement:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [interface]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: production # approbation manuelle d'un admin, secrets visibles ici seulement
+    concurrency:
+      group: production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+      - run: npm ci && npm run build
+      - run: ./deploiement/deployer.sh
+        env:
+          SFTP_HOTE: ${{ secrets.SFTP_HOTE }}
+          SFTP_UTILISATEUR: ${{ secrets.SFTP_UTILISATEUR }}
+          SFTP_CLE: ${{ secrets.SFTP_CLE }}
+          SFTP_EMPREINTE_HOTE: ${{ secrets.SFTP_EMPREINTE_HOTE }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          DOSSIER_DISTANT: ${{ vars.DOSSIER_DISTANT }}
+          SITE_SERVI: ${{ vars.SITE_SERVI }} # « non » jusqu'à la bascule, puis « oui »

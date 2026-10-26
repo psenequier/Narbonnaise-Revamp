@@ -1,0 +1,10 @@
+; Placé dans public/ : OVH n'applique un .ovhconfig qu'à la racine du compte
+; ou dans le dossier visé par une entrée multisite (narbonnaise-v2/actuelle/public).
+; Seul le .ovhconfig à la racine FTP fixe l'image du conteneur. Vérifié le
+; 26/10/2026 : la racine (GRR, PHP 7.4) est déjà en stable64 avec
+; http.firewall=security ; on garde le même pare-feu applicatif ici.
+app.engine=php
+app.engine.version=8.5
+http.firewall=security
+environment=production
+container.image=stable64

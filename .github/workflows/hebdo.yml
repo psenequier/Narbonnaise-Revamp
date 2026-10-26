@@ -1,0 +1,77 @@
+# Chaque lundi à 3 h (UTC) : scan ZAP actif, audit des dépendances,
+# et la branche témoin, qui DOIT faire échouer la chaîne (US-911).
+# Dépôt public : aucune alerte n'est publiée en ticket. Un échec de ce
+# workflow est notifié par e-mail aux admins (réglage de notifications GitHub)
+# et les détails restent dans l'onglet Actions et Security.
+name: hebdo
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  zap-actif:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    services:
+      mysql:
+        image: mysql:8.4
+        env: { MYSQL_DATABASE: e2e, MYSQL_ROOT_PASSWORD: e2e }
+        ports: ["3306:3306"]
+        options: --health-cmd="mysqladmin ping -pe2e" --health-interval=5s --health-retries=20
+    env: { DB_DATABASE: e2e, DB_PASSWORD: e2e, APP_URL: "http://127.0.0.1:8000" }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: "8.5", extensions: "pdo_mysql" }
+      - uses: actions/setup-node@v5
+        with: { node-version: 22 }
+      - run: composer install --no-interaction --prefer-dist --no-progress && npm ci && npm run build
+      - run: |
+          cp .env.ci .env && php artisan key:generate
+          php artisan migrate --seed --seeder=DonneesFictivesSeeder --force
+          php artisan serve --port=8000 > /dev/null 2>&1 &
+      - name: Scan ZAP actif, uniquement sur le site éphémère
+        uses: zaproxy/action-full-scan@v0.12.0
+        with:
+          target: http://127.0.0.1:8000
+          rules_file_name: .zap/regles.tsv
+          fail_action: true
+          allow_issue_writing: false # dépôt public : pas de ticket public
+
+  audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with: { php-version: "8.5" }
+      - run: composer audit --locked
+      - uses: actions/setup-node@v5
+        with: { node-version: 22 }
+      - run: npm ci && npm audit --audit-level=high
+
+  temoin:
+    # La branche « temoin » contient des failles volontaires (injection SQL,
+    # SSRF sans filtre, secret commis, route sans contrôle d'accès).
+    # Si la CI la laisse passer, un contrôle est cassé : on alerte.
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Lancer la CI sur la branche témoin et exiger un échec
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref temoin
+          sleep 20
+          id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --branch temoin --limit 1 --json databaseId -q '.[0].databaseId')
+          if gh run watch "$id" --repo "$GITHUB_REPOSITORY" --exit-status; then
+            echo "::error::La CI est passée sur la branche témoin : un contrôle de sécurité ne fonctionne plus."
+            exit 1
+          fi
+          echo "La CI a bien bloqué la branche témoin."
