@@ -196,7 +196,14 @@ jobs:
             echo "::warning title=Playwright::essai $essai échoué ou trop long, nouvel essai"
             sleep 10
           done
-          exit 1
+          # Navigateurs déjà en cache : on continue sans les paquets système (souvent déjà
+          # présents sur l'image GitHub) ; les tests d'interface diront s'il manque quelque chose.
+          if [ "${{ steps.cache-playwright.outputs.cache-hit }}" = "true" ]; then
+            echo "::warning title=Playwright::paquets système non installés (miroir apt indisponible), navigateurs du cache utilisés"
+            exit 0
+          fi
+          # Sans cache, au moins les navigateurs, sans les paquets système.
+          timeout 300 npx playwright install chromium webkit
       - name: Tests d'interface (Chrome, WebKit, iPhone) et accessibilité
         shell: bash
         run: |
