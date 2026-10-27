@@ -25,7 +25,7 @@ jobs:
         options: --health-cmd="mysqladmin ping -pe2e" --health-interval=5s --health-retries=20
     env: { DB_DATABASE: e2e, DB_PASSWORD: e2e, APP_URL: "http://127.0.0.1:8000" }
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with: { php-version: "8.5", extensions: "pdo_mysql" }
       - uses: actions/setup-node@v5
@@ -46,7 +46,7 @@ jobs:
   audit:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with: { php-version: "8.5" }
       - run: composer audit --locked
