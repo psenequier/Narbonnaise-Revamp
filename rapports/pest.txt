@@ -33,18 +33,18 @@
   ✓ it accepte les sources officielles préremplies with ('https://data.education.gouv.f…ecords')
 
    PASS  Tests\Feature\ServiceReservationTest
-  ✓ it US-301-P1 crée la réservation sur des créneaux libres             0.93s  
-  ✓ it US-301-P2 accepte une deuxième réservation ouverte sur le même c… 0.38s  
-  ✓ it US-301-P3 trace la création dans le journal                       0.37s  
-  ✓ it US-301-N1 refuse toute la réservation si un créneau est exclusif… 0.37s  
-  ✓ it refuse une réservation exclusive sur un créneau déjà ouvert       0.37s  
-  ✓ it US-301-N2 refuse un créneau de vacances, même non attribué        0.36s  
-  ✓ it US-301-N2 refuse un créneau pendant une fermeture                 0.36s  
-  ✓ it US-301-N4 refuse une date d'une année non ouverte                 0.36s  
-  ✓ it US-301-N6 refuse une réservation sans créneau                     0.36s  
-  ✓ it US-311-P3 ne compte jamais une réservation annulée                0.37s  
+  ✓ it US-301-P1 crée la réservation sur des créneaux libres             0.96s  
+  ✓ it US-301-P2 accepte une deuxième réservation ouverte sur le même c… 0.39s  
+  ✓ it US-301-P3 trace la création dans le journal                       0.39s  
+  ✓ it US-301-N1 refuse toute la réservation si un créneau est exclusif… 0.38s  
+  ✓ it refuse une réservation exclusive sur un créneau déjà ouvert       0.38s  
+  ✓ it US-301-N2 refuse un créneau de vacances, même non attribué        0.38s  
+  ✓ it US-301-N2 refuse un créneau pendant une fermeture                 0.37s  
+  ✓ it US-301-N4 refuse une date d'une année non ouverte                 0.37s  
+  ✓ it US-301-N6 refuse une réservation sans créneau                     0.37s  
+  ✓ it US-311-P3 ne compte jamais une réservation annulée                0.39s  
 
   Tests:    37 passed (63 assertions)
-  Duration: 4.87s
+  Duration: 5.05s
 
 code 1

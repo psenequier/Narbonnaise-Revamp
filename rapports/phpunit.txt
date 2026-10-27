@@ -1,0 +1,24 @@
+
+
+An error occurred inside PHPUnit.
+
+Message:  Pest must be run through its own binary. Please run [./vendor/bin/pest] instead.
+Location: /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/pestphp/pest/src/TestSuite.php:72
+
+#0 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/pestphp/pest/src/Pest.php(14): Pest\TestSuite::getInstance()
+#1 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/pestphp/pest/src/Support/DatasetInfo.php(30): Pest\testDirectory()
+#2 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/pestphp/pest/src/Functions.php(72): Pest\Support\DatasetInfo::scope()
+#3 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/tests/Unit/CalculPeriodesTest.php(8): dataset()
+#4 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/phpunit/phpunit/src/Runner/TestSuiteLoader.php(134): require_once('...')
+#5 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/phpunit/phpunit/src/Runner/TestSuiteLoader.php(56): PHPUnit\Runner\TestSuiteLoader->loadSuiteClassFile()
+#6 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(276): PHPUnit\Runner\TestSuiteLoader->load()
+#7 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/phpunit/phpunit/src/TextUI/Configuration/Xml/TestSuiteMapper.php(129): PHPUnit\Framework\TestSuite->addTestFile()
+#8 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/phpunit/phpunit/src/Runner/TestIndex/NullTestFileSkipper.php(43): PHPUnit\TextUI\XmlConfiguration\TestSuiteMapper::{closure:PHPUnit\TextUI\XmlConfiguration\TestSuiteMapper::map():127}()
+#9 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/phpunit/phpunit/src/TextUI/Configuration/Xml/TestSuiteMapper.php(125): PHPUnit\Runner\TestIndex\NullTestFileSkipper->record()
+#10 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/phpunit/phpunit/src/TextUI/Configuration/TestSuiteBuilder.php(139): PHPUnit\TextUI\XmlConfiguration\TestSuiteMapper->map()
+#11 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/phpunit/phpunit/src/TextUI/Application.php(472): PHPUnit\TextUI\Configuration\TestSuiteBuilder->build()
+#12 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/phpunit/phpunit/src/TextUI/Application.php(235): PHPUnit\TextUI\Application->buildTestSuite()
+#13 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/phpunit/phpunit/phpunit(104): PHPUnit\TextUI\Application->run()
+#14 /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/bin/phpunit(122): include('...')
+#15 {main}
+code 255

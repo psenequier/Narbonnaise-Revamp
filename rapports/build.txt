@@ -11,5 +11,5 @@ computing gzip size...
 [2mpublic/build/[22m[32mmanifest.json            [39m[1m[2m0.33 kB[22m[1m[22m[2m │ gzip: 0.17 kB[22m
 [2mpublic/build/[22m[2massets/[22m[35mapp-C8JokITf.css  [39m[1m[2m3.94 kB[22m[1m[22m[2m │ gzip: 1.39 kB[22m
 [2mpublic/build/[22m[2massets/[22m[36mapp-l0sNRNKZ.js   [39m[1m[2m0.00 kB[22m[1m[22m[2m │ gzip: 0.02 kB[22m
-[32m✓ built in 201ms[39m
+[32m✓ built in 198ms[39m
 code 0
