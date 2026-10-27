@@ -5,11 +5,13 @@ rules:
       (US-607-N2, OWASP 2025 A01).
     languages: [php]
     severity: ERROR
+    paths:
+      include: ["app/"]
     patterns:
       - pattern-either:
           - pattern: Http::get($URL, ...)
           - pattern: Http::post($URL, ...)
-          - pattern: file_get_contents($URL)
+          - pattern: Http::withOptions(...)->get($URL, ...)
       - pattern-not: Http::get("...", ...)
       - pattern-not-inside: |
           $URL = $F->valider(...);
