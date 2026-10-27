@@ -39,3 +39,12 @@ it('applique le délai maximal de réservation à l\'avance', function () {
 it('US-301-N3 refuse une date passée', function () {
     expect((new RegleEquite)->verifier($this->aujourdhui, $this->aujourdhui->modify('-1 day'), 0)->accepte)->toBeFalse();
 });
+
+it('compare des jours civils quel que soit le fuseau des deux dates', function () {
+    $regle = new App\Domain\Equite\RegleEquite;
+    $aujourdhuiParis = new DateTimeImmutable('2026-11-02 00:30', new DateTimeZone('Europe/Paris'));
+    $hierUtc = new DateTimeImmutable('2026-11-01', new DateTimeZone('UTC'));
+
+    expect($regle->verifier($aujourdhuiParis, $hierUtc, 0)->accepte)->toBeFalse()
+        ->and($regle->verifier($aujourdhuiParis, new DateTimeImmutable('2026-11-02', new DateTimeZone('UTC')), 0)->accepte)->toBeTrue();
+});

@@ -29,7 +29,12 @@ final readonly class RegleEquite
         DateTimeImmutable $premierCreneau,
         int $reservationsSur12Mois,
     ): Verdict {
-        $jours = (int) $aujourdhui->setTime(0, 0)->diff($premierCreneau->setTime(0, 0))->format('%r%a');
+        // Comparaison de jours civils : on ignore les fuseaux (Paris pour « aujourd'hui »,
+        // UTC pour une date lue en base), sinon minuit à Paris tombe la veille en UTC.
+        $utc = new \DateTimeZone('UTC');
+        $du = new DateTimeImmutable($aujourdhui->format('Y-m-d'), $utc);
+        $au = new DateTimeImmutable($premierCreneau->format('Y-m-d'), $utc);
+        $jours = (int) $du->diff($au)->format('%r%a');
 
         if ($jours < 0) {
             return Verdict::refus('Ce créneau est déjà passé.');
