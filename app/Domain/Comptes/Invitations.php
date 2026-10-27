@@ -20,18 +20,23 @@ final class Invitations
 
     public function envoyer(User $membre): string
     {
-        $jeton = Str::random(48);
+        $lien = $this->lien($membre);
+        $membre->notify(new InvitationCompte($lien));
+        Journal::ecrire('invitation.envoyee', $membre);
 
+        return $lien;
+    }
+
+    /** Nouveau lien à usage unique, valable 7 jours ; il remplace le précédent. */
+    public function lien(User $membre): string
+    {
+        $jeton = Str::random(48);
         $membre->forceFill([
             'invitation_empreinte' => hash('sha256', $jeton),
             'invitation_expire_le' => now()->addDays(self::VALIDITE_JOURS),
         ])->save();
 
-        $lien = URL::route('invitation.formulaire', ['user' => $membre->id, 'jeton' => $jeton]);
-        $membre->notify(new InvitationCompte($lien));
-        Journal::ecrire('invitation.envoyee', $membre);
-
-        return $lien;
+        return URL::route('invitation.formulaire', ['user' => $membre->id, 'jeton' => $jeton]);
     }
 
     public function valide(User $membre, string $jeton): bool
@@ -50,6 +55,7 @@ final class Invitations
             'email_verified_at' => $membre->email_verified_at ?? now(),
             'invitation_empreinte' => null,
             'invitation_expire_le' => null,
+            'a_reinitialiser' => false,
         ])->save();
 
         Journal::ecrire('invitation.activee', $membre);
