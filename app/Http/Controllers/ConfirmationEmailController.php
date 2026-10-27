@@ -16,7 +16,7 @@ final class ConfirmationEmailController
 {
     public function __invoke(Request $request, User $user, string $empreinte): RedirectResponse
     {
-        abort_unless($request->user()?->is($user), 403);
+        abort_unless($request->user()?->is($user) === true, 403);
 
         $nouvelle = $user->email_en_attente;
         abort_if($nouvelle === null || ! hash_equals(hash('sha256', $nouvelle), $empreinte), 410, 'Ce lien n\'est plus valable.');
