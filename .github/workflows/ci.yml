@@ -88,7 +88,10 @@ jobs:
         run: |
           pipx install semgrep
           semgrep scan --config p/owasp-top-ten --config p/php --config .semgrep/ \
-            --sarif --output semgrep.sarif --error --severity ERROR
+            --sarif --output semgrep.sarif --json-output=semgrep.json --error --severity ERROR || {
+            python3 -c "import json;[print(f\"::error file={r['path']},line={r['start']['line']},title=Semgrep::{r['check_id'].split('.')[-1]}\") for r in json.load(open('semgrep.json'))['results']]"
+            exit 1
+          }
       - if: always()
         uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
