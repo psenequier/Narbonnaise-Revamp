@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 /** US-602-P1 : un compte désactivé perd ses sessions ouvertes dès la requête suivante. */
 final class CompteActif
 {
+    /** @param Closure(Request): Response $next */
     public function handle(Request $request, Closure $next): Response
     {
         /** @var \App\Models\User|null $user */

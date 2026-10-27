@@ -84,6 +84,7 @@ final class UtilisateursController
         return $this->agir(fn () => $this->comptes->envoyerLienReinitialisation($user), 'Lien de réinitialisation envoyé au membre (valable 1 heure).');
     }
 
+    /** @param callable(): void $action */
     private function agir(callable $action, string $message): RedirectResponse
     {
         try {
