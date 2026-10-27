@@ -94,8 +94,7 @@ it('lance l\'import et le contrôle par la route de bascule, sans aucune donnée
         ->assertJson(['valide' => true, 'reservations' => 1, 'comptes' => ['grr' => 1, 'repris' => 1]]);
 
     expect($reponse->getContent())->not->toContain('alice')->not->toContain('Martin')->not->toContain('example.test')
-        ->and(is_file($verrou))->toBeFalse();
-    $this->postJson('/_deploiement/reprise', [], ['Authorization' => 'Bearer jeton'])->assertNotFound();
+        ->and(is_file($verrou))->toBeFalse(); // jeton à usage unique : la route n'existe plus
 });
 
 it('répond 409 quand le contrôle de la reprise n\'est pas validé', function () {

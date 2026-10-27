@@ -36,7 +36,7 @@ final class AnnoncerBascule extends Command
             return self::FAILURE;
         }
         try {
-            $n = $annonces->annoncer($date, (string) $this->option('duree'), new DateTimeImmutable('now', $paris));
+            $n = $annonces->annoncer($date, (string) $this->option('duree'), DateTimeImmutable::createFromInterface(now('Europe/Paris')));
         } catch (\InvalidArgumentException $e) {
             $this->error($e->getMessage());
 

@@ -44,7 +44,7 @@ final class RepriseController
         ]);
         $paris = new \DateTimeZone('Europe/Paris');
         try {
-            $n = $annonces->annoncer(new DateTimeImmutable((string) $valide['date'], $paris), (string) $valide['duree'], new DateTimeImmutable('now', $paris));
+            $n = $annonces->annoncer(new DateTimeImmutable((string) $valide['date'], $paris), (string) $valide['duree'], DateTimeImmutable::createFromInterface(now('Europe/Paris')));
         } catch (\InvalidArgumentException $e) {
             return back()->withErrors(['date' => $e->getMessage()]);
         }
