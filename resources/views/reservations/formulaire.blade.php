@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('titre', $modifiee ? 'Modifier ma réservation' : ($joindre ? 'Me joindre à une réservation' : 'Réserver'))
+@section('titre', $modifiee ? ($parAdmin ? 'Modifier la réservation de '.$modifiee->user?->prenom : 'Modifier ma réservation') : ($joindre ? 'Me joindre à une réservation' : 'Réserver'))
 @php($champ = 'h-11 rounded-lg border border-bord bg-white px-3 font-normal')
 @section('contenu')
 
@@ -91,6 +91,14 @@
             <textarea name="commentaire" maxlength="500" rows="2" class="rounded-lg border border-bord p-3 font-normal">{{ old('commentaire', $modifiee?->commentaire) }}</textarea>
         </label>
     </div>
+
+    @if ($parAdmin)
+        {{-- US-309 : action d'admin sur la réservation d'un autre membre, motif obligatoire. --}}
+        <label class="flex flex-col gap-1 rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm font-bold">
+            Motif de la modification (envoyé à {{ $modifiee->user?->prenom }})
+            <textarea name="motif" required minlength="3" maxlength="500" rows="2" class="rounded-lg border border-bord bg-white p-3 font-normal">{{ old('motif') }}</textarea>
+        </label>
+    @endif
 
     <button type="submit" class="h-12 self-start rounded-lg bg-sapin px-6 font-bold text-white">{{ $modifiee ? 'Enregistrer les modifications' : 'Valider la réservation' }}</button>
 </form>

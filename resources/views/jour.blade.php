@@ -1,6 +1,9 @@
 @extends('layouts.app')
 @section('titre', ucfirst(\Illuminate\Support\Carbon::instance($jour)->locale('fr')->translatedFormat('l j F Y')))
 @section('contenu')
+@if ($errors->any())
+    <div role="alert" class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
+@endif
 <a href="{{ route('calendrier.mois', $jour->format('Y-m')) }}" class="text-sm underline">‹ Retour au mois</a>
 
 @foreach ($situations as $type => $situation)
@@ -32,6 +35,24 @@
                     @if ($r->nombre_personnes)<span class="text-sm">{{ $r->nombre_personnes }} pers.</span>@endif
                     @if ($visible && $r->invites)<span class="w-full text-sm text-gris">Invités : {{ $r->invites }}</span>@endif
                     @if ($visible && $r->commentaire)<span class="w-full text-sm text-gris">{{ $r->commentaire }}</span>@endif
+                    @if ($r->user_id === $moi)
+                        <a href="{{ route('reservations.modifier', $r) }}" class="ml-auto flex min-h-11 items-center rounded-lg border border-bord px-4 font-bold">Modifier</a>
+                    @elseif ($admin)
+                        {{-- US-309 : l'admin agit sur la réservation d'un autre, avec un motif. --}}
+                        <details class="ml-auto">
+                            <summary class="flex min-h-11 cursor-pointer list-none items-center rounded-lg border border-amber-400 px-4 font-bold">Action admin</summary>
+                            <div class="mt-2 flex flex-col gap-2 rounded-lg border border-bord p-3">
+                                <a href="{{ route('reservations.modifier', $r) }}" class="underline">Modifier cette réservation</a>
+                                <form method="POST" action="{{ route('reservations.annuler', $r) }}" class="flex flex-col gap-2">
+                                    @csrf @method('DELETE')
+                                    <label class="flex flex-col gap-1 text-sm font-bold">Motif de l'annulation (envoyé au membre)
+                                        <textarea name="motif" required minlength="3" maxlength="500" rows="2" class="rounded-lg border border-bord p-2 font-normal"></textarea>
+                                    </label>
+                                    <button type="submit" class="h-11 rounded-lg bg-red-800 font-bold text-white">Annuler la réservation</button>
+                                </form>
+                            </div>
+                        </details>
+                    @endif
                     @if ($r->mode === 'ouverte' && ! $situation->contientMembre($moi) && $jour >= $aujourdhui)
                         <a href="{{ route('reservations.formulaire', ['joindre' => $r->id]) }}" class="ml-auto flex min-h-11 items-center rounded-lg bg-sapin px-4 font-bold text-white">Me joindre</a>
                     @endif

@@ -95,6 +95,7 @@ final class CalendrierController
                 TypeCreneau::Nuit->value => $situations[(new Creneau($jour, TypeCreneau::Nuit))->cle()],
             ],
             'moi' => (int) $request->user()?->id,
+            'admin' => \Illuminate\Support\Facades\Gate::allows('admin'),
         ]);
     }
 

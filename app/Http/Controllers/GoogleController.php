@@ -82,6 +82,7 @@ final class GoogleController
         $membre = $request->user();
         $membre->forceFill(['google_id' => null])->save();
         Journal::ecrire('google.delie', $membre);
+        $membre->notify(new \App\Notifications\CompteGoogleModifie(lie: false));
 
         return redirect()->route('profil')->with('status', 'Votre compte Google n\'est plus lié.');
     }
@@ -97,6 +98,7 @@ final class GoogleController
 
         $membre->forceFill(['google_id' => $googleId])->save();
         Journal::ecrire('google.lie', $membre);
+        $membre->notify(new \App\Notifications\CompteGoogleModifie(lie: true));
 
         return redirect()->route('profil')->with('status', 'Votre compte Google est lié.');
     }

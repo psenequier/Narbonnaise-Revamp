@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int|null $nombre_personnes
  * @property string|null $invites
  * @property int|null $grr_id
+ * @property int $ics_sequence
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Creneau> $creneaux
  * @property-read User|null $user
  * @property \Illuminate\Support\Carbon $created_at

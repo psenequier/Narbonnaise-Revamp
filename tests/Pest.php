@@ -12,6 +12,10 @@ pest()->extend(TestCase::class)->use(RefreshDatabase::class)->in('Feature', 'Bro
 
 pest()->group('browser')->in('Browser');
 
+// Réservations simultanées : de vrais processus parallèles qui doivent voir les mêmes données,
+// donc pas de transaction enveloppante : les tables sont vidées entre deux tests.
+pest()->extend(TestCase::class)->use(Illuminate\Foundation\Testing\DatabaseTruncation::class)->in('Concurrence');
+
 /** Simule le service Have I Been Pwned : seuls les mots de passe listés sont « divulgués ». */
 function simulerFuites(array $divulgues = []): void
 {

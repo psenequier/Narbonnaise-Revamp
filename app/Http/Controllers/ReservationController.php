@@ -8,6 +8,7 @@ use App\Domain\Calendrier\Creneau;
 use App\Domain\Calendrier\EtatCreneau;
 use App\Domain\Calendrier\Occupation;
 use App\Domain\Calendrier\TypeCreneau;
+use App\Domain\Reservations\AvisReservation;
 use App\Domain\Reservations\ReservationRefusee;
 use App\Domain\Reservations\ServiceReservation;
 use App\Models\Reservation;
@@ -30,6 +31,7 @@ final class ReservationController
     public function __construct(
         private readonly ServiceReservation $service,
         private readonly Occupation $occupation,
+        private readonly AvisReservation $avis,
     ) {}
 
     /** Étape 1 : dates. Étape 2 : créneaux, état de chacun, type et personnes (US-303). */
@@ -52,13 +54,14 @@ final class ReservationController
         $membre = $request->user();
 
         try {
-            $this->service->reserver(
+            $reservation = $this->service->reserver(
                 $membre, $donnees['creneaux'], $donnees['mode'], $donnees['commentaire'],
                 $this->maintenant(), $donnees['nombre_personnes'], $donnees['invites'],
             );
         } catch (ReservationRefusee $refus) {
             return back()->withInput()->withErrors(['reservation' => $refus->getMessage()]);
         }
+        $this->avis->apresCreation($reservation);
 
         return redirect()->route('reservations.mes')->with('status', 'Réservation enregistrée.');
     }
@@ -87,8 +90,8 @@ final class ReservationController
 
     public function modifier(Request $request, Reservation $reservation): View
     {
-        $this->autoriser($request, $reservation);
-        $reservation->load('creneaux');
+        $this->motifAdmin($request, $reservation, exiger: false);
+        $reservation->load('creneaux', 'user');
 
         $debut = $this->dateOuNull($request->query('debut')) ?? $this->premiereDate($reservation);
         $fin = $this->dateOuNull($request->query('fin')) ?? $this->derniereDate($reservation) ?? $debut;
@@ -98,38 +101,71 @@ final class ReservationController
 
     public function mettreAJour(Request $request, Reservation $reservation): RedirectResponse
     {
-        $this->autoriser($request, $reservation);
+        $motif = $this->motifAdmin($request, $reservation);
         $donnees = $this->valider($request);
+        $avant = array_values($reservation->creneaux()->pluck('creneaux.id')->map(fn ($id) => (int) $id)->all());
 
         try {
-            $this->service->modifier(
+            $reservation = $this->service->modifier(
                 $reservation, $donnees['creneaux'], $donnees['mode'], $donnees['commentaire'],
-                $this->maintenant(), $donnees['nombre_personnes'], $donnees['invites'],
+                $this->maintenant(), $donnees['nombre_personnes'], $donnees['invites'], $motif,
             );
         } catch (ReservationRefusee $refus) {
             return back()->withInput()->withErrors(['reservation' => $refus->getMessage()]);
         }
+        $this->avis->apresModification($reservation, $avant, $motif !== null ? $request->user() : null, $motif);
 
-        return redirect()->route('reservations.mes')->with('status', 'Réservation modifiée.');
+        return $this->retour($motif, $reservation, 'Réservation modifiée.');
     }
 
     public function annuler(Request $request, Reservation $reservation): RedirectResponse
     {
-        $this->autoriser($request, $reservation);
+        $motif = $this->motifAdmin($request, $reservation);
 
         try {
-            $this->service->annuler($reservation, $this->maintenant());
+            $this->service->annuler($reservation, $this->maintenant(), $motif);
         } catch (ReservationRefusee $refus) {
             return back()->withErrors(['reservation' => $refus->getMessage()]);
         }
+        $this->avis->apresAnnulation($reservation, $motif !== null ? $request->user() : null, $motif);
 
-        return redirect()->route('reservations.mes')->with('status', 'Réservation annulée.');
+        return $this->retour($motif, $reservation, 'Réservation annulée.');
     }
 
-    /** US-305-N1, US-306-N1 : seul le réservant agit sur sa réservation (l'admin : US-309, lot suivant). */
-    private function autoriser(Request $request, Reservation $reservation): void
+    /**
+     * Le réservant agit sur sa réservation (US-305-N1, US-306-N1 : 403 pour un autre membre).
+     * Un admin peut agir sur celle d'un autre, avec un motif obligatoire (US-309).
+     * Renvoie le motif quand c'est une action d'admin, null sinon.
+     */
+    private function motifAdmin(Request $request, Reservation $reservation, bool $exiger = true): ?string
     {
-        abort_unless($reservation->user_id === $request->user()?->id, 403);
+        /** @var User $acteur */
+        $acteur = $request->user();
+        if ($reservation->user_id === $acteur->id) {
+            return null;
+        }
+        abort_unless(\Illuminate\Support\Facades\Gate::allows('admin'), 403);
+        if (! $exiger) {
+            return '';
+        }
+
+        $valide = $request->validate(
+            ['motif' => ['required', 'string', 'min:3', 'max:500']],
+            ['motif.required' => 'Indiquez le motif : il est envoyé au membre.'],
+        );
+
+        return (string) $valide['motif'];
+    }
+
+    private function retour(?string $motif, Reservation $reservation, string $message): RedirectResponse
+    {
+        if ($motif === null) {
+            return redirect()->route('reservations.mes')->with('status', $message);
+        }
+        $premier = $reservation->creneaux()->first();
+
+        return redirect()->route('jour', $premier ? $premier->date->format('Y-m-d') : now()->format('Y-m-d'))
+            ->with('status', $message.' Le membre est prévenu par e-mail.');
     }
 
     /**
@@ -250,6 +286,7 @@ final class ReservationController
             'coches' => $coches,
             'joindre' => $joindre,
             'modifiee' => $modifiee,
+            'parAdmin' => $modifiee !== null && $modifiee->user_id !== $request->user()?->id,
             'raisonPasExclusif' => $raisonPasExclusif,
             'conflits' => collect($coches)->map(fn ($c) => $situations[$c] ?? null)->filter()
                 ->filter(fn ($s) => $s->etat !== EtatCreneau::Libre && ! in_array($s->cle(), $mesCreneaux, true))->values(),
