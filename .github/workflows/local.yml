@@ -26,6 +26,11 @@ jobs:
           [ "$n" -ge 10 ]
           ! docker compose exec -T mysql mysql -uroot -N chamrousse -e 'select email from users' | grep -v '@example.test'
       - if: failure()
-        run: docker compose logs --tail=200
+        name: Journaux en annotation (lisibles sans télécharger les journaux)
+        run: |
+          docker compose ps -a
+          docker compose logs --no-color --tail=200
+          echo "::error title=site::$(docker compose logs --no-color --tail=40 site 2>&1 | cut -c1-200 | sed 's/%/%25/g' | tr '\n' '|' | sed 's/|/%0A/g')"
+          echo "::error title=mysql::$(docker compose logs --no-color --tail=15 mysql 2>&1 | cut -c1-200 | sed 's/%/%25/g' | tr '\n' '|' | sed 's/|/%0A/g')"
       - if: always()
         run: docker compose down -v
