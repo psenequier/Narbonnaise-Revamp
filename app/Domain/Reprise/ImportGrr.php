@@ -60,6 +60,7 @@ final class ImportGrr
     {
         $grr = $this->grr->comptes();
         $this->totaux['comptes_grr'] = $grr->count();
+        $abonnes = $this->grr->abonnesEmails();
 
         // US-801-N2 : une adresse partagée par plusieurs comptes n'est jamais fusionnée.
         /** @var array<string, list<string>> $parEmail */
@@ -92,17 +93,21 @@ final class ImportGrr
             $nouveau = ! $membre->exists;
             $membre->forceFill([
                 'grr_login' => $login,
-                'prenom' => trim((string) $u->prenom) ?: $login,
-                'nom' => trim((string) $u->nom) ?: $login,
+                'prenom' => BaseGrr::nomPropre((string) $u->prenom) ?: $login,
+                'nom' => BaseGrr::nomPropre((string) $u->nom) ?: $login,
                 'email' => $email,
-                'role' => BaseGrr::role((string) $u->statut),
-                'actif' => $u->etat !== 'inactif',
+                'role' => BaseGrr::role($login, (string) $u->statut),
+                'actif' => BaseGrr::actif($login, (string) $u->etat),
             ]);
             if ($nouveau) {
                 // US-801-P2, N1, N3 : bcrypt repris tel quel ; MD5 jamais conservé.
                 $hash = (string) $u->password;
                 $bcrypt = preg_match('/^\$2[aby]\$\d{2}\$/', $hash) === 1;
-                $membre->forceFill(['email_verified_at' => now(), 'a_reinitialiser' => ! $bcrypt]);
+                $membre->forceFill([
+                    'email_verified_at' => now(), 'a_reinitialiser' => ! $bcrypt,
+                    // Préférence reprise de GRR ; le membre la change ensuite depuis son profil.
+                    'recoit_emails_autres' => $abonnes === [] || isset($abonnes[$login]),
+                ]);
                 // Le hachage est écrit brut : le cast « hashed » refuserait un bcrypt sous argon2id.
                 $membre->setRawAttributes(array_merge($membre->getAttributes(), ['password' => $bcrypt ? $hash : null]));
                 if (! $bcrypt) {

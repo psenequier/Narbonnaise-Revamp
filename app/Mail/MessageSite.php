@@ -31,6 +31,9 @@ final class MessageSite extends Mailable
         'admin.rappel_attributions' => 'Vacances à attribuer',
         'vacances.ouverture' => 'Une nouvelle année est ouverte à la réservation',
         'vacances.attributions' => 'Attribution des vacances aux lignées',
+        'bascule.annonce' => 'Le site de réservation de l\'appartement change',
+        'bascule.nouveau_site' => 'Le nouveau site de réservation est en service',
+        'bascule.reinitialiser' => 'Choisissez votre mot de passe pour le nouveau site',
     ];
 
     /** @param array<string, mixed> $donnees */

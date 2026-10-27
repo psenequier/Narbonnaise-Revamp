@@ -14,19 +14,37 @@
 #        migration ni test de fumée (rien n'est servi).
 #   oui  production, après la bascule : séquence complète.
 #
+# REPRISE=oui (nuit de répétition ou de bascule) : après les migrations, import de GRR
+# et rapport de contrôle par /_deploiement/reprise ; un rapport non validé (409)
+# déclenche le retour arrière. Voir deploiement/BASCULE.md.
+#
 # Prérequis du runner : lftp, curl, openssl.
 set -euo pipefail
 
 : "${SFTP_HOTE:?}" "${SFTP_UTILISATEUR:?}" "${SFTP_CLE:?}" "${SFTP_EMPREINTE_HOTE:?}"
 : "${SITE_URL:?}" "${DOSSIER_DISTANT:?}"
 SITE_SERVI="${SITE_SERVI:-non}"
+REPRISE="${REPRISE:-non}"
 
 SHA="${GITHUB_SHA:-$(git rev-parse HEAD)}"
 SHA="${SHA:0:12}"
 TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
 
 journal() { printf '[%s] %s\n' "$(date -u +%H:%M:%S)" "$*"; }
+
+# US-804-P3 : durée de chaque étape, reportée à la fin (et dans le résumé GitHub).
+DEBUT_ETAPE=$SECONDS; ETAPE="démarrage"; DUREES=""
+etape() {
+  DUREES="${DUREES}${ETAPE} : $((SECONDS - DEBUT_ETAPE)) s"$'\n'
+  ETAPE="$1"; DEBUT_ETAPE=$SECONDS
+  journal "$1"
+}
+bilan() {
+  etape "fin"
+  printf '\nDurées :\n%s' "$DUREES"
+  [ -n "${GITHUB_STEP_SUMMARY:-}" ] && printf '### Durées du déploiement\n```\n%s```\n' "$DUREES" >> "$GITHUB_STEP_SUMMARY" || true
+}
+trap 'bilan; rm -rf "$TMP"' EXIT
 
 # Clé SFTP et hôte connu : pas de confiance aveugle à la première connexion.
 install -m 600 /dev/null "$TMP/cle"
@@ -42,17 +60,20 @@ sftp_cmd() {
 JETON="$(openssl rand -hex 32)"
 mkdir -p "$TMP/verrou"
 printf '%s' "$JETON" | sha256sum | cut -d' ' -f1 > "$TMP/verrou/migration.verrou"
+JETON_REPRISE="$(openssl rand -hex 32)"
+printf '%s' "$JETON_REPRISE" | sha256sum | cut -d' ' -f1 > "$TMP/verrou/reprise.verrou"
 
 # 2. Sauvegarde de la base avant toute chose (spatie/laravel-backup via la cron ou l'admin).
-journal "Vérification de la sauvegarde du jour"
+etape "Vérification de la sauvegarde du jour"
 curl -fsS "$SITE_URL/sante" > /dev/null || journal "Avertissement : /sante ne répond pas avant déploiement"
 
 # 3. Envoi de la version dans releases/<sha>/, sans .env ni storage/.
-journal "Envoi de la version $SHA"
+etape "Envoi de la version $SHA"
 sftp_cmd "mkdir -p $DOSSIER_DISTANT/releases/$SHA; \
   mirror -R --parallel=4 --exclude-glob .git/ --exclude-glob node_modules/ --exclude-glob tests/ \
          --exclude-glob storage/ --exclude-glob .env ./ $DOSSIER_DISTANT/releases/$SHA/; \
-  put $TMP/verrou/migration.verrou -o $DOSSIER_DISTANT/partage/storage/app/deploiement/migration.verrou"
+  put $TMP/verrou/migration.verrou -o $DOSSIER_DISTANT/partage/storage/app/deploiement/migration.verrou; \
+  $( [ "$REPRISE" = "oui" ] && echo "put $TMP/verrou/reprise.verrou -o $DOSSIER_DISTANT/partage/storage/app/deploiement/reprise.verrou" )"
 
 if [ "$SITE_SERVI" != "oui" ]; then
   journal "Mode préparation : renommages seulement, le site sert encore GRR"
@@ -65,7 +86,7 @@ if [ "$SITE_SERVI" != "oui" ]; then
 fi
 
 # 4. Bascule : maintenance, puis renommages (atomiques côté serveur).
-journal "Bascule"
+etape "Bascule"
 sftp_cmd "put /dev/null -o $DOSSIER_DISTANT/partage/storage/framework/down; \
   rm -rf $DOSSIER_DISTANT/precedente; \
   mv $DOSSIER_DISTANT/actuelle $DOSSIER_DISTANT/precedente; \
@@ -80,12 +101,22 @@ retour_arriere() {
 }
 
 # 5. Migrations par la route protégée (le verrou se supprime après usage).
-journal "Migrations"
+etape "Migrations"
 curl -fsS -X POST -H "Authorization: Bearer $JETON" "$SITE_URL/_deploiement/migrer" || retour_arriere
+
+# 5 bis. Reprise de GRR et contrôle (nuit de répétition ou de bascule). La réponse ne
+# contient que des totaux (dépôt public) ; 409 = rapport non validé = retour arrière.
+if [ "$REPRISE" = "oui" ]; then
+  etape "Reprise de GRR et contrôle"
+  curl -sS -X POST -H "Authorization: Bearer $JETON_REPRISE" -o "$TMP/reprise.json" -w '%{http_code}' \
+    "$SITE_URL/_deploiement/reprise" > "$TMP/reprise.code" || true
+  cat "$TMP/reprise.json"; echo
+  [ "$(cat "$TMP/reprise.code")" = "200" ] || { journal "Rapport de reprise NON validé"; retour_arriere; }
+fi
 
 # 6. Fin de maintenance et test de fumée.
 sftp_cmd "rm -f $DOSSIER_DISTANT/partage/storage/framework/down"
-journal "Test de fumée"
+etape "Test de fumée"
 for tentative in 1 2 3; do
   if curl -fsS "$SITE_URL/sante" > /dev/null \
      && curl -fsSI "$SITE_URL/login" | grep -qi '^content-security-policy:' \

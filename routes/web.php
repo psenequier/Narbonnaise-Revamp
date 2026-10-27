@@ -10,6 +10,7 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\MigrationDeploiementController;
 use App\Http\Controllers\ProfilController;
+use App\Http\Controllers\RepriseDeploiementController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\SanteController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -18,6 +19,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/sante', SanteController::class)->name('sante');
 
 Route::post('/_deploiement/migrer', MigrationDeploiementController::class)
+    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->middleware('throttle:3,60');
+Route::post('/_deploiement/reprise', RepriseDeploiementController::class)
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->middleware('throttle:3,60');
 

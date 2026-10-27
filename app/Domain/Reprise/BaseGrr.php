@@ -40,10 +40,47 @@ final class BaseGrr
         return DB::table($this->table('utilisateurs'))->orderBy('login')->get();
     }
 
-    /** Statut GRR → rôle : administrateur et gestionnaire d'utilisateurs deviennent admins. */
-    public static function role(string $statut): string
+    /**
+     * Statut GRR → rôle : administrateur et gestionnaire d'utilisateurs deviennent admins,
+     * ainsi que les logins de GRR_ADMINS.
+     */
+    public static function role(string $login, string $statut): string
     {
-        return in_array($statut, ['administrateur', 'gestionnaire_utilisateur'], true) ? 'admin' : 'membre';
+        return in_array($statut, ['administrateur', 'gestionnaire_utilisateur'], true) || in_array($login, self::liste('grr_admins'), true)
+            ? 'admin' : 'membre';
+    }
+
+    /** Actif dans GRR et absent de GRR_DESACTIVES. */
+    public static function actif(string $login, string $etat): bool
+    {
+        return $etat !== 'inactif' && ! in_array($login, self::liste('grr_desactives'), true);
+    }
+
+    /** « BROTTET » → « Brottet », « SENEQUIER-CROZET » → « Senequier-Crozet » ; une casse mixte est gardée. */
+    public static function nomPropre(string $nom): string
+    {
+        $nom = trim($nom);
+        if ($nom === '' || mb_strtoupper($nom) !== $nom || mb_strtolower($nom) === $nom) {
+            return $nom;
+        }
+
+        return (string) preg_replace_callback('/(^|[\s\-\'’])(\p{L})/u', fn ($m) => $m[1].mb_strtoupper($m[2]), mb_strtolower($nom));
+    }
+
+    /** Logins qui reçoivent les e-mails de GRR (préférence « réservations des autres »). */
+    public function abonnesEmails(): array
+    {
+        try {
+            return DB::table($this->table('j_mailuser_room'))->distinct()->pluck('login')->map(fn ($l) => (string) $l)->flip()->all();
+        } catch (\Illuminate\Database\QueryException) {
+            return [];
+        }
+    }
+
+    /** @return list<string> */
+    private static function liste(string $cle): array
+    {
+        return array_values(array_filter(array_map('trim', explode(',', (string) config('chamrousse.'.$cle, '')))));
     }
 
     /**

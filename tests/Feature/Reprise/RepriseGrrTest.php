@@ -309,3 +309,30 @@ it('lit les tables GRR avec le préfixe configuré (NAR_ pour l\'appartement)', 
     expect(User::where('grr_login', 'alice')->exists())->toBeTrue()
         ->and(Reservation::whereNotNull('grr_id')->count())->toBe(1);
 });
+
+it('applique les décisions de la famille : admins ajoutés, compte partagé désactivé, noms en majuscules, préférence d\'e-mails', function () {
+    config(['chamrousse.grr_admins' => 'PASCALOU', 'chamrousse.grr_desactives' => 'ADMINISTRATEUR']);
+    grrCompte('ADMINISTRATEUR', 'postmaster@example.test', password_hash(ANCIEN_MDP, PASSWORD_BCRYPT), 'administrateur', prenom: 'Administrateur', nom: 'Administrateur');
+    grrCompte('PASCALOU', 'pascalou@example.test', password_hash(ANCIEN_MDP, PASSWORD_BCRYPT), prenom: 'Pascalou', nom: 'DURAND-LEBLANC');
+    grrCompte('zoe', 'zoe@example.test', password_hash(ANCIEN_MDP, PASSWORD_BCRYPT), prenom: 'Zoé', nom: 'Martin');
+    DB::table('grr_j_mailuser_room')->insert([['login' => 'PASCALOU', 'id_room' => 2]]);
+
+    app(ImportGrr::class)->importer();
+
+    $partage = User::where('grr_login', 'ADMINISTRATEUR')->sole();
+    $pascalou = User::where('grr_login', 'PASCALOU')->sole();
+    $zoe = User::where('grr_login', 'zoe')->sole();
+    expect($partage->actif)->toBeFalse()->and($partage->role)->toBe('admin')
+        ->and($pascalou->role)->toBe('admin')->and($pascalou->nom)->toBe('Durand-Leblanc')->and($pascalou->recoit_emails_autres)->toBeTrue()
+        ->and($zoe->role)->toBe('membre')->and($zoe->nom)->toBe('Martin')->and($zoe->recoit_emails_autres)->toBeFalse();
+
+    $this->post('/login', ['email' => 'postmaster@example.test', 'password' => ANCIEN_MDP])->assertSessionHasErrors('email');
+    $this->assertGuest();
+});
+
+it('met les noms écrits tout en majuscules en forme propre, et garde les autres', function (string $grr, string $site) {
+    expect(App\Domain\Reprise\BaseGrr::nomPropre($grr))->toBe($site);
+})->with([
+    ['BROTTET', 'Brottet'], ['SENEQUIER-CROZET', 'Senequier-Crozet'], ['Marie-Astrid', 'Marie-Astrid'],
+    ['MOTTIN', 'Mottin'], ['Nicolet', 'Nicolet'], ['D\'ARTOIS', 'D\'Artois'], ['  ', ''],
+]);

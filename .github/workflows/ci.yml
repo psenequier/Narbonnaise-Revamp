@@ -249,7 +249,8 @@ jobs:
 
   deploiement:
     # Activé quand le premier déploiement est préparé (T09) : variable DEPLOIEMENT_ACTIF=oui.
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.DEPLOIEMENT_ACTIF == 'oui'
+    # Lancement manuel (workflow_dispatch) pour les nuits de répétition et de bascule : voir deploiement/BASCULE.md.
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && vars.DEPLOIEMENT_ACTIF == 'oui'
     needs: [interface]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -276,3 +277,4 @@ jobs:
           SITE_URL: ${{ vars.SITE_URL }}
           DOSSIER_DISTANT: ${{ vars.DOSSIER_DISTANT }}
           SITE_SERVI: ${{ vars.SITE_SERVI }} # « non » jusqu'à la bascule, puis « oui »
+          REPRISE: ${{ vars.REPRISE }} # « oui » seulement les nuits de répétition et de bascule

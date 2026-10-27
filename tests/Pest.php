@@ -232,5 +232,6 @@ function sommeGrr(): string
         \Illuminate\Support\Facades\DB::table('grr_type_area')->orderBy('id')->get(),
         \Illuminate\Support\Facades\DB::table('grr_area')->orderBy('id')->get(),
         \Illuminate\Support\Facades\DB::table('grr_room')->orderBy('id')->get(),
+        \Illuminate\Support\Facades\DB::table('grr_j_mailuser_room')->orderBy('login')->get(),
     ]));
 }
