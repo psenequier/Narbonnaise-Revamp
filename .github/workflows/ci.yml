@@ -7,7 +7,7 @@ on:
   pull_request:
   push:
     # main, et les branches de travail (retour de CI sans attendre la pull request)
-    branches: [main, "socle/**", "lot/**", "correctif/**"]
+    branches: [main, "socle/**", "lot/**", "correctif/**", temoin]
   workflow_dispatch: # utilisé par le job « temoin » du workflow hebdo
 
 permissions:
