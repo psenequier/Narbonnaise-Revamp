@@ -26,6 +26,13 @@ class AppServiceProvider extends ServiceProvider
         // US-108-N1 : l'espace admin exige aussi la double authentification confirmée.
         Gate::define('admin', fn (User $user) => $user->actif && $user->estAdmin() && $user->two_factor_confirmed_at !== null);
 
+        // US-604-P1 : chaque connexion (mot de passe, Google, double authentification) est tracée.
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Login::class, function (\Illuminate\Auth\Events\Login $e) {
+            if ($e->user instanceof User) {
+                \App\Models\Journal::ecrire('connexion', $e->user, ['rester_connecte' => $e->remember], auteur: $e->user->id);
+            }
+        });
+
         // 12 caractères, complexité, et refus des mots de passe divulgués (HIBP, k-anonymat).
         Password::defaults(fn () => Password::min(12)->mixedCase()->numbers()->symbols()->uncompromised());
     }

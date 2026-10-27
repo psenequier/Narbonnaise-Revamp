@@ -50,6 +50,16 @@ class User extends Authenticatable
         ];
     }
 
+    /** Invité (invitation non activée), Actif ou Désactivé. */
+    public function statut(): string
+    {
+        return match (true) {
+            ! $this->actif => 'Désactivé',
+            $this->password === null => 'Invité',
+            default => 'Actif',
+        };
+    }
+
     public function estAdmin(): bool
     {
         return $this->role === 'admin';

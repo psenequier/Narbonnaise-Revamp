@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\JournalController;
+use App\Http\Controllers\Admin\UtilisateursController;
 use App\Http\Controllers\Admin\VacancesController;
 use App\Http\Controllers\CalendrierController;
 use App\Http\Controllers\ConfirmationEmailController;
@@ -57,6 +59,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/plages/{plage}', [VacancesController::class, 'retirer'])->name('plages.retirer');
         Route::put('/periodes/{periode}', [VacancesController::class, 'corriger'])->name('periodes.corriger');
         Route::post('/conflits/{reservation}', [VacancesController::class, 'arbitrer'])->name('conflits.arbitrer');
+
+        Route::get('/utilisateurs', [UtilisateursController::class, 'index'])->name('utilisateurs');
+        Route::post('/utilisateurs', [UtilisateursController::class, 'creer'])->name('utilisateurs.creer');
+        Route::get('/utilisateurs/{user}', [UtilisateursController::class, 'fiche'])->name('utilisateurs.fiche');
+        Route::post('/utilisateurs/{user}/invitation', [UtilisateursController::class, 'renvoyerInvitation'])->name('utilisateurs.invitation');
+        Route::post('/utilisateurs/{user}/desactiver', [UtilisateursController::class, 'desactiver'])->name('utilisateurs.desactiver');
+        Route::post('/utilisateurs/{user}/reactiver', [UtilisateursController::class, 'reactiver'])->name('utilisateurs.reactiver');
+        Route::put('/utilisateurs/{user}/role', [UtilisateursController::class, 'role'])->name('utilisateurs.role');
+        Route::post('/utilisateurs/{user}/reinitialisation', [UtilisateursController::class, 'reinitialisation'])->name('utilisateurs.reinitialisation');
+
+        // Journal : lecture seule (US-604-N1).
+        Route::get('/journal', JournalController::class)->name('journal');
         // Vacances et attributions, utilisateurs, paramètres, journal : lot MVP 2.
     });
 });

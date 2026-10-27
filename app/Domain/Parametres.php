@@ -61,6 +61,18 @@ final class Parametres
         );
     }
 
+    /** Changement d'un paramètre par un admin, tracé avec les valeurs avant et après (US-604-P1). */
+    public function modifier(string $cle, string $valeur, \App\Models\User $admin): void
+    {
+        $avant = $this->lire($cle);
+        DB::table('parametres')->updateOrInsert(
+            ['cle' => $cle],
+            ['valeur' => $valeur, 'modifie_par' => $admin->id, 'updated_at' => now(), 'created_at' => now()],
+        );
+        $this->oublier();
+        \App\Models\Journal::ecrire('parametre.modifie', null, ['cle' => $cle, 'avant' => $avant, 'apres' => $valeur]);
+    }
+
     public function oublier(): void
     {
         Cache::forget('parametres');

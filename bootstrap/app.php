@@ -16,6 +16,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->append(EnTetesSecurite::class);
         // OVH mutualisé : le site est derrière les frontaux OVH
         $middleware->trustProxies(at: '*');
+        // US-602-P1 : un compte désactivé est déconnecté à la requête suivante.
+        $middleware->appendToGroup('web', \App\Http\Middleware\CompteActif::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // A10 (OWASP 2025) : aucune trace technique n'est montrée aux membres.
