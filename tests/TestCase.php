@@ -12,5 +12,8 @@ abstract class TestCase extends BaseTestCase
 
         // Aucune requête réseau réelle en test : toute source externe est simulée.
         \Illuminate\Support\Facades\Http::preventStrayRequests();
+
+        // Les styles ne sont compilés que dans le job « interface ».
+        $this->withoutVite();
     }
 }

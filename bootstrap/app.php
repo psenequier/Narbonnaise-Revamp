@@ -12,7 +12,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: null, // remplacée par /sante, qui vérifie aussi la tâche planifiée
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [EnTetesSecurite::class]);
+        // Global : les en-têtes s'appliquent aussi aux pages d'erreur et aux 404 (ZAP 10038, 10063).
+        $middleware->append(EnTetesSecurite::class);
         // OVH mutualisé : le site est derrière les frontaux OVH
         $middleware->trustProxies(at: '*');
     })

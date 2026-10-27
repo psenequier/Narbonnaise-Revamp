@@ -5,6 +5,9 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// expose_php peut être actif chez l'hébergeur : on retire l'en-tête (ZAP 10037).
+header_remove('X-Powered-By');
+
 // Maintenance pendant un déploiement (deploiement/deployer.sh) : seule la
 // route de migration reste accessible, elle est protégée par son jeton.
 $down = __DIR__.'/../../partage/storage/framework/down';

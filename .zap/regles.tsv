@@ -1,3 +1,7 @@
 # Exceptions ZAP : identifiant de règle, action (IGNORE, WARN, FAIL), justification.
 # Chaque ligne ajoutée est relue en pull request. Par défaut tout est FAIL au-delà de « faible ».
 10096	IGNORE	Horodatage dans les réponses : dates du calendrier, attendues.
+10010	IGNORE	Cookie XSRF-TOKEN lisible par JavaScript par conception (protection CSRF de Laravel) ; le cookie de session, lui, est HttpOnly.
+10044	IGNORE	Redirection vers /login d'un visiteur non connecté : le corps ne contient que l'URL de destination.
+10049	IGNORE	Informatif : pages privées volontairement non mises en cache.
+10112	IGNORE	Informatif : détection de la gestion de session.
