@@ -49,6 +49,11 @@ jobs:
           path: ~/.composer/cache
           key: composer-${{ hashFiles('composer.lock') }}
       - run: composer install --no-interaction --prefer-dist --no-progress
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      # Le plugin Pest Browser exige le paquet playwright même quand ses tests sont exclus.
+      - run: npm ci --no-audit --no-fund
       - run: cp .env.example .env && php artisan key:generate
       - name: Tests et couverture (90 % sur app/Domain)
         shell: bash
