@@ -163,7 +163,7 @@ jobs:
             exit 1
           }
       - name: Scan ZAP passif, connecté avec un compte de test
-        uses: zaproxy/action-baseline@v0.14.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: http://127.0.0.1:8000
           rules_file_name: .zap/regles.tsv
