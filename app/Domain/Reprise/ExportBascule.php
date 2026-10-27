@@ -285,7 +285,12 @@ final class ExportBascule
     {
         $prefixe = $this->grr->table('');
         $tables = [];
-        foreach (DB::select('SHOW TABLES LIKE ?', [addcslashes($prefixe, '\\%_').'%']) as $ligne) {
+        // SHOW TABLES LIKE ? ne se prépare pas : information_schema accepte un paramètre lié.
+        $lignes = DB::select(
+            "SELECT table_name AS nom FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE' AND table_name LIKE ?",
+            [addcslashes($prefixe, '\\%_').'%'],
+        );
+        foreach ($lignes as $ligne) {
             $tables[] = (string) array_values((array) $ligne)[0];
         }
         foreach (self::TABLES_GRR as $nom) {
