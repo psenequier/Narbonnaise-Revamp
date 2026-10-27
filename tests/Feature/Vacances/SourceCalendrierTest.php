@@ -61,6 +61,7 @@ it('US-401-N1 ne modifie rien et alerte les admins quand la source répond mal',
     Mail::fake();
     $avant = PeriodeVacances::orderBy('id')->get(['premiere_nuit', 'dernier_jour'])->toArray();
     $creneaux = DB::table('creneaux')->whereNotNull('periode_id')->count();
+    reinitialiserHttp();
     Http::fake(['*' => $reponse]);
 
     $this->artisan('vacances:verifier')->assertFailed();

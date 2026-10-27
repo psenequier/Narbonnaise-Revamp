@@ -130,6 +130,7 @@ function simulerCalendrier(
     ?array $hiver = ['2027-02-12T23:00:00+00:00', '2027-02-28T23:00:00+00:00'],
 ): void {
     app()->instance(\App\Domain\Sources\UrlSourceSure::class, new \App\Domain\Sources\UrlSourceSure(fn () => ['185.75.143.24']));
+    reinitialiserHttp();
 
     $resultats = [
         enregistrementScolaire('Vacances de la Toussaint', 'Zone A', '2026-10-16T22:00:00+00:00', '2026-11-01T23:00:00+00:00'),
@@ -150,6 +151,13 @@ function simulerCalendrier(
 
         return \Illuminate\Support\Facades\Http::response(['total_count' => $publiee ? count($resultats) : 0, 'results' => $publiee ? $resultats : []]);
     });
+}
+
+/** Les faux de Http::fake s'empilent (le premier qui répond gagne) : on repart d'un client neuf. */
+function reinitialiserHttp(): void
+{
+    \Illuminate\Support\Facades\Http::swap(new \Illuminate\Http\Client\Factory(app('events')));
+    \Illuminate\Support\Facades\Http::preventStrayRequests();
 }
 
 /** Ouvre 2026-2027 comme en production : source simulée, puis synchronisation. */
