@@ -1,0 +1,57 @@
+# Outil de mise au point : sur une branche diagnostic/*, résout les dépendances,
+# lance tous les contrôles sans s'arrêter au premier échec, et recommite sur la
+# même branche les fichiers lock et les rapports texte (dossier rapports/).
+# Utile tant que les journaux de la CI ne sont lisibles qu'avec un compte GitHub.
+name: diagnostic
+
+on:
+  push:
+    branches: ["diagnostic/**"]
+
+permissions:
+  contents: write
+
+jobs:
+  diagnostic:
+    if: "!contains(github.event.head_commit.message, '[rapports]')"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      mysql:
+        image: mysql:8.4
+        env: { MYSQL_DATABASE: test, MYSQL_ROOT_PASSWORD: test }
+        ports: ["3306:3306"]
+        options: --health-cmd="mysqladmin ping -ptest" --health-interval=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          coverage: pcov
+          extensions: pdo_mysql, sockets
+      - uses: actions/setup-node@v5
+        with: { node-version: 22 }
+      - name: Tous les contrôles, sans arrêt au premier échec
+        shell: bash
+        run: |
+          set +e
+          mkdir -p rapports
+          composer update --no-interaction --no-progress > rapports/composer.txt 2>&1; echo "code $?" >> rapports/composer.txt
+          npm install --no-audit --no-fund > rapports/npm.txt 2>&1; echo "code $?" >> rapports/npm.txt
+          npm run build > rapports/build.txt 2>&1; echo "code $?" >> rapports/build.txt
+          vendor/bin/pest --exclude-group=browser --colors=never > rapports/pest.txt 2>&1; echo "code $?" >> rapports/pest.txt
+          vendor/bin/phpstan analyse --no-progress --error-format=raw --memory-limit=1G > rapports/phpstan.txt 2>&1; echo "code $?" >> rapports/phpstan.txt
+          vendor/bin/psalm --taint-analysis --no-progress --output-format=text > rapports/psalm.txt 2>&1; echo "code $?" >> rapports/psalm.txt
+          pipx install semgrep > /dev/null 2>&1
+          semgrep scan --config p/owasp-top-ten --config p/php --config .semgrep/ --severity ERROR --metrics=off > rapports/semgrep.txt 2>&1; echo "code $?" >> rapports/semgrep.txt
+          composer audit > rapports/audit.txt 2>&1; echo "code $?" >> rapports/audit.txt
+          php scripts/verifier-criteres.php --lot=MVP > rapports/criteres.txt 2>&1; echo "code $?" >> rapports/criteres.txt
+          exit 0
+      - name: Recommiter lock et rapports sur la branche
+        shell: bash
+        run: |
+          git config user.name "diagnostic-ci"
+          git config user.email "diagnostic-ci@users.noreply.github.com"
+          git add -f composer.lock package-lock.json rapports/
+          git commit -m "Rapports de diagnostic [rapports]" || exit 0
+          git push origin HEAD:${GITHUB_REF_NAME}
