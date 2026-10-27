@@ -126,7 +126,13 @@ jobs:
       - name: Gitleaks (ligne de commande, licence libre)
         run: |
           curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_linux_x64.tar.gz | tar xz gitleaks
-          ./gitleaks git --redact --exit-code 1 --config .gitleaks.toml
+          # Historique de la branche testée seulement (par défaut Gitleaks lit toutes les
+          # branches, dont « temoin » et sa fausse clé volontaire).
+          ./gitleaks git --redact --exit-code 1 --config .gitleaks.toml --log-opts="HEAD" \
+            --report-format json --report-path gitleaks.json || {
+            echo "::error title=Gitleaks::$(python3 -c "import json;print('%0A'.join(f\"{f['RuleID']} {f['File']}:{f['StartLine']} ({f['Commit'][:7]})\" for f in json.load(open('gitleaks.json'))))")"
+            exit 1
+          }
 
   interface:
     needs: [tests, sast, dependances]
