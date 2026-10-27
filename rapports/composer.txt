@@ -1,9 +1,11 @@
 Loading composer repositories with package information
 Updating dependencies
-Nothing to modify in lock file
+Lock file operations: 2 installs, 0 updates, 0 removals
+  - Locking hamcrest/hamcrest-php (v3.0.0)
+  - Locking mockery/mockery (1.6.15)
 Writing lock file
 Installing dependencies from lock file (including require-dev)
-Package operations: 184 installs, 0 updates, 0 removals
+Package operations: 186 installs, 0 updates, 0 removals
   - Downloading pestphp/pest-plugin (v5.0.0)
   - Downloading revolt/event-loop (v1.0.9)
   - Downloading symfony/polyfill-ctype (v1.37.0)
@@ -158,6 +160,8 @@ Package operations: 184 installs, 0 updates, 0 removals
   - Downloading firebase/php-jwt (v7.2.1)
   - Downloading laravel/socialite (v5.31.0)
   - Downloading livewire/livewire (v4.4.8)
+  - Downloading hamcrest/hamcrest-php (v3.0.0)
+  - Downloading mockery/mockery (1.6.15)
   - Downloading filp/whoops (2.18.7)
   - Downloading nunomaduro/collision (v8.9.5)
   - Downloading symfony/polyfill-php83 (v1.43.0)
@@ -342,6 +346,8 @@ Package operations: 184 installs, 0 updates, 0 removals
   - Installing firebase/php-jwt (v7.2.1): Extracting archive
   - Installing laravel/socialite (v5.31.0): Extracting archive
   - Installing livewire/livewire (v4.4.8): Extracting archive
+  - Installing hamcrest/hamcrest-php (v3.0.0): Extracting archive
+  - Installing mockery/mockery (1.6.15): Extracting archive
   - Installing filp/whoops (2.18.7): Extracting archive
   - Installing nunomaduro/collision (v8.9.5): Extracting archive
   - Installing symfony/polyfill-php83 (v1.43.0): Extracting archive

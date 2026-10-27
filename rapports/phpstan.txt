@@ -1,10 +1,2 @@
 Note: Using configuration file /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/phpstan.neon.
-/home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/app/Domain/Reservations/ServiceReservation.php:64:Cannot access property $date on App\Models\Creneau|null.
-/home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/app/Domain/Reservations/ServiceReservation.php:65:Cannot access property $date on App\Models\Creneau|null.
-/home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/app/Domain/Reservations/ServiceReservation.php:79:Cannot access property $date on App\Models\Creneau|null.
-/home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/app/Http/Controllers/SanteController.php:32:Method App\Http\Controllers\SanteController::essayer() has parameter $f with no signature specified for callable.
-/home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/app/Http/Middleware/EnTetesSecurite.php:14:Method App\Http\Middleware\EnTetesSecurite::handle() has parameter $next with no signature specified for Closure.
-/home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/app/Models/Reservation.php:22:Class App\Models\Reservation uses generic trait Illuminate\Database\Eloquent\Factories\HasFactory but does not specify its types: TFactory
-/home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/app/Models/User.php:23:Class App\Models\User uses generic trait Illuminate\Database\Eloquent\Factories\HasFactory but does not specify its types: TFactory
-/home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/database/seeders/DatabaseSeeder.php:17:Called 'env' outside of the config directory which returns null when the config is cached, use 'config'.
-code 1
+code 0
