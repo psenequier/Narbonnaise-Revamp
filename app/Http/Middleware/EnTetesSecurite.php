@@ -24,6 +24,8 @@ final class EnTetesSecurite
         $h->set('Referrer-Policy', 'same-origin');
         $h->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
         $h->set('Cross-Origin-Opener-Policy', 'same-origin');
+        $h->set('Cross-Origin-Resource-Policy', 'same-origin');
+        $h->set('Cross-Origin-Embedder-Policy', 'require-corp');
         $h->remove('X-Powered-By');
 
         return $response;

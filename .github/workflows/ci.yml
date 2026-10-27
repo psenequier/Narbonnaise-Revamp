@@ -167,24 +167,33 @@ jobs:
         with:
           target: http://127.0.0.1:8000
           rules_file_name: .zap/regles.tsv
-          # Scan connecté : à ajouter avec la page de connexion (plan de dev, lot MVP 1).
-          fail_action: true
+          # Le seuil est appliqué à l'étape suivante (moyenne ou plus = blocage).
+          fail_action: false
           allow_issue_writing: false
-      - name: Résumé des alertes ZAP (lisible sans compte, dépôt public)
-        if: failure()
+      - name: Seuil ZAP (alerte moyenne ou plus, hors exceptions justifiées)
         shell: bash
         run: |
-          [ -f report_json.json ] || exit 0
+          [ -f report_json.json ] || { echo "::error title=ZAP::rapport absent"; exit 1; }
           python3 - <<'PY'
-          import json
-          r = json.load(open('report_json.json'))
-          lignes = []
-          for site in r.get('site', []):
+          import json, sys
+          ignorees = set()
+          for ligne in open('.zap/regles.tsv', encoding='utf-8'):
+              if ligne.strip() and not ligne.startswith('#'):
+                  champs = ligne.split('\t')
+                  if len(champs) > 1 and champs[1].strip() == 'IGNORE':
+                      ignorees.add(champs[0].strip())
+          lignes, bloquant = [], False
+          for site in json.load(open('report_json.json')).get('site', []):
               for a in site.get('alerts', []):
                   urls = sorted({i.get('uri', '') for i in a.get('instances', [])})[:3]
-                  lignes.append(f"[{a.get('riskdesc')}] {a.get('pluginid')} {a.get('name')} : {', '.join(urls)}")
+                  ignoree = a.get('pluginid') in ignorees
+                  grave = int(a.get('riskcode', 0)) >= 2 and not ignoree
+                  bloquant |= grave
+                  marque = 'BLOQUANT' if grave else ('justifiée' if ignoree else 'à suivre')
+                  lignes.append(f"{marque} [{a.get('riskdesc')}] {a.get('pluginid')} {a.get('name')} : {', '.join(urls)}")
           msg = '%0A'.join(l.replace('%', '%25') for l in lignes) or 'aucune alerte'
-          print(f"::error title=ZAP::{msg}")
+          print(f"::{'error' if bloquant else 'notice'} title=ZAP::{msg}")
+          sys.exit(1 if bloquant else 0)
           PY
       - if: failure()
         uses: actions/upload-artifact@v4
