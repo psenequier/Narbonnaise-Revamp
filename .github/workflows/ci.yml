@@ -74,12 +74,12 @@ jobs:
           semgrep scan --config p/owasp-top-ten --config p/php --config .semgrep/ \
             --sarif --output semgrep.sarif --error --severity ERROR
       - if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: psalm.sarif
           category: psalm
       - if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: semgrep.sarif
           category: semgrep
