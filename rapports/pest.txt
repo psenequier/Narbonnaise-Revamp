@@ -1,6 +1,6 @@
 
    PASS  Tests\Unit\CalculPeriodesTest
-  ✓ it US-401-P1 calcule la période du vendredi nuit au dimanche jour w… 0.01s  
+  ✓ it US-401-P1 calcule la période du vendredi nuit au dimanche jour with dataset "Noël"
   ✓ it US-401-P1 calcule la période du vendredi nuit au dimanche jour with dataset "février"
   ✓ it accepte aussi des dates sans heure
   ✓ it commence par la nuit du vendredi et finit par le jour du dimanche
@@ -44,187 +44,157 @@
   ⨯ it US-301-N6 refuse une réservation sans créneau
   ⨯ it US-311-P3 ne compte jamais une réservation annulée
   ────────────────────────────────────────────────────────────────────────────  
-   FAILED  Tests\Feature\ServiceReservationTest >…   InvalidArgumentException   
-  Please provide a valid cache path.
+   FAILED  Tests\Feature\ServiceReservationTest > it US-301-P1 crée l…  Error   
+  Class "Mockery" not found
 
-  at vendor/laravel/framework/src/Illuminate/View/Compilers/Compiler.php:75
-     71▕         $compiledExtension = 'php',
-     72▕         $shouldCheckTimestamps = true,
-     73▕     ) {
-     74▕         if (! $cachePath) {
-  ➜  75▕             throw new InvalidArgumentException('Please provide a valid cache path.');
-     76▕         }
-     77▕ 
-     78▕         $this->files = $files;
-     79▕         $this->cachePath = $cachePath;
-
-      [2m+25 vendor frames [22m
-  26  tests/TestCase.php:11
+  at tests/TestCase.php:11
+      7▕ abstract class TestCase extends BaseTestCase
+      8▕ {
+      9▕     protected function setUp(): void
+     10▕     {
+  ➜  11▕         parent::setUp();
+     12▕ 
+     13▕         // Aucune requête réseau réelle en test : toute source externe est simulée.
+     14▕         \Illuminate\Support\Facades\Http::preventStrayRequests();
+     15▕     }
 
   ────────────────────────────────────────────────────────────────────────────  
-   FAILED  Tests\Feature\ServiceReservationTest >…   InvalidArgumentException   
-  Please provide a valid cache path.
+   FAILED  Tests\Feature\ServiceReservationTest > it US-301-P2 accept…  Error   
+  Class "Mockery" not found
 
-  at vendor/laravel/framework/src/Illuminate/View/Compilers/Compiler.php:75
-     71▕         $compiledExtension = 'php',
-     72▕         $shouldCheckTimestamps = true,
-     73▕     ) {
-     74▕         if (! $cachePath) {
-  ➜  75▕             throw new InvalidArgumentException('Please provide a valid cache path.');
-     76▕         }
-     77▕ 
-     78▕         $this->files = $files;
-     79▕         $this->cachePath = $cachePath;
-
-      [2m+25 vendor frames [22m
-  26  tests/TestCase.php:11
+  at tests/TestCase.php:11
+      7▕ abstract class TestCase extends BaseTestCase
+      8▕ {
+      9▕     protected function setUp(): void
+     10▕     {
+  ➜  11▕         parent::setUp();
+     12▕ 
+     13▕         // Aucune requête réseau réelle en test : toute source externe est simulée.
+     14▕         \Illuminate\Support\Facades\Http::preventStrayRequests();
+     15▕     }
 
   ────────────────────────────────────────────────────────────────────────────  
-   FAILED  Tests\Feature\ServiceReservationTest >…   InvalidArgumentException   
-  Please provide a valid cache path.
+   FAILED  Tests\Feature\ServiceReservationTest > it US-301-P3 trace…   Error   
+  Class "Mockery" not found
 
-  at vendor/laravel/framework/src/Illuminate/View/Compilers/Compiler.php:75
-     71▕         $compiledExtension = 'php',
-     72▕         $shouldCheckTimestamps = true,
-     73▕     ) {
-     74▕         if (! $cachePath) {
-  ➜  75▕             throw new InvalidArgumentException('Please provide a valid cache path.');
-     76▕         }
-     77▕ 
-     78▕         $this->files = $files;
-     79▕         $this->cachePath = $cachePath;
-
-      [2m+25 vendor frames [22m
-  26  tests/TestCase.php:11
+  at tests/TestCase.php:11
+      7▕ abstract class TestCase extends BaseTestCase
+      8▕ {
+      9▕     protected function setUp(): void
+     10▕     {
+  ➜  11▕         parent::setUp();
+     12▕ 
+     13▕         // Aucune requête réseau réelle en test : toute source externe est simulée.
+     14▕         \Illuminate\Support\Facades\Http::preventStrayRequests();
+     15▕     }
 
   ────────────────────────────────────────────────────────────────────────────  
-   FAILED  Tests\Feature\ServiceReservationTest >…   InvalidArgumentException   
-  Please provide a valid cache path.
+   FAILED  Tests\Feature\ServiceReservationTest > it US-301-N1 refuse…  Error   
+  Class "Mockery" not found
 
-  at vendor/laravel/framework/src/Illuminate/View/Compilers/Compiler.php:75
-     71▕         $compiledExtension = 'php',
-     72▕         $shouldCheckTimestamps = true,
-     73▕     ) {
-     74▕         if (! $cachePath) {
-  ➜  75▕             throw new InvalidArgumentException('Please provide a valid cache path.');
-     76▕         }
-     77▕ 
-     78▕         $this->files = $files;
-     79▕         $this->cachePath = $cachePath;
-
-      [2m+25 vendor frames [22m
-  26  tests/TestCase.php:11
+  at tests/TestCase.php:11
+      7▕ abstract class TestCase extends BaseTestCase
+      8▕ {
+      9▕     protected function setUp(): void
+     10▕     {
+  ➜  11▕         parent::setUp();
+     12▕ 
+     13▕         // Aucune requête réseau réelle en test : toute source externe est simulée.
+     14▕         \Illuminate\Support\Facades\Http::preventStrayRequests();
+     15▕     }
 
   ────────────────────────────────────────────────────────────────────────────  
-   FAILED  Tests\Feature\ServiceReservationTest >…   InvalidArgumentException   
-  Please provide a valid cache path.
+   FAILED  Tests\Feature\ServiceReservationTest > it refuse une réser…  Error   
+  Class "Mockery" not found
 
-  at vendor/laravel/framework/src/Illuminate/View/Compilers/Compiler.php:75
-     71▕         $compiledExtension = 'php',
-     72▕         $shouldCheckTimestamps = true,
-     73▕     ) {
-     74▕         if (! $cachePath) {
-  ➜  75▕             throw new InvalidArgumentException('Please provide a valid cache path.');
-     76▕         }
-     77▕ 
-     78▕         $this->files = $files;
-     79▕         $this->cachePath = $cachePath;
-
-      [2m+25 vendor frames [22m
-  26  tests/TestCase.php:11
+  at tests/TestCase.php:11
+      7▕ abstract class TestCase extends BaseTestCase
+      8▕ {
+      9▕     protected function setUp(): void
+     10▕     {
+  ➜  11▕         parent::setUp();
+     12▕ 
+     13▕         // Aucune requête réseau réelle en test : toute source externe est simulée.
+     14▕         \Illuminate\Support\Facades\Http::preventStrayRequests();
+     15▕     }
 
   ────────────────────────────────────────────────────────────────────────────  
-   FAILED  Tests\Feature\ServiceReservationTest >…   InvalidArgumentException   
-  Please provide a valid cache path.
+   FAILED  Tests\Feature\ServiceReservationTest > it US-301-N2 refuse…  Error   
+  Class "Mockery" not found
 
-  at vendor/laravel/framework/src/Illuminate/View/Compilers/Compiler.php:75
-     71▕         $compiledExtension = 'php',
-     72▕         $shouldCheckTimestamps = true,
-     73▕     ) {
-     74▕         if (! $cachePath) {
-  ➜  75▕             throw new InvalidArgumentException('Please provide a valid cache path.');
-     76▕         }
-     77▕ 
-     78▕         $this->files = $files;
-     79▕         $this->cachePath = $cachePath;
-
-      [2m+25 vendor frames [22m
-  26  tests/TestCase.php:11
+  at tests/TestCase.php:11
+      7▕ abstract class TestCase extends BaseTestCase
+      8▕ {
+      9▕     protected function setUp(): void
+     10▕     {
+  ➜  11▕         parent::setUp();
+     12▕ 
+     13▕         // Aucune requête réseau réelle en test : toute source externe est simulée.
+     14▕         \Illuminate\Support\Facades\Http::preventStrayRequests();
+     15▕     }
 
   ────────────────────────────────────────────────────────────────────────────  
-   FAILED  Tests\Feature\ServiceReservationTest >…   InvalidArgumentException   
-  Please provide a valid cache path.
+   FAILED  Tests\Feature\ServiceReservationTest > it US-301-N2 refuse…  Error   
+  Class "Mockery" not found
 
-  at vendor/laravel/framework/src/Illuminate/View/Compilers/Compiler.php:75
-     71▕         $compiledExtension = 'php',
-     72▕         $shouldCheckTimestamps = true,
-     73▕     ) {
-     74▕         if (! $cachePath) {
-  ➜  75▕             throw new InvalidArgumentException('Please provide a valid cache path.');
-     76▕         }
-     77▕ 
-     78▕         $this->files = $files;
-     79▕         $this->cachePath = $cachePath;
-
-      [2m+25 vendor frames [22m
-  26  tests/TestCase.php:11
+  at tests/TestCase.php:11
+      7▕ abstract class TestCase extends BaseTestCase
+      8▕ {
+      9▕     protected function setUp(): void
+     10▕     {
+  ➜  11▕         parent::setUp();
+     12▕ 
+     13▕         // Aucune requête réseau réelle en test : toute source externe est simulée.
+     14▕         \Illuminate\Support\Facades\Http::preventStrayRequests();
+     15▕     }
 
   ────────────────────────────────────────────────────────────────────────────  
-   FAILED  Tests\Feature\ServiceReservationTest >…   InvalidArgumentException   
-  Please provide a valid cache path.
+   FAILED  Tests\Feature\ServiceReservationTest > it US-301-N4 refuse…  Error   
+  Class "Mockery" not found
 
-  at vendor/laravel/framework/src/Illuminate/View/Compilers/Compiler.php:75
-     71▕         $compiledExtension = 'php',
-     72▕         $shouldCheckTimestamps = true,
-     73▕     ) {
-     74▕         if (! $cachePath) {
-  ➜  75▕             throw new InvalidArgumentException('Please provide a valid cache path.');
-     76▕         }
-     77▕ 
-     78▕         $this->files = $files;
-     79▕         $this->cachePath = $cachePath;
-
-      [2m+25 vendor frames [22m
-  26  tests/TestCase.php:11
+  at tests/TestCase.php:11
+      7▕ abstract class TestCase extends BaseTestCase
+      8▕ {
+      9▕     protected function setUp(): void
+     10▕     {
+  ➜  11▕         parent::setUp();
+     12▕ 
+     13▕         // Aucune requête réseau réelle en test : toute source externe est simulée.
+     14▕         \Illuminate\Support\Facades\Http::preventStrayRequests();
+     15▕     }
 
   ────────────────────────────────────────────────────────────────────────────  
-   FAILED  Tests\Feature\ServiceReservationTest >…   InvalidArgumentException   
-  Please provide a valid cache path.
+   FAILED  Tests\Feature\ServiceReservationTest > it US-301-N6 refuse…  Error   
+  Class "Mockery" not found
 
-  at vendor/laravel/framework/src/Illuminate/View/Compilers/Compiler.php:75
-     71▕         $compiledExtension = 'php',
-     72▕         $shouldCheckTimestamps = true,
-     73▕     ) {
-     74▕         if (! $cachePath) {
-  ➜  75▕             throw new InvalidArgumentException('Please provide a valid cache path.');
-     76▕         }
-     77▕ 
-     78▕         $this->files = $files;
-     79▕         $this->cachePath = $cachePath;
-
-      [2m+25 vendor frames [22m
-  26  tests/TestCase.php:11
+  at tests/TestCase.php:11
+      7▕ abstract class TestCase extends BaseTestCase
+      8▕ {
+      9▕     protected function setUp(): void
+     10▕     {
+  ➜  11▕         parent::setUp();
+     12▕ 
+     13▕         // Aucune requête réseau réelle en test : toute source externe est simulée.
+     14▕         \Illuminate\Support\Facades\Http::preventStrayRequests();
+     15▕     }
 
   ────────────────────────────────────────────────────────────────────────────  
-   FAILED  Tests\Feature\ServiceReservationTest >…   InvalidArgumentException   
-  Please provide a valid cache path.
+   FAILED  Tests\Feature\ServiceReservationTest > it US-311-P3 ne com…  Error   
+  Class "Mockery" not found
 
-  at vendor/laravel/framework/src/Illuminate/View/Compilers/Compiler.php:75
-     71▕         $compiledExtension = 'php',
-     72▕         $shouldCheckTimestamps = true,
-     73▕     ) {
-     74▕         if (! $cachePath) {
-  ➜  75▕             throw new InvalidArgumentException('Please provide a valid cache path.');
-     76▕         }
-     77▕ 
-     78▕         $this->files = $files;
-     79▕         $this->cachePath = $cachePath;
-
-      [2m+25 vendor frames [22m
-  26  tests/TestCase.php:11
+  at tests/TestCase.php:11
+      7▕ abstract class TestCase extends BaseTestCase
+      8▕ {
+      9▕     protected function setUp(): void
+     10▕     {
+  ➜  11▕         parent::setUp();
+     12▕ 
+     13▕         // Aucune requête réseau réelle en test : toute source externe est simulée.
+     14▕         \Illuminate\Support\Facades\Http::preventStrayRequests();
+     15▕     }
 
 
   Tests:    10 failed, 27 passed (49 assertions)
-  Duration: 0.82s
+  Duration: 0.74s
 
 code 2
