@@ -24,13 +24,19 @@ it('US-506-P1 enregistre un envoi en échec puis le renvoie à la relance suivan
     Mail::shouldReceive('to')->once()->andThrow(new RuntimeException('Connexion SMTP refusée'));
 
     app(BoiteEnvoi::class)->envoyer();
-    expect(ligne($id))->tentatives->toBe(1)->envoye_le->toBeNull()->derniere_erreur->toContain('SMTP');
+    $echec = ligne($id);
+    expect((int) $echec->tentatives)->toBe(1)
+        ->and($echec->envoye_le)->toBeNull()
+        ->and((string) $echec->derniere_erreur)->toContain('SMTP');
 
     Mail::fake(); // le SMTP répond de nouveau
     $this->travel(1)->hours();
     $this->artisan('emails:envoyer')->assertSuccessful();
 
-    expect(ligne($id))->tentatives->toBe(2)->envoye_le->not->toBeNull()->derniere_erreur->toBeNull();
+    $envoye = ligne($id);
+    expect((int) $envoye->tentatives)->toBe(2)
+        ->and($envoye->envoye_le)->not->toBeNull()
+        ->and($envoye->derniere_erreur)->toBeNull();
     Mail::assertSent(MessageSite::class, 1);
 });
 
