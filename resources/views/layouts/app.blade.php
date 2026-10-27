@@ -9,12 +9,13 @@
 </head>
 <body class="min-h-screen bg-fond font-sans text-encre">
     <header class="border-b border-bord bg-white">
-        <nav class="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3 text-sm" aria-label="Navigation principale">
-            <a href="{{ route('calendrier') }}" class="mr-auto font-extrabold">Appartement Chamrousse</a>
-            <a href="{{ route('calendrier') }}" class="underline-offset-4 hover:underline">Calendrier</a>
-            @can('admin')<a href="{{ route('admin.accueil') }}" class="underline-offset-4 hover:underline">Admin</a>@endcan
-            <a href="{{ route('profil') }}" class="underline-offset-4 hover:underline">{{ auth()->user()->prenom }}</a>
-            <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="underline-offset-4 hover:underline">Se déconnecter</button></form>
+        <nav class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 px-4 py-1 text-sm" aria-label="Navigation principale">
+            <a href="{{ route('calendrier') }}" class="mr-auto flex min-h-11 items-center font-extrabold">Appartement Chamrousse</a>
+            <a href="{{ route('calendrier') }}" class="flex min-h-11 items-center underline-offset-4 hover:underline">Calendrier</a>
+            <a href="{{ route('reservations.mes') }}" class="flex min-h-11 items-center underline-offset-4 hover:underline">Mes réservations</a>
+            @can('admin')<a href="{{ route('admin.accueil') }}" class="flex min-h-11 items-center underline-offset-4 hover:underline">Admin</a>@endcan
+            <a href="{{ route('profil') }}" class="flex min-h-11 items-center underline-offset-4 hover:underline">{{ auth()->user()->prenom }}</a>
+            <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="flex min-h-11 items-center underline-offset-4 hover:underline">Se déconnecter</button></form>
         </nav>
     </header>
     <main class="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">

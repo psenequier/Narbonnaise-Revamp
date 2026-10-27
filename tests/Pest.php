@@ -59,3 +59,50 @@ function simulerGoogle(string $id, string $email, bool $verifiee = true): void
 
 const MDP_TEST = 'Mot-de-passe-de-test-42!';
 const MDP_NOUVEAU = 'Nouveau-Secret-2026!';
+
+/** Crée les créneaux J et N de chaque jour, comme à l'ouverture d'une année. */
+function creerCreneaux(string $du, string $au, ?int $periodeId = null): void
+{
+    $lignes = [];
+    for ($d = new DateTimeImmutable($du); $d <= new DateTimeImmutable($au); $d = $d->modify('+1 day')) {
+        foreach (['J', 'N'] as $t) {
+            $lignes[] = ['date' => $d->format('Y-m-d'), 'type' => $t, 'periode_id' => $periodeId, 'created_at' => now(), 'updated_at' => now()];
+        }
+    }
+    \Illuminate\Support\Facades\DB::table('creneaux')->insert($lignes);
+}
+
+/** Réserve directement par le service (préparation d'un test). */
+function reserverPour(\App\Models\User $membre, array $cles, string $mode = 'ouverte', array $options = []): \App\Models\Reservation
+{
+    $demandes = array_map(fn (string $c) => new \App\Domain\Calendrier\Creneau(
+        new DateTimeImmutable(substr($c, 0, 10)), \App\Domain\Calendrier\TypeCreneau::from(substr($c, -1))
+    ), $cles);
+
+    return app(\App\Domain\Reservations\ServiceReservation::class)->reserver(
+        $membre, $demandes, $mode, $options['commentaire'] ?? null, new DateTimeImmutable(now()->format('Y-m-d H:i:s')),
+        $options['nombre_personnes'] ?? 2, $options['invites'] ?? null,
+    );
+}
+
+/** Met des vacances (période) sur des créneaux existants, avec ou sans lignée attribuée. */
+function mettreVacances(string $du, string $au, ?string $lignee = null): void
+{
+    $db = \Illuminate\Support\Facades\DB::table(...);
+    $annee = $db('annees_scolaires')->where('libelle', '2026-2027')->value('id')
+        ?? $db('annees_scolaires')->insertGetId(['libelle' => '2026-2027', 'debut' => '2026-09-01', 'fin' => '2027-08-31']);
+    $periode = $db('periodes_vacances')->insertGetId([
+        'annee_scolaire_id' => $annee, 'nom' => $db('periodes_vacances')->where('annee_scolaire_id', $annee)->exists() ? 'hiver' : 'noel',
+        'premiere_nuit' => $du, 'dernier_jour' => $au, 'source_empreinte' => 'test',
+    ]);
+    $ids = $db('creneaux')->whereBetween('date', [$du, $au])->pluck('id');
+    $db('creneaux')->whereIn('id', $ids)->update(['periode_id' => $periode]);
+
+    if ($lignee !== null) {
+        $ligneeId = $db('lignees')->insertGetId(['nom' => $lignee, 'couleur' => '#2F6FB0']);
+        $admin = \App\Models\User::factory()->admin()->create();
+        foreach ($ids as $id) {
+            $db('attributions')->insert(['creneau_id' => $id, 'lignee_id' => $ligneeId, 'saisie_par' => $admin->id]);
+        }
+    }
+}

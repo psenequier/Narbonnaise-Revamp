@@ -11,3 +11,22 @@
     --color-fond: #F3F5F7;
     --color-bord: #DDE3E8;
 }
+
+/*
+ * États des créneaux (US-201-N3) : chaque état a une couleur ET un motif,
+ * pour rester lisible sans distinguer les couleurs et à l'impression.
+ */
+@layer components {
+    .creneau { @apply relative flex min-h-11 items-center gap-1 rounded-md border px-2 text-xs font-bold; }
+    .creneau-libre { @apply border-bord bg-white text-encre; }
+    .creneau-ouverte { @apply border-sky-300 bg-sky-50 text-sky-950; }
+    .creneau-exclusive { @apply border-sapin bg-sapin text-white; }
+    .creneau-attribue { @apply border-amber-400 bg-amber-50 text-amber-950; }
+    .creneau-attente { @apply border-amber-300 border-dashed bg-white text-amber-950; }
+    .creneau-ferme { @apply border-gris bg-fond text-gris line-through; }
+    .creneau-pas-ouvert { @apply border-bord border-dotted bg-fond text-gris; }
+
+    .motif-points { background-image: radial-gradient(currentColor 1px, transparent 1.5px); background-size: 8px 8px; background-blend-mode: multiply; }
+    .motif-rayures { background-image: repeating-linear-gradient(45deg, transparent 0 6px, rgb(0 0 0 / .08) 6px 8px); }
+    .motif-croix { background-image: repeating-linear-gradient(45deg, rgb(0 0 0 / .08) 0 2px, transparent 2px 8px), repeating-linear-gradient(-45deg, rgb(0 0 0 / .08) 0 2px, transparent 2px 8px); }
+}

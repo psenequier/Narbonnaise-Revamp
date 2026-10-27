@@ -24,6 +24,9 @@ final class Parametres
         'station.longitude' => '5.8773',
         'station.altitude' => '1650',
         'station.bulletin_neige' => 'https://www.chamrousse.com/ouverture-alpin-piste-remontee.html',
+        // Dates d'ouverture et de fermeture du domaine, par saison (modifiables dans Paramètres).
+        'station.ouverture.2026-2027' => '2026-12-05',
+        'station.fermeture.2026-2027' => '2027-04-11',
     ];
 
     public function lire(string $cle): string
@@ -32,6 +35,16 @@ final class Parametres
         $valeurs = Cache::remember('parametres', 3600, fn () => DB::table('parametres')->pluck('valeur', 'cle')->all());
 
         return $valeurs[$cle] ?? self::DEFAUTS[$cle] ?? throw new \InvalidArgumentException("Paramètre inconnu : {$cle}");
+    }
+
+    /** Paramètre facultatif : null s'il n'existe ni en base ni par défaut. */
+    public function facultatif(string $cle): ?string
+    {
+        try {
+            return $this->lire($cle);
+        } catch (\InvalidArgumentException) {
+            return null;
+        }
     }
 
     public function entier(string $cle): int

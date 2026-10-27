@@ -14,11 +14,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $user_id
  * @property string $mode
  * @property string|null $commentaire
+ * @property int|null $nombre_personnes
+ * @property string|null $invites
+ * @property int|null $grr_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Creneau> $creneaux
+ * @property-read User|null $user
+ * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon|null $annulee_le
  */
 class Reservation extends Model
 {
-    protected $fillable = ['mode', 'commentaire', 'nombre_personnes'];
+    protected $fillable = ['mode', 'commentaire', 'nombre_personnes', 'invites'];
 
     protected function casts(): array
     {
