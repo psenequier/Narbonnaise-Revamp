@@ -1,0 +1,950 @@
+Test Runner Configured
+PHPUnit Started (PHPUnit 13.4.3 using PHP 8.5.12 (cli) on Linux)
+Test Runner Configured
+Bootstrap Finished (/home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/autoload.php)
+Event Facade Sealed
+Data Provider Method Called (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour_dataset for test method P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour)
+Data Provider Method Finished for P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour:
+- P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour_dataset
+Data Provider Method Called (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0_dataset for test method P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0)
+Data Provider Method Finished for P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0:
+- P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0_dataset
+Data Provider Method Called (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes_dataset for test method P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes)
+Data Provider Method Finished for P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes:
+- P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes_dataset
+Data Provider Method Called (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables_dataset for test method P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables)
+Data Provider Method Finished for P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables:
+- P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables_dataset
+Data Provider Method Called (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies_dataset for test method P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies)
+Data Provider Method Finished for P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies:
+- P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies_dataset
+Test Runner Triggered PHP Warning (suppressed using operator) in /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/vendor/pestphp/pest-plugin-browser/src/Support/Trace.php:139
+rmdir(/home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/tests/Browser/Traces): No such file or directory
+Test Suite Loaded (38 tests)
+Test Runner Started
+Test Suite Sorted
+Test Suite Filtered (37 tests)
+Test Runner Execution Started (37 tests)
+Test Suite Started (/home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/phpunit.xml, 37 tests)
+Test Suite Started (Unit, 27 tests)
+Test Suite Started (P\Tests\Unit\CalculPeriodesTest, 6 tests)
+Before First Test Method Called (P\Tests\Unit\CalculPeriodesTest::setUpBeforeClass)
+Before First Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::setUpBeforeClass
+Test Suite for Test Method with Data Provider Started (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour, 2 data sets)
+Test Preparation Started (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour#dataset "Noël")
+Before Test Method Called (P\Tests\Unit\CalculPeriodesTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::setUp
+Test Prepared (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour#dataset "Noël")
+Post Condition Method Called (P\Tests\Unit\CalculPeriodesTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\CalculPeriodesTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::tearDown
+Test Passed (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour#dataset "Noël")
+Test Finished (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour#dataset "Noël")
+Test Preparation Started (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour#dataset "février")
+Before Test Method Called (P\Tests\Unit\CalculPeriodesTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::setUp
+Test Prepared (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour#dataset "février")
+Post Condition Method Called (P\Tests\Unit\CalculPeriodesTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\CalculPeriodesTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::tearDown
+Test Passed (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour#dataset "février")
+Test Finished (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour#dataset "février")
+Test Suite for Test Method with Data Provider Finished (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_US_401_P1_calcule_la_période_du_vendredi_nuit_au_dimanche_jour, 2 data sets)
+Test Preparation Started (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_accepte_aussi_des_dates_sans_heure)
+Before Test Method Called (P\Tests\Unit\CalculPeriodesTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::setUp
+Test Prepared (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_accepte_aussi_des_dates_sans_heure)
+Post Condition Method Called (P\Tests\Unit\CalculPeriodesTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\CalculPeriodesTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::tearDown
+Test Passed (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_accepte_aussi_des_dates_sans_heure)
+Test Finished (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_accepte_aussi_des_dates_sans_heure)
+Test Preparation Started (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_commence_par_la_nuit_du_vendredi_et_finit_par_le_jour_du_dimanche)
+Before Test Method Called (P\Tests\Unit\CalculPeriodesTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::setUp
+Test Prepared (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_commence_par_la_nuit_du_vendredi_et_finit_par_le_jour_du_dimanche)
+Post Condition Method Called (P\Tests\Unit\CalculPeriodesTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\CalculPeriodesTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::tearDown
+Test Passed (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_commence_par_la_nuit_du_vendredi_et_finit_par_le_jour_du_dimanche)
+Test Finished (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_commence_par_la_nuit_du_vendredi_et_finit_par_le_jour_du_dimanche)
+Test Preparation Started (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_sait_si_un_créneau_appartient_à_la_période)
+Before Test Method Called (P\Tests\Unit\CalculPeriodesTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::setUp
+Test Prepared (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_sait_si_un_créneau_appartient_à_la_période)
+Post Condition Method Called (P\Tests\Unit\CalculPeriodesTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\CalculPeriodesTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::tearDown
+Test Passed (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_sait_si_un_créneau_appartient_à_la_période)
+Test Finished (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_sait_si_un_créneau_appartient_à_la_période)
+Test Preparation Started (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_refuse_une_reprise_antérieure_au_début)
+Before Test Method Called (P\Tests\Unit\CalculPeriodesTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::setUp
+Test Prepared (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_refuse_une_reprise_antérieure_au_début)
+Post Condition Method Called (P\Tests\Unit\CalculPeriodesTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\CalculPeriodesTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::tearDown
+Test Passed (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_refuse_une_reprise_antérieure_au_début)
+Test Finished (P\Tests\Unit\CalculPeriodesTest::__pest_evaluable_it_refuse_une_reprise_antérieure_au_début)
+After Last Test Method Called (P\Tests\Unit\CalculPeriodesTest::tearDownAfterClass)
+After Last Test Method Finished:
+- P\Tests\Unit\CalculPeriodesTest::tearDownAfterClass
+Test Suite Finished (P\Tests\Unit\CalculPeriodesTest, 6 tests)
+Test Suite Started (P\Tests\Unit\RegleEquiteTest, 8 tests)
+Before First Test Method Called (P\Tests\Unit\RegleEquiteTest::setUpBeforeClass)
+Before First Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::setUpBeforeClass
+Test Preparation Started (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_US_311_N1_refuse_J_15_au_membre_qui_a_6_réservations_quand_X___5_et_Y___14)
+Before Test Method Called (P\Tests\Unit\RegleEquiteTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::setUp
+Test Prepared (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_US_311_N1_refuse_J_15_au_membre_qui_a_6_réservations_quand_X___5_et_Y___14)
+Post Condition Method Called (P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\RegleEquiteTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::tearDown
+Test Passed (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_US_311_N1_refuse_J_15_au_membre_qui_a_6_réservations_quand_X___5_et_Y___14)
+Test Finished (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_US_311_N1_refuse_J_15_au_membre_qui_a_6_réservations_quand_X___5_et_Y___14)
+Test Preparation Started (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_accepte_J_14_dans_le_même_cas)
+Before Test Method Called (P\Tests\Unit\RegleEquiteTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::setUp
+Test Prepared (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_accepte_J_14_dans_le_même_cas)
+Post Condition Method Called (P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\RegleEquiteTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::tearDown
+Test Passed (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_accepte_J_14_dans_le_même_cas)
+Test Finished (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_accepte_J_14_dans_le_même_cas)
+Test Preparation Started (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_ne_limite_pas_un_membre_sous_le_seuil)
+Before Test Method Called (P\Tests\Unit\RegleEquiteTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::setUp
+Test Prepared (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_ne_limite_pas_un_membre_sous_le_seuil)
+Post Condition Method Called (P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\RegleEquiteTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::tearDown
+Test Passed (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_ne_limite_pas_un_membre_sous_le_seuil)
+Test Finished (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_ne_limite_pas_un_membre_sous_le_seuil)
+Test Suite for Test Method with Data Provider Started (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0, 3 data sets)
+Test Preparation Started (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0#(0, 14))
+Before Test Method Called (P\Tests\Unit\RegleEquiteTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::setUp
+Test Prepared (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0#(0, 14))
+Post Condition Method Called (P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\RegleEquiteTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::tearDown
+Test Passed (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0#(0, 14))
+Test Finished (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0#(0, 14))
+Test Preparation Started (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0#(5, 0))
+Before Test Method Called (P\Tests\Unit\RegleEquiteTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::setUp
+Test Prepared (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0#(5, 0))
+Post Condition Method Called (P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\RegleEquiteTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::tearDown
+Test Passed (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0#(5, 0))
+Test Finished (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0#(5, 0))
+Test Preparation Started (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0#(0, 0))
+Before Test Method Called (P\Tests\Unit\RegleEquiteTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::setUp
+Test Prepared (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0#(0, 0))
+Post Condition Method Called (P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\RegleEquiteTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::tearDown
+Test Passed (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0#(0, 0))
+Test Finished (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0#(0, 0))
+Test Suite for Test Method with Data Provider Finished (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_désactive_la_règle_quand_X_ou_Y_vaut_0, 3 data sets)
+Test Preparation Started (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_applique_le_délai_maximal_de_réservation_à_l_avance)
+Before Test Method Called (P\Tests\Unit\RegleEquiteTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::setUp
+Test Prepared (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_applique_le_délai_maximal_de_réservation_à_l_avance)
+Post Condition Method Called (P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\RegleEquiteTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::tearDown
+Test Passed (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_applique_le_délai_maximal_de_réservation_à_l_avance)
+Test Finished (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_applique_le_délai_maximal_de_réservation_à_l_avance)
+Test Preparation Started (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_US_301_N3_refuse_une_date_passée)
+Before Test Method Called (P\Tests\Unit\RegleEquiteTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::setUp
+Test Prepared (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_US_301_N3_refuse_une_date_passée)
+Post Condition Method Called (P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\RegleEquiteTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\RegleEquiteTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::tearDown
+Test Passed (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_US_301_N3_refuse_une_date_passée)
+Test Finished (P\Tests\Unit\RegleEquiteTest::__pest_evaluable_it_US_301_N3_refuse_une_date_passée)
+After Last Test Method Called (P\Tests\Unit\RegleEquiteTest::tearDownAfterClass)
+After Last Test Method Finished:
+- P\Tests\Unit\RegleEquiteTest::tearDownAfterClass
+Test Suite Finished (P\Tests\Unit\RegleEquiteTest, 8 tests)
+Test Suite Started (P\Tests\Unit\UrlSourceSureTest, 13 tests)
+Before First Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUpBeforeClass)
+Before First Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUpBeforeClass
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N1_refuse_toute_URL_en_http___)
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N1_refuse_toute_URL_en_http___)
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N1_refuse_toute_URL_en_http___)
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N1_refuse_toute_URL_en_http___)
+Test Suite for Test Method with Data Provider Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes, 7 data sets)
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://localhost/'))
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://localhost/'))
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://localhost/'))
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://localhost/'))
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://127.0.0.1/'))
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://127.0.0.1/'))
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://127.0.0.1/'))
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://127.0.0.1/'))
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://10.1.2.3/'))
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://10.1.2.3/'))
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://10.1.2.3/'))
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://10.1.2.3/'))
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://192.168.1.1/'))
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://192.168.1.1/'))
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://192.168.1.1/'))
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://192.168.1.1/'))
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://169.254.169.254/lates…a-data'))
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://169.254.169.254/lates…a-data'))
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://169.254.169.254/lates…a-data'))
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://169.254.169.254/lates…a-data'))
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://[::1]/'))
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://[::1]/'))
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://[::1]/'))
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://[::1]/'))
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://interne.example/'))
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://interne.example/'))
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://interne.example/'))
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes#('https://interne.example/'))
+Test Suite for Test Method with Data Provider Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_US_607_N2_refuse_les_adresses_internes, 7 data sets)
+Test Suite for Test Method with Data Provider Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables, 3 data sets)
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables#('https://u:p@api.open-meteo.com/'))
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables#('https://u:p@api.open-meteo.com/'))
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables#('https://u:p@api.open-meteo.com/'))
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables#('https://u:p@api.open-meteo.com/'))
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables#('https://api.open-meteo.com:8443/'))
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables#('https://api.open-meteo.com:8443/'))
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables#('https://api.open-meteo.com:8443/'))
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables#('https://api.open-meteo.com:8443/'))
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables#('https://inconnu.example/'))
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables#('https://inconnu.example/'))
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables#('https://inconnu.example/'))
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables#('https://inconnu.example/'))
+Test Suite for Test Method with Data Provider Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_refuse_identifiants__ports_non_standard_et_noms_introuvables, 3 data sets)
+Test Suite for Test Method with Data Provider Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies, 2 data sets)
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies#('https://api.open-meteo.com/v1/forecast'))
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies#('https://api.open-meteo.com/v1/forecast'))
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies#('https://api.open-meteo.com/v1/forecast'))
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies#('https://api.open-meteo.com/v1/forecast'))
+Test Preparation Started (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies#('https://data.education.gouv.f…ecords'))
+Before Test Method Called (P\Tests\Unit\UrlSourceSureTest::setUp)
+Before Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::setUp
+Test Prepared (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies#('https://data.education.gouv.f…ecords'))
+Post Condition Method Called (P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged)
+Post Condition Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::__MarkTestIncompleteIfSnapshotHaveChanged
+After Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDown)
+After Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDown
+Test Passed (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies#('https://data.education.gouv.f…ecords'))
+Test Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies#('https://data.education.gouv.f…ecords'))
+Test Suite for Test Method with Data Provider Finished (P\Tests\Unit\UrlSourceSureTest::__pest_evaluable_it_accepte_les_sources_officielles_préremplies, 2 data sets)
+After Last Test Method Called (P\Tests\Unit\UrlSourceSureTest::tearDownAfterClass)
+After Last Test Method Finished:
+- P\Tests\Unit\UrlSourceSureTest::tearDownAfterClass
+Test Suite Finished (P\Tests\Unit\UrlSourceSureTest, 13 tests)
+Test Suite Finished (Unit, 27 tests)
+Test Suite Started (Feature, 10 tests)
+Test Suite Started (P\Tests\Feature\ServiceReservationTest, 10 tests)
+Before First Test Method Called (P\Tests\Feature\ServiceReservationTest::setUpBeforeClass)
+Before First Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::setUpBeforeClass
+Test Preparation Started (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_P1_crée_la_réservation_sur_des_créneaux_libres)
+Before Test Method Called (P\Tests\Feature\ServiceReservationTest::setUp)
+Before Test Method Errored (P\Tests\Feature\ServiceReservationTest::setUp)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Before Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::setUp
+Test Preparation Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_P1_crée_la_réservation_sur_des_créneaux_libres)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Test Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_P1_crée_la_réservation_sur_des_créneaux_libres)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+After Test Method Called (P\Tests\Feature\ServiceReservationTest::tearDown)
+After Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::tearDown
+Test Preparation Started (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_P2_accepte_une_deuxième_réservation_ouverte_sur_le_même_créneau)
+Before Test Method Called (P\Tests\Feature\ServiceReservationTest::setUp)
+Before Test Method Errored (P\Tests\Feature\ServiceReservationTest::setUp)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Before Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::setUp
+Test Preparation Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_P2_accepte_une_deuxième_réservation_ouverte_sur_le_même_créneau)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Test Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_P2_accepte_une_deuxième_réservation_ouverte_sur_le_même_créneau)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+After Test Method Called (P\Tests\Feature\ServiceReservationTest::tearDown)
+After Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::tearDown
+Test Preparation Started (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_P3_trace_la_création_dans_le_journal)
+Before Test Method Called (P\Tests\Feature\ServiceReservationTest::setUp)
+Before Test Method Errored (P\Tests\Feature\ServiceReservationTest::setUp)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Before Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::setUp
+Test Preparation Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_P3_trace_la_création_dans_le_journal)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Test Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_P3_trace_la_création_dans_le_journal)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+After Test Method Called (P\Tests\Feature\ServiceReservationTest::tearDown)
+After Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::tearDown
+Test Preparation Started (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N1_refuse_toute_la_réservation_si_un_créneau_est_exclusif__sans_réservation_partielle)
+Before Test Method Called (P\Tests\Feature\ServiceReservationTest::setUp)
+Before Test Method Errored (P\Tests\Feature\ServiceReservationTest::setUp)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Before Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::setUp
+Test Preparation Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N1_refuse_toute_la_réservation_si_un_créneau_est_exclusif__sans_réservation_partielle)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Test Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N1_refuse_toute_la_réservation_si_un_créneau_est_exclusif__sans_réservation_partielle)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+After Test Method Called (P\Tests\Feature\ServiceReservationTest::tearDown)
+After Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::tearDown
+Test Preparation Started (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_refuse_une_réservation_exclusive_sur_un_créneau_déjà_ouvert)
+Before Test Method Called (P\Tests\Feature\ServiceReservationTest::setUp)
+Before Test Method Errored (P\Tests\Feature\ServiceReservationTest::setUp)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Before Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::setUp
+Test Preparation Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_refuse_une_réservation_exclusive_sur_un_créneau_déjà_ouvert)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Test Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_refuse_une_réservation_exclusive_sur_un_créneau_déjà_ouvert)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+After Test Method Called (P\Tests\Feature\ServiceReservationTest::tearDown)
+After Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::tearDown
+Test Preparation Started (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N2_refuse_un_créneau_de_vacances__même_non_attribué)
+Before Test Method Called (P\Tests\Feature\ServiceReservationTest::setUp)
+Before Test Method Errored (P\Tests\Feature\ServiceReservationTest::setUp)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Before Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::setUp
+Test Preparation Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N2_refuse_un_créneau_de_vacances__même_non_attribué)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Test Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N2_refuse_un_créneau_de_vacances__même_non_attribué)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+After Test Method Called (P\Tests\Feature\ServiceReservationTest::tearDown)
+After Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::tearDown
+Test Preparation Started (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N2_refuse_un_créneau_pendant_une_fermeture)
+Before Test Method Called (P\Tests\Feature\ServiceReservationTest::setUp)
+Before Test Method Errored (P\Tests\Feature\ServiceReservationTest::setUp)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Before Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::setUp
+Test Preparation Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N2_refuse_un_créneau_pendant_une_fermeture)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Test Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N2_refuse_un_créneau_pendant_une_fermeture)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+After Test Method Called (P\Tests\Feature\ServiceReservationTest::tearDown)
+After Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::tearDown
+Test Preparation Started (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N4_refuse_une_date_d_une_année_non_ouverte)
+Before Test Method Called (P\Tests\Feature\ServiceReservationTest::setUp)
+Before Test Method Errored (P\Tests\Feature\ServiceReservationTest::setUp)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Before Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::setUp
+Test Preparation Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N4_refuse_une_date_d_une_année_non_ouverte)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Test Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N4_refuse_une_date_d_une_année_non_ouverte)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+After Test Method Called (P\Tests\Feature\ServiceReservationTest::tearDown)
+After Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::tearDown
+Test Preparation Started (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N6_refuse_une_réservation_sans_créneau)
+Before Test Method Called (P\Tests\Feature\ServiceReservationTest::setUp)
+Before Test Method Errored (P\Tests\Feature\ServiceReservationTest::setUp)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Before Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::setUp
+Test Preparation Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N6_refuse_une_réservation_sans_créneau)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Test Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_301_N6_refuse_une_réservation_sans_créneau)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+After Test Method Called (P\Tests\Feature\ServiceReservationTest::tearDown)
+After Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::tearDown
+Test Preparation Started (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_311_P3_ne_compte_jamais_une_réservation_annulée)
+Before Test Method Called (P\Tests\Feature\ServiceReservationTest::setUp)
+Before Test Method Errored (P\Tests\Feature\ServiceReservationTest::setUp)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Before Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::setUp
+Test Preparation Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_311_P3_ne_compte_jamais_une_réservation_annulée)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+Test Errored (P\Tests\Feature\ServiceReservationTest::__pest_evaluable_it_US_311_P3_ne_compte_jamais_une_réservation_annulée)
+SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'v_occupation' already exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: test, SQL: CREATE VIEW v_occupation AS
+SELECT c.date,
+       c.type,
+       CASE
+           WHEN a.id IS NOT NULL THEN 'attribue'
+           WHEN EXISTS (
+               SELECT 1 FROM reservation_creneau rc
+               JOIN reservations r ON r.id = rc.reservation_id
+               WHERE rc.creneau_id = c.id AND r.annulee_le IS NULL
+           ) THEN 'occupe'
+           ELSE 'libre'
+       END AS etat
+FROM creneaux c
+LEFT JOIN attributions a ON a.creneau_id = c.id)
+After Test Method Called (P\Tests\Feature\ServiceReservationTest::tearDown)
+After Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::tearDown
+After Last Test Method Called (P\Tests\Feature\ServiceReservationTest::tearDownAfterClass)
+After Last Test Method Finished:
+- P\Tests\Feature\ServiceReservationTest::tearDownAfterClass
+Test Suite Finished (P\Tests\Feature\ServiceReservationTest, 10 tests)
+Test Suite Finished (Feature, 10 tests)
+Test Suite Finished (/home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/phpunit.xml, 37 tests)
+Test Runner Execution Finished
+Test Runner Finished
+PHPUnit Finished (Shell Exit Code: 2)
+code 2
