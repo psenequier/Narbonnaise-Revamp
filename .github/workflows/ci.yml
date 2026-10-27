@@ -44,7 +44,7 @@ jobs:
           php-version: ${{ env.PHP_VERSION }}
           coverage: pcov
           extensions: pdo_mysql, sockets
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.composer/cache
           key: composer-${{ hashFiles('composer.lock') }}
