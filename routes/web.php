@@ -74,6 +74,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/journal', JournalController::class)->name('journal');
 
         Route::get('/reprise', [RepriseController::class, 'index'])->name('reprise');
+        Route::post('/reprise/lancer', [RepriseController::class, 'lancer'])->middleware('throttle:5,10')->name('reprise.lancer');
         Route::post('/reprise/propositions/{proposition}', [RepriseController::class, 'valider'])->whereNumber('proposition')->name('reprise.valider');
         // Vacances et attributions, utilisateurs, paramètres, journal : lot MVP 2.
     });

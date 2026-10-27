@@ -20,6 +20,8 @@ set -euo pipefail
 : "${SFTP_HOTE:?}" "${SFTP_UTILISATEUR:?}" "${SFTP_CLE:?}" "${SFTP_EMPREINTE_HOTE:?}"
 : "${SITE_URL:?}" "${DOSSIER_DISTANT:?}"
 SITE_SERVI="${SITE_SERVI:-non}"
+# « oui » les nuits de répétition et de bascule : reprise de GRR juste après les migrations.
+REPRISE_GRR="${REPRISE_GRR:-non}"
 
 SHA="${GITHUB_SHA:-$(git rev-parse HEAD)}"
 SHA="${SHA:0:12}"
@@ -81,7 +83,13 @@ retour_arriere() {
 
 # 5. Migrations par la route protégée (le verrou se supprime après usage).
 journal "Migrations"
-curl -fsS -X POST -H "Authorization: Bearer $JETON" "$SITE_URL/_deploiement/migrer" || retour_arriere
+PARAMETRES=""
+[ "$REPRISE_GRR" = "oui" ] && PARAMETRES="?reprise=1" && journal "Reprise de GRR demandée"
+REPONSE="$(curl -fsS --max-time 600 -X POST -H "Authorization: Bearer $JETON" "$SITE_URL/_deploiement/migrer$PARAMETRES")" || retour_arriere
+journal "Réponse : $REPONSE"
+if [ "$REPRISE_GRR" = "oui" ] && ! printf '%s' "$REPONSE" | grep -q '"valide":true'; then
+  echo "::warning title=Reprise GRR::le contrôle signale des écarts : voir l'écran Reprise du site"
+fi
 
 # 6. Fin de maintenance et test de fumée.
 sftp_cmd "rm -f $DOSSIER_DISTANT/partage/storage/framework/down"

@@ -40,6 +40,42 @@ final class BaseGrr
         return DB::table($this->table('utilisateurs'))->orderBy('login')->get();
     }
 
+    /**
+     * Ajustements de la configuration (GRR_AJUSTEMENTS), par login.
+     *
+     * @return array<string, string> login => admin | membre | desactive
+     */
+    public static function ajustements(): array
+    {
+        $ajustements = [];
+        foreach (array_filter(array_map('trim', explode(',', (string) config('chamrousse.grr_ajustements', '')))) as $paire) {
+            [$login, $action] = array_map('trim', explode(':', $paire, 2)) + [1 => ''];
+            if ($login !== '' && in_array($action, ['admin', 'membre', 'desactive'], true)) {
+                $ajustements[$login] = $action;
+            }
+        }
+
+        return $ajustements;
+    }
+
+    /** @return array<string, true> logins qui recevaient les e-mails de GRR (préférence « réservations des autres ») */
+    public function abonnesEmails(): array
+    {
+        try {
+            return DB::table($this->table('j_mailuser_room'))->pluck('login')->mapWithKeys(fn ($l) => [(string) $l => true])->all();
+        } catch (\Illuminate\Database\QueryException) {
+            return [];
+        }
+    }
+
+    /** « BROTTET » → « Brottet », « SENEQUIER-CROZET » → « Senequier-Crozet » ; les autres noms restent tels quels. */
+    public static function nomPropre(string $nom): string
+    {
+        $nom = trim($nom);
+
+        return $nom !== '' && $nom === mb_strtoupper($nom) && $nom !== mb_strtolower($nom) ? mb_convert_case($nom, MB_CASE_TITLE) : $nom;
+    }
+
     /** Statut GRR → rôle : administrateur et gestionnaire d'utilisateurs deviennent admins. */
     public static function role(string $statut): string
     {

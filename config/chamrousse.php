@@ -8,4 +8,12 @@ return [
 
     // Reprise de GRR (ADR 014) : préfixe des tables GRR dans la même base (« NAR_ » en production).
     'grr_prefixe' => env('GRR_PREFIXE', 'grr_'),
+
+    // Ajustements appliqués à chaque import, par login GRR : « login:admin,login:membre,login:desactive ».
+    // Exemple d'usage : promouvoir un membre admin, désactiver un compte partagé.
+    'grr_ajustements' => env('GRR_AJUSTEMENTS', ''),
+
+    // « ouverte » : le bouton « Lancer la reprise » est disponible pour les admins.
+    // À passer à « fermee » après la bascule : un nouvel import écraserait les noms et rôles modifiés depuis.
+    'grr_reprise' => env('GRR_REPRISE', 'ouverte'),
 ];

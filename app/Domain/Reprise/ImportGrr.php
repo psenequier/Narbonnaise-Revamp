@@ -60,6 +60,8 @@ final class ImportGrr
     {
         $grr = $this->grr->comptes();
         $this->totaux['comptes_grr'] = $grr->count();
+        $ajustements = BaseGrr::ajustements();
+        $abonnes = $this->grr->abonnesEmails();
 
         // US-801-N2 : une adresse partagée par plusieurs comptes n'est jamais fusionnée.
         /** @var array<string, list<string>> $parEmail */
@@ -90,19 +92,24 @@ final class ImportGrr
 
             $membre = User::query()->where('grr_login', $login)->first() ?? new User;
             $nouveau = ! $membre->exists;
+            $ajustement = $ajustements[$login] ?? null;
             $membre->forceFill([
                 'grr_login' => $login,
-                'prenom' => trim((string) $u->prenom) ?: $login,
-                'nom' => trim((string) $u->nom) ?: $login,
+                'prenom' => BaseGrr::nomPropre((string) $u->prenom) ?: $login,
+                'nom' => BaseGrr::nomPropre((string) $u->nom) ?: $login,
                 'email' => $email,
-                'role' => BaseGrr::role((string) $u->statut),
-                'actif' => $u->etat !== 'inactif',
+                'role' => in_array($ajustement, ['admin', 'membre'], true) ? $ajustement : BaseGrr::role((string) $u->statut),
+                'actif' => $u->etat !== 'inactif' && $ajustement !== 'desactive',
             ]);
             if ($nouveau) {
                 // US-801-P2, N1, N3 : bcrypt repris tel quel ; MD5 jamais conservé.
                 $hash = (string) $u->password;
                 $bcrypt = preg_match('/^\$2[aby]\$\d{2}\$/', $hash) === 1;
-                $membre->forceFill(['email_verified_at' => now(), 'a_reinitialiser' => ! $bcrypt]);
+                $membre->forceFill([
+                    'email_verified_at' => now(), 'a_reinitialiser' => ! $bcrypt,
+                    // Préférence reprise de GRR (abonnement aux e-mails de la salle) ; le membre la change ensuite.
+                    'recoit_emails_autres' => $abonnes === [] || isset($abonnes[$login]),
+                ]);
                 // Le hachage est écrit brut : le cast « hashed » refuserait un bcrypt sous argon2id.
                 $membre->setRawAttributes(array_merge($membre->getAttributes(), ['password' => $bcrypt ? $hash : null]));
                 if (! $bcrypt) {
