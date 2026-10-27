@@ -1,2 +1,0 @@
-9 critères attendus, 9 prouvés par un test.
-code 0
