@@ -71,7 +71,6 @@ final class GoogleController
 
         Auth::login($membre);
         $request->session()->regenerate();
-        Journal::ecrire('connexion.google', $membre);
 
         return app(\Laravel\Fortify\Contracts\LoginResponse::class)->toResponse($request);
     }
