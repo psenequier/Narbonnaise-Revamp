@@ -29,7 +29,8 @@ it('US-506-P1 enregistre un envoi en échec puis le renvoie à la relance suivan
         ->and($echec->envoye_le)->toBeNull()
         ->and((string) $echec->derniere_erreur)->toContain('SMTP');
 
-    Mail::fake(); // le SMTP répond de nouveau
+    // Le SMTP répond de nouveau : un vrai faux facteur à la place du simulacre en panne.
+    Mail::swap(new \Illuminate\Support\Testing\Fakes\MailFake(new \Illuminate\Mail\MailManager(app())));
     $this->travel(1)->hours();
     $this->artisan('emails:envoyer')->assertSuccessful();
 

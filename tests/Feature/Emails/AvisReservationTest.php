@@ -135,6 +135,7 @@ it('US-502-N2 ne laisse aucune préférence forgée désactiver le message indiv
 
 it('US-502-N3 n\'envoie à l\'auteur que sa confirmation, sans doublon', function () {
     poster($this->alice, ['2026-11-14-N']);
+    Mail::fake(); // seuls comptent les e-mails provoqués par l'action de Bruno
     poster($this->bruno, ['2026-11-14-N']);
 
     $pourBruno = envoyes(a: 'bruno@example.test');
