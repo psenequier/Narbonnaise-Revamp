@@ -170,6 +170,8 @@ jobs:
         run: |
           php artisan migrate --seed --seeder=DonneesFictivesSeeder --force
           php artisan serve --port=8000 > storage/logs/serve.log 2>&1 &
+      - name: Attendre que le site éphémère réponde (60 s au plus)
+        run: timeout 60 bash -c 'until curl -sf -o /dev/null http://127.0.0.1:8000/login; do sleep 1; done'
       - run: npx playwright install --with-deps chromium webkit
       - name: Tests d'interface (Chrome, WebKit, iPhone) et accessibilité
         shell: bash
