@@ -17,7 +17,8 @@ Schedule::command('backup:clean')->dailyAt('03:30');
 Schedule::command('emails:envoyer --max=150')->hourly()->withoutOverlapping(55);
 Schedule::command('creneaux:verifier')->dailyAt('04:15');
 
+Schedule::command('vacances:verifier')->monthlyOn(1, '04:00')->timezone('Europe/Paris');
+Schedule::command('attributions:rappeler')->dailyAt('08:00')->timezone('Europe/Paris');
+
 // À ajouter avec leurs commandes (plan de dev) :
-// vacances:verifier          monthlyOn(1, '04:00')
-// attributions:rappeler      dailyAt('08:00'), actif en octobre seulement
 // journal:purger-ip          monthlyOn(2, '04:00')

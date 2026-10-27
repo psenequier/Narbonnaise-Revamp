@@ -110,3 +110,74 @@ function mettreVacances(string $du, string $au, ?string $lignee = null): void
         }
     }
 }
+
+/** Un enregistrement du jeu officiel « fr-en-calendrier-scolaire », tel que publié (dates en UTC). */
+function enregistrementScolaire(string $description, string $zone, string $debut, string $reprise, string $academie = 'Grenoble'): array
+{
+    return [
+        'description' => $description, 'population' => '-', 'start_date' => $debut, 'end_date' => $reprise,
+        'location' => $academie, 'zones' => $zone, 'annee_scolaire' => '2026-2027',
+    ];
+}
+
+/**
+ * Simule la source officielle pour 2026-2027 (réponse enregistrée, simplifiée) :
+ * zone A avec des dates paramétrables, plus du bruit (zones B et C, Toussaint)
+ * qui doit être ignoré. Les autres années ne sont pas encore publiées.
+ */
+function simulerCalendrier(
+    ?array $noel = ['2026-12-18T23:00:00+00:00', '2027-01-03T23:00:00+00:00'],
+    ?array $hiver = ['2027-02-12T23:00:00+00:00', '2027-02-28T23:00:00+00:00'],
+): void {
+    app()->instance(\App\Domain\Sources\UrlSourceSure::class, new \App\Domain\Sources\UrlSourceSure(fn () => ['185.75.143.24']));
+    reinitialiserHttp();
+
+    $resultats = [
+        enregistrementScolaire('Vacances de la Toussaint', 'Zone A', '2026-10-16T22:00:00+00:00', '2026-11-01T23:00:00+00:00'),
+        enregistrementScolaire('Vacances de Noël', 'Zone B', '2026-12-18T23:00:00+00:00', '2027-01-03T23:00:00+00:00', 'Rennes'),
+        enregistrementScolaire('Vacances d\'Hiver', 'Zone B', '2027-02-19T23:00:00+00:00', '2027-03-07T23:00:00+00:00', 'Rennes'),
+        enregistrementScolaire('Vacances d\'Hiver', 'Zone C', '2027-02-05T23:00:00+00:00', '2027-02-21T23:00:00+00:00', 'Paris'),
+    ];
+    if ($noel !== null) {
+        $resultats[] = enregistrementScolaire('Vacances de Noël', 'Zone A', ...$noel);
+        $resultats[] = enregistrementScolaire('Vacances de Noël', 'Zone A', ...[...$noel, 'Lyon']);
+    }
+    if ($hiver !== null) {
+        $resultats[] = enregistrementScolaire('Vacances d\'Hiver', 'Zone A', ...$hiver);
+    }
+
+    \Illuminate\Support\Facades\Http::fake(function (\Illuminate\Http\Client\Request $requete) use ($resultats) {
+        $publiee = str_contains(urldecode($requete->url()), '2026-2027');
+
+        return \Illuminate\Support\Facades\Http::response(['total_count' => $publiee ? count($resultats) : 0, 'results' => $publiee ? $resultats : []]);
+    });
+}
+
+/** Les faux de Http::fake s'empilent (le premier qui répond gagne) : on repart d'un client neuf. */
+function reinitialiserHttp(): void
+{
+    \Illuminate\Support\Facades\Http::swap(new \Illuminate\Http\Client\Factory(app('events')));
+    \Illuminate\Support\Facades\Http::preventStrayRequests();
+}
+
+/** Ouvre 2026-2027 comme en production : source simulée, puis synchronisation. */
+function ouvrirAnnee2026(): \App\Models\AnneeScolaire
+{
+    simulerCalendrier();
+    app(\App\Domain\Vacances\PeriodesScolaires::class)->synchroniserAnnee('2026-2027');
+
+    return \App\Models\AnneeScolaire::where('libelle', '2026-2027')->sole();
+}
+
+function periode(string $nom): \App\Models\PeriodeVacances
+{
+    return \App\Models\PeriodeVacances::where('nom', $nom)->sole();
+}
+
+function adminAvec2fa(array $attributs = []): \App\Models\User
+{
+    $admin = \App\Models\User::factory()->admin()->create($attributs);
+    activerDoubleAuthentification($admin);
+
+    return $admin->fresh();
+}

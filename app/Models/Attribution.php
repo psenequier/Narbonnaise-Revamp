@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attribution extends Model
 {
-    protected $fillable = ['creneau_id', 'lignee_id', 'saisie_par'];
+    protected $fillable = ['creneau_id', 'lignee_id', 'plage_id', 'saisie_par'];
 
     /** @return BelongsTo<Lignee, $this> */
     public function lignee(): BelongsTo

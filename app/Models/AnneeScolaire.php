@@ -7,6 +7,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property string $libelle
+ * @property \Illuminate\Support\Carbon $debut
+ * @property \Illuminate\Support\Carbon $fin
+ * @property bool $ouverte
+ * @property \Illuminate\Support\Carbon|null $ouverte_le
+ */
 class AnneeScolaire extends Model
 {
     protected $table = 'annees_scolaires';

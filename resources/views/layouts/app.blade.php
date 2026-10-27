@@ -20,6 +20,16 @@
     </header>
     <main class="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">
         <h1 class="text-2xl font-extrabold">@yield('titre')</h1>
+        @can('admin')
+            @php($restants = app(\App\Domain\Vacances\SuiviAttributions::class)->restants())
+            @if ($restants > 0)
+                {{-- US-406-P2 : bandeau tant qu'il reste des vacances sans lignée. --}}
+                <p role="status" class="rounded-lg border border-amber-400 bg-amber-50 p-3 text-sm" data-bandeau="attributions">
+                    <strong>{{ $restants }} créneau(x) de vacances</strong> sans lignée.
+                    <a href="{{ route('admin.vacances') }}" class="underline">Attribuer les vacances</a>
+                </p>
+            @endif
+        @endcan
         {{-- Les statuts techniques de Fortify (« password-updated »…) sont traduits dans chaque page. --}}
         @if (session('status') && ! preg_match('/^[a-z-]+$/', (string) session('status')))
             <p role="status" class="rounded-lg bg-sapin-clair p-3 text-sm">{{ session('status') }}</p>
