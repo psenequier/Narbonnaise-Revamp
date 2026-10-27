@@ -21,7 +21,8 @@ final class SanteController
             'base' => $this->essayer(fn () => DB::select('select 1')),
             'cache' => $this->essayer(fn () => Cache::put('sante', 1, 10)),
             // La cron horaire écrit cette valeur ; au-delà de 2 h, elle est en retard.
-            'planificateur' => now()->diffInMinutes(Cache::get('planificateur.dernier_passage', now()->subYear())) <= 120,
+            // Carbon 3 : diffInMinutes est signé ; on mesure l'écart dans le bon sens.
+            'planificateur' => Cache::get('planificateur.dernier_passage', now()->subYear())->diffInMinutes(now()) <= 120,
         ];
 
         $ok = ! in_array(false, $controles, true);

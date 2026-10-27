@@ -25,10 +25,10 @@ jobs:
         options: --health-cmd="mysqladmin ping -pe2e" --health-interval=5s --health-retries=20
     env: { DB_DATABASE: e2e, DB_PASSWORD: e2e, APP_URL: "http://127.0.0.1:8000" }
     steps:
-      - uses: actions/checkout@v5
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with: { php-version: "8.5", extensions: "pdo_mysql" }
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 22 }
       - run: composer install --no-interaction --prefer-dist --no-progress && npm ci && npm run build
       - run: |
@@ -36,7 +36,7 @@ jobs:
           php artisan migrate --seed --seeder=DonneesFictivesSeeder --force
           php artisan serve --port=8000 > /dev/null 2>&1 &
       - name: Scan ZAP actif, uniquement sur le site éphémère
-        uses: zaproxy/action-full-scan@v0.12.0
+        uses: zaproxy/action-full-scan@3c58388149901b9a03b7718852c5ba889646c27c # v0.13.0
         with:
           target: http://127.0.0.1:8000
           rules_file_name: .zap/regles.tsv
@@ -46,11 +46,11 @@ jobs:
   audit:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with: { php-version: "8.5" }
       - run: composer audit --locked
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 22 }
       - run: npm ci && npm audit --audit-level=high
 

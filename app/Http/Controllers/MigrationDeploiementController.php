@@ -27,7 +27,7 @@ final class MigrationDeploiementController
 
         // Le verrou contient l'empreinte SHA-256 du jeton, jamais le jeton lui-même.
         if ($attendu === '' || ! hash_equals($attendu, hash('sha256', $fourni))) {
-            abort(404);
+            abort(403);
         }
 
         unlink($verrou); // usage unique, même en cas d'échec de la migration
