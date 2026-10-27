@@ -1,8 +1,6 @@
 Loading composer repositories with package information
 Updating dependencies
-Lock file operations: 2 installs, 0 updates, 0 removals
-  - Locking hamcrest/hamcrest-php (v3.0.0)
-  - Locking mockery/mockery (1.6.15)
+Nothing to modify in lock file
 Writing lock file
 Installing dependencies from lock file (including require-dev)
 Package operations: 186 installs, 0 updates, 0 removals
