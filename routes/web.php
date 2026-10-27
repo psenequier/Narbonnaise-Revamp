@@ -76,6 +76,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/reprise', [RepriseController::class, 'index'])->name('reprise');
         Route::post('/reprise/lancer', [RepriseController::class, 'lancer'])->middleware('throttle:5,10')->name('reprise.lancer');
         Route::post('/reprise/propositions/{proposition}', [RepriseController::class, 'valider'])->whereNumber('proposition')->name('reprise.valider');
+        Route::get('/reprise/archives/{fichier}', [RepriseController::class, 'archive'])->where('fichier', '[a-z0-9-]+\\.zip')->name('reprise.archive');
         Route::post('/reprise/annonce', [RepriseController::class, 'annoncer'])->name('reprise.annoncer');
         Route::post('/reprise/mise-en-service', [RepriseController::class, 'mettreEnService'])->name('reprise.mise-en-service');
         // Vacances et attributions, utilisateurs, paramètres, journal : lot MVP 2.

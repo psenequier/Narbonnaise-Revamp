@@ -11,6 +11,18 @@
         <button class="h-11 rounded-lg bg-sapin px-4 font-bold text-white">Lancer la reprise</button>
     </form>
 @endif
+<section class="rounded-2xl border border-bord bg-white p-5 text-sm" aria-labelledby="archives">
+    <h2 id="archives" class="mb-2 text-lg font-extrabold">Archives de la bascule</h2>
+    <p class="mb-2">Sauvegarde complète et export GRR, chiffrés (mot de passe des sauvegardes). À télécharger et ranger hors d'OVH.</p>
+    @forelse ($archives as $a)
+        <p class="flex flex-wrap items-center gap-2 border-t border-bord py-2" data-archive="{{ $a['type'] }}">
+            <span class="mr-auto">{{ $a['type'] === 'grr' ? 'Export GRR' : 'Sauvegarde complète' }} · {{ \Illuminate\Support\Carbon::parse($a['cree_le'])->timezone('Europe/Paris')->format('d/m/Y H:i') }} · {{ count($a['tables']) }} tables{{ $a['intacte'] ? '' : ' · ALTÉRÉE' }}</span>
+            @if ($a['intacte'])<a href="{{ route('admin.reprise.archive', $a['fichier']) }}" class="font-bold text-sapin underline">Télécharger</a>@endif
+        </p>
+    @empty
+        <p class="text-gris">Aucune archive.</p>
+    @endforelse
+</section>
 <section class="flex flex-col gap-3 rounded-2xl border border-bord bg-white p-5" aria-labelledby="annonces">
     <h2 id="annonces" class="text-lg font-extrabold">Annonces de la bascule</h2>
     <form method="POST" action="{{ route('admin.reprise.annoncer') }}" class="flex flex-wrap items-end gap-2 text-sm">

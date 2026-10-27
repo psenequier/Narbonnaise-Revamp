@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Domain\Calendrier\Creneau;
 use App\Domain\Calendrier\TypeCreneau;
 use App\Domain\Reprise\ControleReprise;
+use App\Domain\Reprise\ExportBascule;
 use App\Domain\Reprise\ImportGrr;
 use App\Domain\Vacances\Attributions;
 use App\Domain\Vacances\RefusVacances;
@@ -33,9 +34,24 @@ final class RepriseController
             'controle' => $decoder($dernier('controle')),
             'lignees' => Lignee::query()->orderBy('nom')->get(),
             'ouverte' => config('chamrousse.grr_reprise') === 'ouverte',
+            'archives' => app(ExportBascule::class)->archives(),
             'propositions' => DB::table('reprise_propositions')->where('statut', 'en_attente')->orderBy('grr_entry_id')
                 ->get(['id', 'grr_entry_id', 'libelle', 'creneaux', 'lignee_id']),
         ]);
+    }
+
+    /**
+     * US-805-P1 : l'admin télécharge l'archive chiffrée pour la ranger hors d'OVH.
+     * Nom contrôlé (aucun chemin), téléchargement inscrit au journal.
+     */
+    public function archive(string $fichier): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        abort_unless(ExportBascule::nomValide($fichier), 404);
+        $chemin = ExportBascule::dossier().'/'.$fichier;
+        abort_unless(is_file($chemin), 404);
+        Journal::ecrire('reprise.archive_telechargee', null, ['fichier' => $fichier]);
+
+        return response()->download($chemin, $fichier, ['Content-Type' => 'application/zip']);
     }
 
     /** US-806-P1 : annonce de la bascule (pas de SSH sur l'offre Starter : bouton d'admin). */

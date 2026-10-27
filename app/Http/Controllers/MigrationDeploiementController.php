@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Domain\Reprise\ControleReprise;
+use App\Domain\Reprise\ExportBascule;
 use App\Domain\Reprise\ImportGrr;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,16 +35,33 @@ final class MigrationDeploiementController
 
         unlink($verrou); // usage unique, même en cas d'échec de la migration
 
+        // US-805-P1 : nuits de répétition et de bascule, sauvegarde complète puis export GRR
+        // chiffrés et vérifiés, avant toute migration. Un échec arrête tout (première erreur).
+        $avecReprise = $request->boolean('reprise') && config('chamrousse.grr_reprise') === 'ouverte';
+        $archives = null;
+        if ($avecReprise) {
+            @set_time_limit(300);
+            try {
+                $export = app(ExportBascule::class);
+                $sauvegarde = $export->sauvegarder();
+                $grr = $export->exporterGrr();
+                $archives = ['sauvegarde' => count($sauvegarde['tables']), 'export_grr' => count($grr['tables'])];
+            } catch (\Throwable $e) {
+                report($e);
+
+                return response()->json(['migre' => false, 'etape' => 'sauvegarde', 'sortie' => 'voir les journaux'], 500);
+            }
+        }
+
         $code = Artisan::call('migrate', ['--force' => true]);
         if ($code !== 0) {
-            return response()->json(['migre' => false, 'sortie' => 'voir les journaux'], 500);
+            return response()->json(['migre' => false, 'etape' => 'migrations', 'sortie' => 'voir les journaux'], 500);
         }
 
         // Nuits de répétition et de bascule : première reprise de GRR (aucun admin n'existe encore
-        // pour la lancer depuis l'écran). Un écart du contrôle n'annule pas le déploiement.
+        // pour la lancer depuis l'écran). Le script de déploiement s'arrête si le contrôle n'est pas validé (US-805-N1).
         $reprise = null;
-        if ($request->boolean('reprise') && config('chamrousse.grr_reprise') === 'ouverte') {
-            @set_time_limit(300);
+        if ($avecReprise) {
             $import = app(ImportGrr::class)->importer();
             $controle = app(ControleReprise::class)->rapport();
             $reprise = [
@@ -52,6 +70,7 @@ final class MigrationDeploiementController
                 'reservations' => $import['reservations'] ?? 0,
                 'propositions' => $import['propositions'] ?? 0,
                 'rejets' => is_array($import['rejets'] ?? null) ? count($import['rejets']) : 0,
+                'archives' => $archives,
             ];
         }
 
