@@ -81,14 +81,28 @@ retour_arriere() {
   exit 1
 }
 
-# 5. Migrations par la route protégée (le verrou se supprime après usage).
+# Nuits de répétition et de bascule (US-805-N1) : le dossier racine OVH pointe déjà sur le
+# nouveau site, changé à la main. En cas d'échec, pas de renommage : le site reste en
+# maintenance et l'admin remet le dossier racine sur www, où GRR, intact, est de nouveau servi.
+# Aucune étape ne touche au fichier de configuration PHP de la racine du compte (US-805-N4).
+arret_bascule() {
+  echo "::error title=Bascule arrêtée::$1 Le site reste en maintenance. Retour arrière : OVH → Multisite → dossier racine www (GRR est de nouveau servi), puis variables SITE_SERVI=non et REPRISE_GRR=non."
+  exit 1
+}
+
+# 5. Migrations par la route protégée (le verrou se supprime après usage). Avec la reprise,
+#    la route sauvegarde la base et exporte GRR (chiffrés, vérifiés) avant de migrer.
 journal "Migrations"
-PARAMETRES=""
-[ "$REPRISE_GRR" = "oui" ] && PARAMETRES="?reprise=1" && journal "Reprise de GRR demandée"
-REPONSE="$(curl -fsS --max-time 600 -X POST -H "Authorization: Bearer $JETON" "$SITE_URL/_deploiement/migrer$PARAMETRES")" || retour_arriere
-journal "Réponse : $REPONSE"
-if [ "$REPRISE_GRR" = "oui" ] && ! printf '%s' "$REPONSE" | grep -q '"valide":true'; then
-  echo "::warning title=Reprise GRR::le contrôle signale des écarts : voir l'écran Reprise du site"
+if [ "$REPRISE_GRR" = "oui" ]; then
+  journal "Reprise de GRR demandée : sauvegarde, export, migrations, import, contrôle"
+  REPONSE="$(curl -fsS --max-time 600 -X POST -H "Authorization: Bearer $JETON" "$SITE_URL/_deploiement/migrer?reprise=1")" \
+    || arret_bascule "La sauvegarde, l'export de GRR ou les migrations ont échoué."
+  journal "Réponse : $REPONSE"
+  printf '%s' "$REPONSE" | grep -q '"valide":true' \
+    || arret_bascule "Le contrôle de la reprise n'est pas validé (réponse ci-dessus)."
+else
+  REPONSE="$(curl -fsS --max-time 600 -X POST -H "Authorization: Bearer $JETON" "$SITE_URL/_deploiement/migrer")" || retour_arriere
+  journal "Réponse : $REPONSE"
 fi
 
 # 6. Fin de maintenance et test de fumée.
