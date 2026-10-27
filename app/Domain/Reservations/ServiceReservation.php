@@ -58,8 +58,8 @@ final class ServiceReservation
             if ($creneaux->contains(fn (Creneau $c) => $c->periode_id !== null)) {
                 throw new ReservationRefusee('Les vacances de Noël et de février ne se réservent pas : elles sont attribuées par les admins.');
             }
-            $premier = $creneaux->first();
-            $dernier = $creneaux->last();
+            $premier = $creneaux->firstOrFail();
+            $dernier = $creneaux->reverse()->firstOrFail();
             $fermee = DB::table('fermetures')
                 ->where('debut', '<=', $dernier->date)
                 ->where('fin', '>=', $premier->date)

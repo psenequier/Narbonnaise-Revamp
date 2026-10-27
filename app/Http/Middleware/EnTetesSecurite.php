@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 /** En-têtes vérifiés par le test de fumée et par ZAP (A02 OWASP 2025). */
 final class EnTetesSecurite
 {
+    /** @param Closure(Request): Response $next */
     public function handle(Request $request, Closure $next): Response
     {
         /** @var Response $response */

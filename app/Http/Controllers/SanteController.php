@@ -29,6 +29,7 @@ final class SanteController
         return response()->json($controles, $ok ? 200 : 503);
     }
 
+    /** @param callable(): mixed $f */
     private function essayer(callable $f): bool
     {
         try {
