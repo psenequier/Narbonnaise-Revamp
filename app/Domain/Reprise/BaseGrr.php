@@ -58,7 +58,7 @@ final class BaseGrr
         return $ajustements;
     }
 
-    /** @return array<string, true> logins qui recevaient les e-mails de GRR (préférence « réservations des autres ») */
+    /** @return array<string, bool> logins qui recevaient les e-mails de GRR (préférence « réservations des autres ») */
     public function abonnesEmails(): array
     {
         try {
