@@ -1,0 +1,50 @@
+
+   PASS  Tests\Unit\CalculPeriodesTest
+  ✓ it US-401-P1 calcule la période du vendredi nuit au dimanche jour w… 0.01s  
+  ✓ it US-401-P1 calcule la période du vendredi nuit au dimanche jour with dataset "février"
+  ✓ it accepte aussi des dates sans heure
+  ✓ it commence par la nuit du vendredi et finit par le jour du dimanche
+  ✓ it sait si un créneau appartient à la période
+  ✓ it refuse une reprise antérieure au début
+
+   PASS  Tests\Unit\RegleEquiteTest
+  ✓ it US-311-N1 refuse J+15 au membre qui a 6 réservations quand X = 5… 0.01s  
+  ✓ it accepte J+14 dans le même cas
+  ✓ it ne limite pas un membre sous le seuil
+  ✓ it désactive la règle quand X ou Y vaut 0 with (0, 14)
+  ✓ it désactive la règle quand X ou Y vaut 0 with (5, 0)
+  ✓ it désactive la règle quand X ou Y vaut 0 with (0, 0)
+  ✓ it applique le délai maximal de réservation à l'avance
+  ✓ it US-301-N3 refuse une date passée
+
+   PASS  Tests\Unit\UrlSourceSureTest
+  ✓ it US-607-N1 refuse toute URL en http://
+  ✓ it US-607-N2 refuse les adresses internes with ('https://localhost/')
+  ✓ it US-607-N2 refuse les adresses internes with ('https://127.0.0.1/')
+  ✓ it US-607-N2 refuse les adresses internes with ('https://10.1.2.3/')
+  ✓ it US-607-N2 refuse les adresses internes with ('https://192.168.1.1/')
+  ✓ it US-607-N2 refuse les adresses internes with ('https://169.254.169.254/lates…a-data')
+  ✓ it US-607-N2 refuse les adresses internes with ('https://[::1]/')
+  ✓ it US-607-N2 refuse les adresses internes with ('https://interne.example/')
+  ✓ it refuse identifiants, ports non standard et noms introuvables with ('https://u:p@api.open-meteo.com/')
+  ✓ it refuse identifiants, ports non standard et noms introuvables with ('https://api.open-meteo.com:8443/')
+  ✓ it refuse identifiants, ports non standard et noms introuvables with ('https://inconnu.example/')
+  ✓ it accepte les sources officielles préremplies with ('https://api.open-meteo.com/v1/forecast')
+  ✓ it accepte les sources officielles préremplies with ('https://data.education.gouv.f…ecords')
+
+   PASS  Tests\Feature\ServiceReservationTest
+  ✓ it US-301-P1 crée la réservation sur des créneaux libres             0.96s  
+  ✓ it US-301-P2 accepte une deuxième réservation ouverte sur le même c… 0.38s  
+  ✓ it US-301-P3 trace la création dans le journal                       0.37s  
+  ✓ it US-301-N1 refuse toute la réservation si un créneau est exclusif… 0.38s  
+  ✓ it refuse une réservation exclusive sur un créneau déjà ouvert       0.37s  
+  ✓ it US-301-N2 refuse un créneau de vacances, même non attribué        0.37s  
+  ✓ it US-301-N2 refuse un créneau pendant une fermeture                 0.37s  
+  ✓ it US-301-N4 refuse une date d'une année non ouverte                 0.37s  
+  ✓ it US-301-N6 refuse une réservation sans créneau                     0.37s  
+  ✓ it US-311-P3 ne compte jamais une réservation annulée                0.38s  
+
+  Tests:    37 passed (63 assertions)
+  Duration: 4.94s
+
+code 0
