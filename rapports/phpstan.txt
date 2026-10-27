@@ -1,0 +1,125 @@
+Note: Using configuration file /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/phpstan.neon.
+
+ Laravel framework bootstrap failed                                             
+
+PHPStan was unable to bootstrap your application because Laravel failed to start.
+
+Larastan launches your Laravel application during analysis to provide smarter results.
+The framework reported an error while starting, so the analysis could not continue.
+
+Tip: Try the following:
+ - Check your environment variables in the .env file
+ - Check the Laravel logs in storage/logs/laravel.log for more details
+ - Run composer dump-autoload to ensure classes are indexed
+ - Verify service provider registration and configuration
+ - Verify the application boots by running php artisan about
+
+Error: Please provide a valid cache path.
+
+Stack trace:
+#0 vendor/laravel/framework/src/Illuminate/View/ViewServiceProvider.php(97): Illuminate/View/Compilers/Compiler->__construct()
+#1 vendor/laravel/framework/src/Illuminate/Container/Container.php(1144): Illuminate/View/ViewServiceProvider->{closure:Illuminate/View/ViewServiceProvider::registerBladeCompiler():96}()
+#2 vendor/laravel/framework/src/Illuminate/Container/Container.php(939): Illuminate/Container/Container->build()
+#3 vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1086): Illuminate/Container/Container->resolve()
+#4 vendor/laravel/framework/src/Illuminate/Container/Container.php(867): Illuminate/Foundation/Application->resolve()
+#5 vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1066): Illuminate/Container/Container->make()
+#6 vendor/laravel/framework/src/Illuminate/Container/Container.php(1850): Illuminate/Foundation/Application->make()
+#7 vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(240): Illuminate/Container/Container->offsetGet()
+#8 vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(211): Illuminate/Support/Facades/Facade::resolveFacadeInstance()
+#9 vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(358): Illuminate/Support/Facades/Facade::getFacadeRoot()
+#10 vendor/livewire/livewire/src/Mechanisms/FrontendAssets/FrontendAssets.php(33): Illuminate/Support/Facades/Facade::__callStatic()
+#11 vendor/livewire/livewire/src/LivewireServiceProvider.php(157): Livewire/Mechanisms/FrontendAssets/FrontendAssets->boot()
+#12 vendor/livewire/livewire/src/LivewireServiceProvider.php(24): Livewire/LivewireServiceProvider->bootMechanisms()
+#13 vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Livewire/LivewireServiceProvider->boot()
+#14 vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::{closure:Illuminate/Container/BoundMethod::call():35}()
+#15 vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#16 vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#17 vendor/laravel/framework/src/Illuminate/Container/Container.php(803): Illuminate/Container/BoundMethod::call()
+#18 vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1159): Illuminate/Container/Container->call()
+#19 vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1140): Illuminate/Foundation/Application->bootProvider()
+#20 [internal function]: Illuminate/Foundation/Application->{closure:Illuminate/Foundation/Application::boot():1139}()
+#21 vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1139): array_walk()
+#22 vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/BootProviders.php(17): Illuminate/Foundation/Application->boot()
+#23 vendor/laravel/framework/src/Illuminate/Foundation/Application.php(350): Illuminate/Foundation/Bootstrap/BootProviders->bootstrap()
+#24 vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(510): Illuminate/Foundation/Application->bootstrapWith()
+#25 vendor/larastan/larastan/bootstrap.php(31): Illuminate/Foundation/Console/Kernel->bootstrap()
+#26 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/CommandHelper.php(508): require_once('...')
+#27 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/CommandHelper.php(509): PHPStan/Command/CommandHelper::{closure:PHPStan/Command/CommandHelper::executeBootstrapFile():507}()
+#28 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/BootstrapFilesRunner.php(50): PHPStan/Command/CommandHelper::executeBootstrapFile()
+#29 phar://vendor/phpstan/phpstan/phpstan.phar/src/Parallel/WorkerRunner.php(105): PHPStan/Command/BootstrapFilesRunner->run()
+#30 phar://vendor/phpstan/phpstan/phpstan.phar/src/Parallel/ForkedProcess.php(141): PHPStan/Parallel/WorkerRunner->run()
+#31 phar://vendor/phpstan/phpstan/phpstan.phar/src/Parallel/ParallelAnalyser.php(228): PHPStan/Parallel/ForkedProcess->start()
+#32 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/AnalyserRunner.php(61): PHPStan/Parallel/ParallelAnalyser->analyse()
+#33 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/AnalyseApplication.php(182): PHPStan/Command/AnalyserRunner->runAnalyser()
+#34 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/AnalyseApplication.php(84): PHPStan/Command/AnalyseApplication->runAnalyser()
+#35 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/AnalyseCommand.php(273): PHPStan/Command/AnalyseApplication->analyse()
+#36 phar://vendor/phpstan/phpstan/phpstan.phar/vendor/symfony/console/Command/Command.php(259): PHPStan/Command/AnalyseCommand->execute()
+#37 phar://vendor/phpstan/phpstan/phpstan.phar/vendor/symfony/console/Application.php(868): _PHPStan_96c559d53/Symfony/Component/Console/Command/Command->run()
+#38 phar://vendor/phpstan/phpstan/phpstan.phar/vendor/symfony/console/Application.php(261): _PHPStan_96c559d53/Symfony/Component/Console/Application->doRunCommand()
+#39 phar://vendor/phpstan/phpstan/phpstan.phar/vendor/symfony/console/Application.php(157): _PHPStan_96c559d53/Symfony/Component/Console/Application->doRun()
+#40 phar://vendor/phpstan/phpstan/phpstan.phar/bin/phpstan(121): _PHPStan_96c559d53/Symfony/Component/Console/Application->run()
+#41 phar://vendor/phpstan/phpstan/phpstan.phar/bin/phpstan(122): {closure:phar://vendor/phpstan/phpstan/phpstan.phar/bin/phpstan:18}()
+#42 vendor/phpstan/phpstan/phpstan(8): require('...')
+#43 vendor/bin/phpstan(119): include('...')
+#44 {main}
+
+ Laravel framework bootstrap failed                                             
+
+PHPStan was unable to bootstrap your application because Laravel failed to start.
+
+Larastan launches your Laravel application during analysis to provide smarter results.
+The framework reported an error while starting, so the analysis could not continue.
+
+Tip: Try the following:
+ - Check your environment variables in the .env file
+ - Check the Laravel logs in storage/logs/laravel.log for more details
+ - Run composer dump-autoload to ensure classes are indexed
+ - Verify service provider registration and configuration
+ - Verify the application boots by running php artisan about
+
+Error: Please provide a valid cache path.
+
+Stack trace:
+#0 vendor/laravel/framework/src/Illuminate/View/ViewServiceProvider.php(97): Illuminate/View/Compilers/Compiler->__construct()
+#1 vendor/laravel/framework/src/Illuminate/Container/Container.php(1144): Illuminate/View/ViewServiceProvider->{closure:Illuminate/View/ViewServiceProvider::registerBladeCompiler():96}()
+#2 vendor/laravel/framework/src/Illuminate/Container/Container.php(939): Illuminate/Container/Container->build()
+#3 vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1086): Illuminate/Container/Container->resolve()
+#4 vendor/laravel/framework/src/Illuminate/Container/Container.php(867): Illuminate/Foundation/Application->resolve()
+#5 vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1066): Illuminate/Container/Container->make()
+#6 vendor/laravel/framework/src/Illuminate/Container/Container.php(1850): Illuminate/Foundation/Application->make()
+#7 vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(240): Illuminate/Container/Container->offsetGet()
+#8 vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(211): Illuminate/Support/Facades/Facade::resolveFacadeInstance()
+#9 vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php(358): Illuminate/Support/Facades/Facade::getFacadeRoot()
+#10 vendor/livewire/livewire/src/Mechanisms/FrontendAssets/FrontendAssets.php(33): Illuminate/Support/Facades/Facade::__callStatic()
+#11 vendor/livewire/livewire/src/LivewireServiceProvider.php(157): Livewire/Mechanisms/FrontendAssets/FrontendAssets->boot()
+#12 vendor/livewire/livewire/src/LivewireServiceProvider.php(24): Livewire/LivewireServiceProvider->bootMechanisms()
+#13 vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Livewire/LivewireServiceProvider->boot()
+#14 vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate/Container/BoundMethod::{closure:Illuminate/Container/BoundMethod::call():35}()
+#15 vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate/Container/Util::unwrapIfClosure()
+#16 vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate/Container/BoundMethod::callBoundMethod()
+#17 vendor/laravel/framework/src/Illuminate/Container/Container.php(803): Illuminate/Container/BoundMethod::call()
+#18 vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1159): Illuminate/Container/Container->call()
+#19 vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1140): Illuminate/Foundation/Application->bootProvider()
+#20 [internal function]: Illuminate/Foundation/Application->{closure:Illuminate/Foundation/Application::boot():1139}()
+#21 vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1139): array_walk()
+#22 vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/BootProviders.php(17): Illuminate/Foundation/Application->boot()
+#23 vendor/laravel/framework/src/Illuminate/Foundation/Application.php(350): Illuminate/Foundation/Bootstrap/BootProviders->bootstrap()
+#24 vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(510): Illuminate/Foundation/Application->bootstrapWith()
+#25 vendor/larastan/larastan/bootstrap.php(31): Illuminate/Foundation/Console/Kernel->bootstrap()
+#26 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/CommandHelper.php(508): require_once('...')
+#27 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/CommandHelper.php(509): PHPStan/Command/CommandHelper::{closure:PHPStan/Command/CommandHelper::executeBootstrapFile():507}()
+#28 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/BootstrapFilesRunner.php(50): PHPStan/Command/CommandHelper::executeBootstrapFile()
+#29 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/AnalyserRunner.php(73): PHPStan/Command/BootstrapFilesRunner->run()
+#30 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/AnalyseApplication.php(182): PHPStan/Command/AnalyserRunner->runAnalyser()
+#31 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/AnalyseApplication.php(84): PHPStan/Command/AnalyseApplication->runAnalyser()
+#32 phar://vendor/phpstan/phpstan/phpstan.phar/src/Command/AnalyseCommand.php(273): PHPStan/Command/AnalyseApplication->analyse()
+#33 phar://vendor/phpstan/phpstan/phpstan.phar/vendor/symfony/console/Command/Command.php(259): PHPStan/Command/AnalyseCommand->execute()
+#34 phar://vendor/phpstan/phpstan/phpstan.phar/vendor/symfony/console/Application.php(868): _PHPStan_96c559d53/Symfony/Component/Console/Command/Command->run()
+#35 phar://vendor/phpstan/phpstan/phpstan.phar/vendor/symfony/console/Application.php(261): _PHPStan_96c559d53/Symfony/Component/Console/Application->doRunCommand()
+#36 phar://vendor/phpstan/phpstan/phpstan.phar/vendor/symfony/console/Application.php(157): _PHPStan_96c559d53/Symfony/Component/Console/Application->doRun()
+#37 phar://vendor/phpstan/phpstan/phpstan.phar/bin/phpstan(121): _PHPStan_96c559d53/Symfony/Component/Console/Application->run()
+#38 phar://vendor/phpstan/phpstan/phpstan.phar/bin/phpstan(122): {closure:phar://vendor/phpstan/phpstan/phpstan.phar/bin/phpstan:18}()
+#39 vendor/phpstan/phpstan/phpstan(8): require('...')
+#40 vendor/bin/phpstan(119): include('...')
+#41 {main}
+code 1
