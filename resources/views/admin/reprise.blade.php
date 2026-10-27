@@ -1,6 +1,19 @@
 @extends('layouts.app')
 @section('titre', 'Reprise de GRR')
 @section('contenu')
+<section class="flex flex-col gap-3 rounded-2xl border border-bord bg-white p-5" aria-labelledby="annonces">
+    <h2 id="annonces" class="text-lg font-extrabold">Annonces de la bascule</h2>
+    <form method="POST" action="{{ route('admin.reprise.annoncer') }}" class="flex flex-wrap items-end gap-2 text-sm">
+        @csrf
+        <label class="flex flex-col font-bold">Date de la bascule<input type="date" name="date" required class="h-11 rounded-lg border border-bord px-2"></label>
+        <label class="flex flex-col font-bold">Durée de la coupure<input name="duree" value="une nuit, de 22 h à 6 h" required maxlength="100" class="h-11 rounded-lg border border-bord px-2"></label>
+        <button class="h-11 rounded-lg border border-sapin px-3 font-bold text-sapin">Annoncer (au moins 7 jours avant)</button>
+    </form>
+    <form method="POST" action="{{ route('admin.reprise.mise-en-service') }}">
+        @csrf
+        <button class="h-11 rounded-lg bg-sapin px-3 text-sm font-bold text-white">Jour J : envoyer la nouvelle adresse et les liens de mot de passe</button>
+    </form>
+</section>
 @if ($controle === null)
     <p class="rounded-lg border border-bord bg-white p-4">Aucune reprise lancée. Commande : <code>php artisan grr:importer</code></p>
 @else

@@ -28,10 +28,11 @@ Dans GitHub, environnement `production` : secrets SFTP, variables `SITE_URL`,
 
 ## J-7 au plus tard (bascule seulement) : l'annonce
 
-Depuis l'écran « Exécuter une commande » n'existant pas sur l'offre Starter, l'annonce
-part de la tâche planifiée ou d'un poste avec accès à la base : `php artisan
-bascule:annoncer 2026-12-12 --duree="une nuit, de 22 h à 6 h"`. Elle refuse de
-partir moins de 7 jours avant. Destinataires en copie cachée, comptes désactivés exclus.
+Pas de SSH sur l'offre Starter : l'annonce part d'un bouton. Sur le nouveau site
+(déployé mais pas encore servi, l'annonce se fait donc depuis la nuit de répétition
+du 9 décembre, ou en local avec `php artisan bascule:annoncer 2026-12-12`) :
+Administration → Reprise de GRR → « Annonces de la bascule ». Elle refuse de partir
+moins de 7 jours avant. Destinataires en copie cachée, comptes désactivés exclus.
 
 ## La nuit (répétition comme bascule)
 
@@ -56,6 +57,7 @@ partir moins de 7 jours avant. Destinataires en copie cachée, comptes désactiv
 
 1. Garder `SITE_SERVI=oui`, remettre `REPRISE=non` (les déploiements suivants ne réimportent plus).
 2. Valider les attributions de vacances proposées (Administration → Reprise de GRR).
-3. Envoyer les messages du jour J : `php artisan bascule:annoncer --mise-en-service`
-   (lien de mot de passe valable 7 jours aux comptes « à réinitialiser », nouvelle adresse aux autres).
+3. Envoyer les messages du jour J : Administration → Reprise de GRR → « Jour J : envoyer… »
+   (lien de mot de passe valable 7 jours aux comptes « à réinitialiser », nouvelle adresse aux autres ;
+   une seule fois).
 4. Garder les tables `NAR_*` et la sauvegarde chiffrée au moins jusqu'à la fin de la saison.

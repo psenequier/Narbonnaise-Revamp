@@ -35,6 +35,32 @@ final class RepriseController
         ]);
     }
 
+    /** US-806-P1 : annonce de la bascule (pas de SSH sur l'offre Starter : bouton d'admin). */
+    public function annoncer(Request $request, \App\Domain\Reprise\AnnoncesBascule $annonces): RedirectResponse
+    {
+        $valide = $request->validate([
+            'date' => ['required', 'date_format:Y-m-d'],
+            'duree' => ['required', 'string', 'max:100'],
+        ]);
+        $paris = new \DateTimeZone('Europe/Paris');
+        try {
+            $n = $annonces->annoncer(new DateTimeImmutable((string) $valide['date'], $paris), (string) $valide['duree'], new DateTimeImmutable('now', $paris));
+        } catch (\InvalidArgumentException $e) {
+            return back()->withErrors(['date' => $e->getMessage()]);
+        }
+
+        return back()->with('status', "Annonce envoyée à {$n} membre(s).");
+    }
+
+    /** US-806-P2 : messages du jour J, une seule fois. */
+    public function mettreEnService(\App\Domain\Reprise\AnnoncesBascule $annonces): RedirectResponse
+    {
+        abort_if(DB::table('journal')->where('action', 'bascule.mise_en_service')->exists(), 409, 'Les messages de mise en service sont déjà partis.');
+        $r = $annonces->mettreEnService();
+
+        return back()->with('status', "Mise en service annoncée : {$r['liens']} lien(s) de mot de passe, {$r['adresse']} message(s) d'adresse.");
+    }
+
     /**
      * Valider : l'admin confirme (ou choisit) la lignée. Dans une période de vacances
      * connue, la proposition devient une plage (écran Vacances) ; avant, une

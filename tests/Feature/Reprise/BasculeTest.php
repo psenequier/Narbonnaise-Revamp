@@ -110,3 +110,16 @@ it('répond 409 quand le contrôle de la reprise n\'est pas validé', function (
     $this->postJson('/_deploiement/reprise', [], ['Authorization' => 'Bearer jeton'])->assertStatus(409)
         ->assertJson(['valide' => false, 'comptes' => ['grr' => 1, 'repris' => 0]]);
 });
+
+it('envoie les annonces depuis l\'écran admin, la mise en service une seule fois', function () {
+    $admin = adminAvec2fa();
+
+    $this->actingAs($admin)->post('/admin/reprise/annonce', ['date' => '2026-12-12', 'duree' => 'une nuit'])->assertSessionHasNoErrors();
+    $this->actingAs($admin)->post('/admin/reprise/annonce', ['date' => '2026-11-22', 'duree' => 'une nuit'])->assertSessionHasErrors('date');
+    $this->actingAs($admin)->post('/admin/reprise/mise-en-service')->assertRedirect();
+    $this->actingAs($admin)->post('/admin/reprise/mise-en-service')->assertStatus(409);
+    $this->actingAs($this->actif)->post('/admin/reprise/mise-en-service')->assertForbidden();
+
+    expect(Mail::sent(MessageSite::class, fn ($m) => $m->gabarit === 'bascule.annonce'))->toHaveCount(1)
+        ->and(pour('ancien-md5@example.test')->where('gabarit', 'bascule.reinitialiser'))->toHaveCount(1);
+});
