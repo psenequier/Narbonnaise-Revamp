@@ -32,7 +32,9 @@ final class ControleCoherence
         }
 
         // 2. Une réservation sur des vacances (attribuées ou non).
-        foreach ($actives()->whereNotNull('c.periode_id')->get(['c.date', 'c.type', 'r.id']) as $c) {
+        // Les réservations en conflit ou maintenues par un admin (US-407) sont déjà connues.
+        foreach ($actives()->whereNotNull('c.periode_id')->whereNull('r.en_conflit_le')->whereNull('r.conflit_maintenu_le')
+            ->get(['c.date', 'c.type', 'r.id']) as $c) {
             $anomalies[] = "{$c->date} {$c->type} : la réservation n° {$c->id} occupe un créneau de vacances.";
         }
 

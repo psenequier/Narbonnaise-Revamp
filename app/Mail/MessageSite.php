@@ -25,6 +25,12 @@ final class MessageSite extends Mailable
         'reservation.action_admin' => 'Un admin a agi sur votre réservation',
         'admin.emails_non_remis' => 'E-mails non remis depuis 24 heures',
         'admin.anomalies' => 'Anomalies dans les créneaux',
+        'admin.source_vacances' => 'Calendrier scolaire : la source officielle est en échec',
+        'admin.vacances_modifiees' => 'Calendrier scolaire : dates de vacances modifiées',
+        'admin.conflits_vacances' => 'Réservations en conflit avec les vacances',
+        'admin.rappel_attributions' => 'Vacances à attribuer',
+        'vacances.ouverture' => 'Une nouvelle année est ouverte à la réservation',
+        'vacances.attributions' => 'Attribution des vacances aux lignées',
     ];
 
     /** @param array<string, mixed> $donnees */

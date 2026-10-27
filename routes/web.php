@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\VacancesController;
 use App\Http\Controllers\CalendrierController;
 use App\Http\Controllers\ConfirmationEmailController;
 use App\Http\Controllers\GoogleController;
@@ -49,6 +50,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware('can:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::view('/', 'admin.accueil')->name('accueil');
+        Route::get('/vacances', [VacancesController::class, 'index'])->name('vacances');
+        Route::get('/lignees', [VacancesController::class, 'cumul'])->name('cumul');
+        Route::post('/plages', [VacancesController::class, 'attribuer'])->name('plages.attribuer');
+        Route::put('/plages/{plage}', [VacancesController::class, 'modifier'])->name('plages.modifier');
+        Route::delete('/plages/{plage}', [VacancesController::class, 'retirer'])->name('plages.retirer');
+        Route::put('/periodes/{periode}', [VacancesController::class, 'corriger'])->name('periodes.corriger');
+        Route::post('/conflits/{reservation}', [VacancesController::class, 'arbitrer'])->name('conflits.arbitrer');
         // Vacances et attributions, utilisateurs, paramètres, journal : lot MVP 2.
     });
 });

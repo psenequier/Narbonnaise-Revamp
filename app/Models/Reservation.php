@@ -22,6 +22,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property-read User|null $user
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon|null $annulee_le
+ * @property \Illuminate\Support\Carbon|null $en_conflit_le
+ * @property \Illuminate\Support\Carbon|null $conflit_maintenu_le
  */
 class Reservation extends Model
 {
@@ -29,7 +31,7 @@ class Reservation extends Model
 
     protected function casts(): array
     {
-        return ['annulee_le' => 'datetime'];
+        return ['annulee_le' => 'datetime', 'en_conflit_le' => 'datetime', 'conflit_maintenu_le' => 'datetime'];
     }
 
     /** @return BelongsTo<User, $this> */
