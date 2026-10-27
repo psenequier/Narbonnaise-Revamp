@@ -30,9 +30,11 @@ final class AnnoncesBascule
             throw new \InvalidArgumentException('L\'annonce doit partir au moins '.self::PREAVIS_JOURS.' jours avant la bascule.');
         }
         $tous = $this->actifs()->pluck('email')->map(fn ($e) => (string) $e)->all();
+        $jour = \Illuminate\Support\Carbon::instance($bascule);
+        $jour->locale('fr');
         if ($tous !== []) {
             $this->boite->deposer('bascule.annonce', [], array_values($tous), [
-                'date' => \Illuminate\Support\Carbon::instance($bascule)->locale('fr')->translatedFormat('l j F Y'),
+                'date' => $jour->translatedFormat('l j F Y'),
                 'duree' => $duree,
                 'lien' => route('login'),
             ], BoiteEnvoi::INFORMATION);
