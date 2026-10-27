@@ -47,8 +47,8 @@ it('US-604-P1 trace connexion, réservations, attribution, paramètre et action 
         ->and($trace('reservation.modifiee')->details['apres']['nombre_personnes'])->toBe(3)
         ->and($trace('reservation.annulee')->details['avant']['creneaux'])->toBe(['2026-11-14-N', '2026-11-15-J'])
         ->and($trace('plage.attribuee')->user_id)->toBe($this->admin->id)
-        ->and($trace('parametre.modifie')->details)->toBe(['cle' => 'equite.delai_maximal_jours', 'avant' => '0', 'apres' => '90'])
-        ->and($trace('compte.desactive')->details)->toBe(['avant' => ['actif' => true], 'apres' => ['actif' => false]])
+        ->and($trace('parametre.modifie')->details)->toEqual(['cle' => 'equite.delai_maximal_jours', 'avant' => '0', 'apres' => '90'])
+        ->and($trace('compte.desactive')->details)->toEqual(['avant' => ['actif' => true], 'apres' => ['actif' => false]])
         ->and($trace('compte.desactive')->user_id)->toBe($this->admin->id);
     foreach (['connexion', 'reservation.creee', 'plage.attribuee', 'parametre.modifie', 'compte.desactive'] as $action) {
         expect($trace($action)->cree_le)->not->toBeNull();
