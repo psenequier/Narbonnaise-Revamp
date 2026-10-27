@@ -1,2 +1,0 @@
-Note: Using configuration file /home/runner/work/Narbonnaise-Revamp/Narbonnaise-Revamp/phpstan.neon.
-code 0

@@ -12,3 +12,4 @@ psalm.sarif
 semgrep.sarif
 /.idea
 /.vscode
+/rapports
