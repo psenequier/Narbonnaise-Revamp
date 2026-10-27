@@ -10,6 +10,7 @@
     <testsuites>
         <testsuite name="Unit"><directory>tests/Unit</directory></testsuite>
         <testsuite name="Feature"><directory>tests/Feature</directory></testsuite>
+        <testsuite name="Concurrence"><directory>tests/Concurrence</directory></testsuite>
         <testsuite name="Browser"><directory>tests/Browser</directory></testsuite>
     </testsuites>
     <source>

@@ -14,8 +14,10 @@ Schedule::call(fn () => Cache::forever('planificateur.dernier_passage', now()))
 Schedule::command('backup:run --only-db')->dailyAt('03:00');
 Schedule::command('backup:clean')->dailyAt('03:30');
 
+Schedule::command('emails:envoyer --max=150')->hourly()->withoutOverlapping(55);
+Schedule::command('creneaux:verifier')->dailyAt('04:15');
+
 // À ajouter avec leurs commandes (plan de dev) :
-// emails:envoyer --max=150   hourly, withoutOverlapping(55)
 // vacances:verifier          monthlyOn(1, '04:00')
 // attributions:rappeler      dailyAt('08:00'), actif en octobre seulement
 // journal:purger-ip          monthlyOn(2, '04:00')

@@ -63,7 +63,7 @@ final class ServiceReservation
             ]);
 
             return $reservation;
-        });
+        }, attempts: 3); // un interblocage MySQL est rejoué, pas montré au membre
     }
 
     /**
@@ -81,13 +81,14 @@ final class ServiceReservation
         DateTimeImmutable $maintenant,
         ?int $nombrePersonnes = null,
         ?string $invites = null,
+        ?string $motifAdmin = null,
     ): Reservation {
         $demandes = $this->normaliser($demandes, $mode, $nombrePersonnes);
 
-        return DB::transaction(function () use ($reservation, $demandes, $mode, $commentaire, $maintenant, $nombrePersonnes, $invites) {
+        return DB::transaction(function () use ($reservation, $demandes, $mode, $commentaire, $maintenant, $nombrePersonnes, $invites, $motifAdmin) {
             /** @var Reservation $verrouillee */
             $verrouillee = Reservation::query()->lockForUpdate()->findOrFail($reservation->id);
-            $this->exigerModifiable($verrouillee, $maintenant);
+            $this->exigerModifiable($verrouillee, $maintenant, $motifAdmin !== null);
 
             $creneaux = $this->verrouiller($demandes);
             /** @var User $membre */
@@ -101,25 +102,29 @@ final class ServiceReservation
             ])->save();
             $verrouillee->creneaux()->sync($creneaux->pluck('id'));
 
-            Journal::ecrire('reservation.modifiee', $verrouillee, ['avant' => $avant, 'apres' => $this->instantane($verrouillee)]);
+            Journal::ecrire('reservation.modifiee', $verrouillee, array_filter([
+                'avant' => $avant, 'apres' => $this->instantane($verrouillee), 'motif_admin' => $motifAdmin,
+            ], fn ($v) => $v !== null));
 
             return $verrouillee;
-        });
+        }, attempts: 3);
     }
 
     /** US-306 : les créneaux se libèrent, ou restent ouverts s'il reste d'autres participants. */
-    public function annuler(Reservation $reservation, DateTimeImmutable $maintenant): void
+    public function annuler(Reservation $reservation, DateTimeImmutable $maintenant, ?string $motifAdmin = null): void
     {
-        DB::transaction(function () use ($reservation, $maintenant) {
+        DB::transaction(function () use ($reservation, $maintenant, $motifAdmin) {
             /** @var Reservation $verrouillee */
             $verrouillee = Reservation::query()->lockForUpdate()->findOrFail($reservation->id);
-            $this->exigerModifiable($verrouillee, $maintenant);
+            $this->exigerModifiable($verrouillee, $maintenant, $motifAdmin !== null);
 
             $verrouillee->annulee_le = \Illuminate\Support\Carbon::instance($maintenant);
             $verrouillee->save();
 
-            Journal::ecrire('reservation.annulee', $verrouillee, ['avant' => $this->instantane($verrouillee)]);
-        });
+            Journal::ecrire('reservation.annulee', $verrouillee, array_filter([
+                'avant' => $this->instantane($verrouillee), 'motif_admin' => $motifAdmin,
+            ], fn ($v) => $v !== null));
+        }, attempts: 3);
     }
 
     /** Une réservation est « passée » quand son dernier créneau est avant aujourd'hui. */
@@ -155,12 +160,13 @@ final class ServiceReservation
         return array_values($uniques);
     }
 
-    private function exigerModifiable(Reservation $reservation, DateTimeImmutable $maintenant): void
+    /** Un admin peut corriger une réservation passée (US-305-N3 ne vise que les membres). */
+    private function exigerModifiable(Reservation $reservation, DateTimeImmutable $maintenant, bool $parAdmin = false): void
     {
         if ($reservation->annulee_le !== null) {
             throw new ReservationRefusee('Cette réservation est déjà annulée.');
         }
-        if ($this->estPassee($reservation, $maintenant)) {
+        if (! $parAdmin && $this->estPassee($reservation, $maintenant)) {
             throw new ReservationRefusee('Cette réservation est passée : elle ne peut plus être modifiée.');
         }
     }
