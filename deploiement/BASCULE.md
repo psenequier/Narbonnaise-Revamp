@@ -28,11 +28,12 @@ Dans GitHub, environnement `production` : secrets SFTP, variables `SITE_URL`,
 
 ## J-7 au plus tard (bascule seulement) : l'annonce
 
-Pas de SSH sur l'offre Starter : l'annonce part d'un bouton. Sur le nouveau site
-(déployé mais pas encore servi, l'annonce se fait donc depuis la nuit de répétition
-du 9 décembre, ou en local avec `php artisan bascule:annoncer 2026-12-12`) :
-Administration → Reprise de GRR → « Annonces de la bascule ». Elle refuse de partir
-moins de 7 jours avant. Destinataires en copie cachée, comptes désactivés exclus.
+Pas de SSH sur l'offre Starter : l'annonce part d'un bouton du nouveau site, qui
+n'est servi que pendant les nuits de répétition. On l'envoie donc **pendant la
+première répétition (vers le 23 novembre)**, après l'import et avant le retour
+arrière : Administration → Reprise de GRR → « Annonces de la bascule », date du
+12 décembre. Elle refuse de partir moins de 7 jours avant (la répétition du
+9 décembre serait trop tard). Destinataires en copie cachée, comptes désactivés exclus.
 
 ## La nuit (répétition comme bascule)
 
