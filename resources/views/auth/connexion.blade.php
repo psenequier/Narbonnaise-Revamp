@@ -13,4 +13,7 @@
     <button type="submit" class="h-11 rounded-lg bg-sapin font-bold text-white">Se connecter</button>
     <a href="{{ route('password.request') }}" class="text-sm text-sapin underline">Mot de passe oublié ?</a>
 </form>
+@if (config('services.google.client_id'))
+    <a href="{{ route('google.redirection') }}" class="flex h-11 items-center justify-center rounded-lg border border-bord font-bold">Se connecter avec Google</a>
+@endif
 @endsection

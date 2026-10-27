@@ -21,6 +21,18 @@ class UserFactory extends Factory
         ];
     }
 
+    /** Recharge depuis la base : le mode strict refuse les colonnes non chargées (valeurs par défaut). */
+    public function configure(): static
+    {
+        return $this->afterCreating(fn (User $u) => $u->refresh());
+    }
+
+    /** Invitation envoyée mais pas encore activée : pas de mot de passe. */
+    public function invite(): static
+    {
+        return $this->state(['password' => null]);
+    }
+
     public function admin(): static
     {
         return $this->afterMaking(fn (User $u) => $u->role = 'admin');
