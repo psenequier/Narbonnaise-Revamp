@@ -41,8 +41,6 @@ jobs:
           npm install --no-audit --no-fund > rapports/npm.txt 2>&1; echo "code $?" >> rapports/npm.txt
           npm run build > rapports/build.txt 2>&1; echo "code $?" >> rapports/build.txt
           vendor/bin/pest --exclude-group=browser --colors=never > rapports/pest.txt 2>&1; echo "code $?" >> rapports/pest.txt
-          vendor/bin/pest --exclude-group=browser --colors=never --log-events-text rapports/evenements.txt > /dev/null 2>&1; echo "code $?" >> rapports/evenements.txt
-          vendor/bin/pest --testsuite=Unit,Feature --colors=never > rapports/pest-sans-browser.txt 2>&1; echo "code $?" >> rapports/pest-sans-browser.txt
           vendor/bin/phpstan analyse --no-progress --error-format=raw --memory-limit=1G > rapports/phpstan.txt 2>&1; echo "code $?" >> rapports/phpstan.txt
           vendor/bin/psalm --taint-analysis --no-progress --output-format=text > rapports/psalm.txt 2>&1; echo "code $?" >> rapports/psalm.txt
           pipx install semgrep > /dev/null 2>&1
