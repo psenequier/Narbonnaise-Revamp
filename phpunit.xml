@@ -13,7 +13,7 @@
         <testsuite name="Browser"><directory>tests/Browser</directory></testsuite>
     </testsuites>
     <source>
-        <include><directory>app</directory></include>
+        <include><directory>app/Domain</directory></include>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
