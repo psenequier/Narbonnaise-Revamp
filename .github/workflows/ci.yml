@@ -110,7 +110,13 @@ jobs:
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ env.PHP_VERSION }}
-      - run: composer audit --locked
+      - name: Audit Composer
+        shell: bash
+        run: |
+          composer audit --locked --no-interaction > audit.log 2>&1 || {
+            echo "::error title=composer audit::$(sed 's/%/%25/g' audit.log | tr '\n' '|' | sed 's/|/%0A/g' | cut -c1-3000)"
+            exit 1
+          }
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
