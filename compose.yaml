@@ -1,0 +1,34 @@
+# Site local de test sur son ordinateur : « docker compose up », puis http://localhost:8000.
+# Données fictives uniquement ; GRR et la production ne sont jamais touchés.
+name: chamrousse
+
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: chamrousse
+    volumes:
+      - mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 3s
+      retries: 60
+
+  site:
+    build: local
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      APP_URL: http://localhost:8000
+      REINITIALISER: ${REINITIALISER:-non}
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - .:/app
+    command: ["bash", "local/demarrer.sh"]
+
+volumes:
+  mysql:
