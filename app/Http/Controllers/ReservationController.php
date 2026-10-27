@@ -77,11 +77,12 @@ final class ReservationController
             ->filter(fn (Reservation $r) => $r->creneaux->isNotEmpty())
             ->sortBy(fn (Reservation $r) => $r->creneaux->first()?->date->format('Y-m-d'));
 
-        [$passees, $aVenir] = $reservations->partition(
-            fn (Reservation $r) => $r->creneaux->last()?->date->format('Y-m-d') < $aujourdhui
-        );
+        $estPassee = fn (Reservation $r) => $r->creneaux->last()?->date->format('Y-m-d') < $aujourdhui;
 
-        return view('reservations.mes', ['aVenir' => $aVenir, 'passees' => $passees->reverse()]);
+        return view('reservations.mes', [
+            'aVenir' => $reservations->reject($estPassee)->values(),
+            'passees' => $reservations->filter($estPassee)->reverse()->values(),
+        ]);
     }
 
     public function modifier(Request $request, Reservation $reservation): View

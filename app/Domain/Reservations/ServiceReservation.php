@@ -187,7 +187,7 @@ final class ServiceReservation
             ->actives()
             ->where('user_id', $membre->id)
             ->where('created_at', '>=', $maintenant->modify('-12 months'))
-            ->when($exclue, fn ($q) => $q->whereKeyNot($exclue->id))
+            ->when($exclue, fn ($q, Reservation $e) => $q->whereKeyNot($e->id))
             ->count();
         $verdict = $this->parametres->regleEquite()->verifier(
             $maintenant,
@@ -203,7 +203,7 @@ final class ServiceReservation
             ->join('reservations as r', 'r.id', '=', 'rc.reservation_id')
             ->whereIn('rc.creneau_id', $creneaux->pluck('id'))
             ->whereNull('r.annulee_le')
-            ->when($exclue, fn ($q) => $q->where('r.id', '!=', $exclue->id))
+            ->when($exclue, fn ($q, Reservation $e) => $q->where('r.id', '!=', $e->id))
             ->get(['r.mode', 'r.user_id']);
         if ($existantes->contains('mode', 'exclusive')) {
             throw new ReservationRefusee('Un de ces créneaux est déjà pris en exclusif.');

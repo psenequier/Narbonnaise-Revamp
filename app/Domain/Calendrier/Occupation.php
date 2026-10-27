@@ -71,7 +71,7 @@ final class Occupation
         if ($stocke->attribution !== null) {
             $lignee = $stocke->attribution->lignee;
 
-            return new SituationCreneau($creneau, EtatCreneau::Attribue, $lignee->nom, $lignee->couleur);
+            return new SituationCreneau($creneau, EtatCreneau::Attribue, $lignee?->nom, $lignee?->couleur);
         }
         if ($stocke->periode_id !== null) {
             return new SituationCreneau($creneau, EtatCreneau::Attente);
