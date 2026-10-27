@@ -20,6 +20,8 @@ return [
     'views' => true,
     'features' => [
         Features::resetPasswords(),
+        Features::updateProfileInformation(),
+        Features::updatePasswords(),
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => true,

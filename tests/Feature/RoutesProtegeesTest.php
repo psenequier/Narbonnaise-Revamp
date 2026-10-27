@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 const ROUTES_PUBLIQUES = [
     'login', 'logout', 'forgot-password', 'reset-password', 'reset-password/{token}',
     'two-factor-challenge', 'sante', '_deploiement/migrer', 'up',
+    'invitation/{user}/{jeton}', 'auth/google/redirection', 'auth/google/retour',
     'livewire/update', 'livewire/upload-file', 'livewire/preview-file/{filename}',
     'livewire/livewire.js', 'livewire/livewire.min.js.map', 'livewire/livewire.min.js',
     'livewire/livewire.csp.min.js.map', 'livewire/livewire.csp.min.js',
