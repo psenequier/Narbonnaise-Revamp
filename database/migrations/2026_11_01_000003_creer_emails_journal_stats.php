@@ -38,7 +38,7 @@ return new class extends Migration
 
         // Les statistiques ne lisent que cette vue : ni membre ni lignée (RFC, sécurité).
         DB::statement(<<<'SQL'
-            CREATE VIEW v_occupation AS
+            CREATE OR REPLACE VIEW v_occupation AS
             SELECT c.date,
                    c.type,
                    CASE
