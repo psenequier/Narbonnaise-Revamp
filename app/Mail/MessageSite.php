@@ -37,7 +37,10 @@ final class MessageSite extends Mailable
 
     public function content(): Content
     {
-        return new Content(view: 'emails.'.str_replace('.', '-', $this->gabarit), with: ['d' => $this->donnees]);
+        /** @var view-string $vue */
+        $vue = 'emails.'.str_replace('.', '-', $this->gabarit);
+
+        return new Content(view: $vue, with: ['d' => $this->donnees]);
     }
 
     /** @return list<Attachment> */

@@ -103,7 +103,7 @@ final class ReservationController
     {
         $motif = $this->motifAdmin($request, $reservation);
         $donnees = $this->valider($request);
-        $avant = $reservation->creneaux()->pluck('creneaux.id')->map(fn ($id) => (int) $id)->all();
+        $avant = $reservation->creneaux()->pluck('creneaux.id')->map(fn ($id) => (int) $id)->values()->all();
 
         try {
             $reservation = $this->service->modifier(

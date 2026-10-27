@@ -18,7 +18,9 @@ abstract class AlerteSecurite extends Notification
 
     public function __construct()
     {
-        $this->quand = now('Europe/Paris')->locale('fr')->translatedFormat('l j F Y à H\hi');
+        /** @var \Illuminate\Support\Carbon $maintenant */
+        $maintenant = now('Europe/Paris')->locale('fr');
+        $this->quand = $maintenant->translatedFormat('l j F Y à H\hi');
     }
 
     /** @return list<string> */

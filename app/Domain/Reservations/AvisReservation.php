@@ -29,7 +29,7 @@ final class AvisReservation
         $donnees = $this->donnees($r);
 
         $this->boite->deposer('reservation.confirmation', [$this->adresse($r)], [], $donnees + ['ics' => $this->ics($r)]);
-        $prevenus = $this->prevenirParticipants($r, $r->creneaux->pluck('id')->all(), 'joint', $r->user_id);
+        $prevenus = $this->prevenirParticipants($r, self::ids($r->creneaux->pluck('id')->all()), 'joint', $r->user_id);
         $this->informer($r, 'creee', [$r->user_id, ...$prevenus]);
 
         $this->boite->envoyer();
@@ -50,7 +50,7 @@ final class AvisReservation
         } else {
             $this->boite->deposer('reservation.modifiee', [$this->adresse($r)], [], $donnees);
         }
-        $creneaux = array_values(array_unique([...$creneauxAvant, ...$r->creneaux->pluck('id')->all()]));
+        $creneaux = self::ids([...$creneauxAvant, ...$r->creneaux->pluck('id')->all()]);
         $this->prevenirParticipants($r, $creneaux, 'modifié', $admin->id ?? $r->user_id);
 
         $this->boite->envoyer();
@@ -69,7 +69,7 @@ final class AvisReservation
         } else {
             $this->boite->deposer('reservation.annulee', [$this->adresse($r)], [], $donnees);
         }
-        $prevenus = $this->prevenirParticipants($r, $r->creneaux->pluck('id')->all(), 'annulé', $admin->id ?? $r->user_id);
+        $prevenus = $this->prevenirParticipants($r, self::ids($r->creneaux->pluck('id')->all()), 'annulé', $admin->id ?? $r->user_id);
         $this->informer($r, 'annulee', [$r->user_id, ...$prevenus, ...($admin ? [$admin->id] : [])]);
 
         $this->boite->envoyer();
@@ -100,7 +100,7 @@ final class AvisReservation
             $this->boite->deposer('reservation.mouvement', [$membre->email], [], $this->donnees($r) + ['action' => $action]);
         }
 
-        return $membres->pluck('id')->all();
+        return self::ids($membres->pluck('id')->all());
     }
 
     /**
@@ -110,7 +110,8 @@ final class AvisReservation
      */
     private function informer(Reservation $r, string $action, array $exclus): void
     {
-        $cci = User::query()->recoitReservationsDesAutres()->whereNotIn('id', $exclus)->pluck('email')->values()->all();
+        $cci = User::query()->recoitReservationsDesAutres()->whereNotIn('id', $exclus)->pluck('email')
+            ->map(fn ($e) => (string) $e)->values()->all();
         if ($cci === []) {
             return;
         }
@@ -159,9 +160,21 @@ final class AvisReservation
         return (string) $r->user?->email;
     }
 
+    /**
+     * @param  array<mixed>  $valeurs
+     * @return list<int>
+     */
+    private static function ids(array $valeurs): array
+    {
+        return array_values(array_unique(array_map(fn ($v) => (int) $v, $valeurs)));
+    }
+
     public static function libelle(Creneau $c): string
     {
-        return Carbon::parse($c->date->format('Y-m-d'))->locale('fr')->translatedFormat('D j/m').' '.($c->type === 'N' ? 'nuit' : 'jour');
+        /** @var Carbon $jour */
+        $jour = Carbon::parse($c->date->format('Y-m-d'))->locale('fr');
+
+        return $jour->translatedFormat('D j/m').' '.($c->type === 'N' ? 'nuit' : 'jour');
     }
 
     private static function periode(Reservation $r): string
