@@ -63,9 +63,10 @@ final class SuppressionGrr
         $permanentes = array_map(fn ($l) => (string) array_values((array) $l)[0], DB::select('SHOW TABLES'));
         $supprimees = [];
         foreach ($this->tables() as $table) {
-            $nom = '`'.str_replace('`', '``', $table).'`';
             // Une table temporaire n'apparaît pas dans SHOW TABLES : DROP TEMPORARY évite un commit implicite.
-            DB::statement((in_array($table, $permanentes, true) ? 'DROP TABLE ' : 'DROP TEMPORARY TABLE ').$nom);
+            // Le nom, validé par nomSql(), vient du préfixe GRR de la configuration, jamais d'une saisie.
+            $requete = (in_array($table, $permanentes, true) ? 'DROP TABLE ' : 'DROP TEMPORARY TABLE ').ExportBascule::nomSql($table);
+            DB::statement($requete);
             $supprimees[] = $table;
         }
         Journal::ecrire('grr.tables_supprimees', null, ['tables' => count($supprimees)]);

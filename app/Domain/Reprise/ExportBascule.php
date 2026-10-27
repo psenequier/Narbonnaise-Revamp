@@ -225,8 +225,11 @@ final class ExportBascule
         if ($f === false) {
             throw new RuntimeException('Écriture temporaire impossible.');
         }
-        $nom = $this->nomSql($table);
-        $creation = (array) DB::selectOne('SHOW CREATE TABLE '.$nom);
+        $nom = self::nomSql($table);
+        // Un nom de table ne se passe pas en paramètre lié : il est validé par nomSql() (lettres,
+        // chiffres, _), et vient de SHOW TABLES ou du préfixe GRR, jamais d'une saisie.
+        $requete = 'SHOW CREATE TABLE '.$nom;
+        $creation = (array) DB::selectOne($requete);
         $ddl = (string) ($creation['Create Table'] ?? array_values($creation)[1] ?? '');
         fwrite($f, "DROP TABLE IF EXISTS {$nom};\n".preg_replace('/^CREATE TEMPORARY TABLE/', 'CREATE TABLE', $ddl).";\n");
 
@@ -234,7 +237,7 @@ final class ExportBascule
         $n = 0;
         foreach (DB::table($table)->cursor() as $ligne) {
             $valeurs = (array) $ligne;
-            $colonnes = implode(',', array_map(fn ($c) => $this->nomSql((string) $c), array_keys($valeurs)));
+            $colonnes = implode(',', array_map(fn ($c) => self::nomSql((string) $c), array_keys($valeurs)));
             $donnees = implode(',', array_map(fn ($v) => $v === null ? 'NULL' : $pdo->quote(is_scalar($v) ? (string) $v : (string) json_encode($v)), $valeurs));
             fwrite($f, "INSERT INTO {$nom} ({$colonnes}) VALUES ({$donnees});\n");
             $n++;
@@ -260,7 +263,7 @@ final class ExportBascule
             fputcsv($f, array_map(fn ($v) => $v === null ? '' : (is_scalar($v) ? (string) $v : (string) json_encode($v)), array_values($valeurs)), ';', '"', '');
         }
         if (! $entete) {
-            $colonnes = array_map(fn ($c) => (string) ((array) $c)['Field'], DB::select('SHOW COLUMNS FROM '.$this->nomSql($table)));
+            $colonnes = \Illuminate\Support\Facades\Schema::getColumnListing($table);
             fputcsv($f, $colonnes, ';', '"', '');
         }
         fclose($f);
@@ -307,8 +310,13 @@ final class ExportBascule
         }
     }
 
-    private function nomSql(string $nom): string
+    /** Identifiant SQL validé : lettres, chiffres et _ seulement, sinon refus. */
+    public static function nomSql(string $nom): string
     {
-        return '`'.str_replace('`', '``', $nom).'`';
+        if (preg_match('/^[A-Za-z0-9_]{1,64}$/', $nom) !== 1) {
+            throw new RuntimeException('Nom de table refusé.');
+        }
+
+        return '`'.$nom.'`';
     }
 }
