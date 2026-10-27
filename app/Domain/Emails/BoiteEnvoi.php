@@ -154,6 +154,6 @@ final class BoiteEnvoi
     /** @return list<string> */
     public static function adressesAdmins(): array
     {
-        return User::query()->where('role', 'admin')->where('actif', true)->pluck('email')->map(fn ($e) => (string) $e)->values()->all();
+        return array_values(User::query()->where('role', 'admin')->where('actif', true)->pluck('email')->map(fn ($e) => (string) $e)->all());
     }
 }

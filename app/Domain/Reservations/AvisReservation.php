@@ -111,7 +111,8 @@ final class AvisReservation
     private function informer(Reservation $r, string $action, array $exclus): void
     {
         $cci = User::query()->recoitReservationsDesAutres()->whereNotIn('id', $exclus)->pluck('email')
-            ->map(fn ($e) => (string) $e)->values()->all();
+            ->map(fn ($e) => (string) $e)->all();
+        $cci = array_values($cci);
         if ($cci === []) {
             return;
         }
