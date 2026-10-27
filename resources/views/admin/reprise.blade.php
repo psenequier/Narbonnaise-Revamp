@@ -1,0 +1,53 @@
+@extends('layouts.app')
+@section('titre', 'Reprise de GRR')
+@section('contenu')
+@if ($controle === null)
+    <p class="rounded-lg border border-bord bg-white p-4">Aucune reprise lancée. Commande : <code>php artisan grr:importer</code></p>
+@else
+<section class="rounded-2xl border p-5 {{ $controle['valide'] ? 'border-sapin bg-sapin-clair' : 'border-red-300 bg-red-50' }}" data-controle="{{ $controle['valide'] ? 'valide' : 'non-valide' }}">
+    <h2 class="text-lg font-extrabold">{{ $controle['valide'] ? 'Reprise validée' : 'Reprise non validée' }}</h2>
+    <p class="text-sm">Comptes GRR : {{ $controle['comptes']['grr'] }} = {{ $controle['comptes']['repris'] }} repris + {{ $controle['comptes']['anomalies'] }} en anomalie</p>
+    <table class="mt-3 w-full text-sm">
+        <thead><tr class="text-left"><th>Année</th><th>Réservations GRR</th><th>Site</th><th>Nuits GRR</th><th>Site</th><th>Écart</th></tr></thead>
+        <tbody>
+        @foreach ($controle['annees'] as $annee => $a)
+            <tr data-annee="{{ $annee }}" data-ecart="{{ $a['ecart'] ? 'oui' : 'non' }}"><td>{{ $annee }}</td><td>{{ $a['grr_reservations'] }}</td><td>{{ $a['site_reservations'] }}</td>
+                <td>{{ $a['grr_nuits'] }}</td><td>{{ $a['site_nuits'] }}</td><td>{{ $a['ecart'] ? 'ÉCART' : '' }}</td></tr>
+        @endforeach
+        </tbody>
+    </table>
+</section>
+
+<section class="rounded-2xl border border-bord bg-white p-5">
+    <h2 class="mb-2 text-lg font-extrabold">{{ count($controle['echantillon']) }} réservations tirées au hasard</h2>
+    <ul class="flex flex-col gap-1 text-sm">
+    @foreach ($controle['echantillon'] as $e)<li data-echantillon><strong>GRR</strong> {{ $e['grr'] }}<br><strong>Site</strong> {{ $e['site'] }}</li>@endforeach
+    </ul>
+</section>
+@endif
+
+@if ($import)
+<section class="rounded-2xl border border-bord bg-white p-5 text-sm">
+    <h2 class="mb-2 text-lg font-extrabold">Anomalies de l'import</h2>
+    @foreach (['a_reinitialiser' => 'Mot de passe à réinitialiser', 'doublons_email' => 'Doublons d\'e-mail', 'comptes_rejetes' => 'Comptes rejetés', 'rejets' => 'Entrées rejetées', 'chevauchements' => 'Chevauchements historiques'] as $cle => $titre)
+        @if (! empty($import[$cle]))
+            <h3 class="mt-2 font-bold">{{ $titre }} ({{ count($import[$cle]) }})</h3>
+            <ul class="list-disc pl-5">@foreach ($import[$cle] as $l)<li>{{ $l }}</li>@endforeach</ul>
+        @endif
+    @endforeach
+</section>
+@endif
+
+<section class="rounded-2xl border border-bord bg-white p-5">
+    <h2 class="mb-2 text-lg font-extrabold">Anciennes attributions à valider</h2>
+    @forelse ($propositions as $p)
+        <form method="POST" action="{{ route('admin.reprise.valider', $p->id) }}" class="flex flex-wrap items-center gap-2 text-sm" data-proposition="{{ $p->id }}">
+            @csrf
+            <span class="mr-auto">Entrée GRR n° {{ $p->grr_entry_id }} · « {{ $p->libelle }} » → <strong>{{ $p->lignee }}</strong> ({{ count(json_decode($p->creneaux, true)) }} créneaux)</span>
+            <button class="h-11 rounded-lg bg-sapin px-3 font-bold text-white">Valider</button>
+        </form>
+    @empty
+        <p class="text-sm text-gris">Aucune.</p>
+    @endforelse
+</section>
+@endsection

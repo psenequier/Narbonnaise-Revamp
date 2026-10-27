@@ -181,3 +181,46 @@ function adminAvec2fa(array $attributs = []): \App\Models\User
 
     return $admin->fresh();
 }
+
+/** Base GRR fictive au schéma 4.1.1 (tables temporaires, voir tests/Feature/Reprise). */
+function creerBaseGrr(): void
+{
+    foreach (array_filter(array_map('trim', explode(';', (string) preg_replace('/^--.*$/m', '', (string) file_get_contents(__DIR__.'/Feature/Reprise/grr-4.1.1.sql'))))) as $requete) {
+        \Illuminate\Support\Facades\DB::statement($requete);
+    }
+    \Illuminate\Support\Facades\DB::table('grr_type_area')->insert([
+        ['type_name' => 'Réservation ouverte', 'type_letter' => 'A'],
+        ['type_name' => 'Réservation exclusive', 'type_letter' => 'E'],
+    ]);
+}
+
+function grrCompte(string $login, string $email, string $motDePasse = '', string $statut = 'utilisateur', string $etat = 'actif', string $prenom = '', string $nom = ''): void
+{
+    \Illuminate\Support\Facades\DB::table('grr_utilisateurs')->insert([
+        'login' => $login, 'email' => $email, 'password' => $motDePasse, 'statut' => $statut, 'etat' => $etat,
+        'prenom' => $prenom ?: ucfirst($login), 'nom' => $nom ?: 'Grr',
+    ]);
+}
+
+/** Entrée GRR ; les heures sont celles de Paris, comme dans l'interface de GRR. */
+function grrEntree(string $beneficiaire, string $debut, string $fin, ?string $type = null, string $nom = '', string $description = '', int $repetition = 0): int
+{
+    $paris = new DateTimeZone('Europe/Paris');
+
+    return (int) \Illuminate\Support\Facades\DB::table('grr_entry')->insertGetId([
+        'start_time' => $debut === '0' ? 0 : (new DateTimeImmutable($debut, $paris))->getTimestamp(),
+        'end_time' => (new DateTimeImmutable($fin, $paris))->getTimestamp(),
+        'beneficiaire' => $beneficiaire, 'create_by' => $beneficiaire, 'type' => $type,
+        'name' => $nom, 'description' => $description, 'repeat_id' => $repetition,
+    ]);
+}
+
+/** Empreinte du contenu des tables GRR (US-802-N3). */
+function sommeGrr(): string
+{
+    return md5(json_encode([
+        \Illuminate\Support\Facades\DB::table('grr_utilisateurs')->orderBy('login')->get(),
+        \Illuminate\Support\Facades\DB::table('grr_entry')->orderBy('id')->get(),
+        \Illuminate\Support\Facades\DB::table('grr_type_area')->orderBy('id')->get(),
+    ]));
+}
