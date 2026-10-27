@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Domain\Reprise\BaseGrr;
 use App\Domain\Reprise\ControleReprise;
 use App\Domain\Reprise\ImportGrr;
 use Illuminate\Console\Command;
@@ -17,13 +18,14 @@ final class ImporterGrr extends Command
 
     protected $description = 'Reprend les comptes et les réservations de GRR (tables grr_*), puis contrôle la reprise';
 
-    public function handle(ImportGrr $import, ControleReprise $controle): int
+    public function handle(ImportGrr $import, ControleReprise $controle, BaseGrr $grr): int
     {
-        foreach (['grr_utilisateurs', 'grr_entry', 'grr_type_area'] as $table) {
+        foreach (['utilisateurs', 'entry', 'type_area'] as $nom) {
+            $table = $grr->table($nom);
             try {
                 DB::table($table)->limit(1)->get();
             } catch (QueryException) {
-                $this->error("Table {$table} introuvable : la base GRR doit être dans la même base de données.");
+                $this->error("Table {$table} introuvable : la base GRR doit être dans la même base de données (préfixe GRR_PREFIXE).");
 
                 return self::FAILURE;
             }

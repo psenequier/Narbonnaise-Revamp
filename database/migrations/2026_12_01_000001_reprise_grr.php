@@ -19,7 +19,7 @@ return new class extends Migration
         Schema::create('reprise_propositions', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('grr_entry_id')->unique();
-            $table->foreignId('lignee_id')->constrained('lignees');
+            $table->foreignId('lignee_id')->nullable()->constrained('lignees'); // devinée d'après le libellé ; l'admin confirme
             $table->json('creneaux');
             $table->string('libelle', 300);
             $table->enum('statut', ['en_attente', 'validee', 'reservation'])->default('en_attente');

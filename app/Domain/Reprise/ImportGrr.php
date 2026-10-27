@@ -6,9 +6,7 @@ namespace App\Domain\Reprise;
 
 use App\Domain\Calendrier\Creneau;
 use App\Models\Journal;
-use App\Models\Lignee;
 use App\Models\User;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -20,9 +18,6 @@ use Illuminate\Support\Str;
  */
 final class ImportGrr
 {
-    /** Fenêtres où un libellé de lignée signale une ancienne attribution de vacances. */
-    private const FENETRES_VACANCES = [['12-10', '01-10'], ['02-01', '03-15']];
-
     /** @var array<string, int> login GRR => id du compte repris */
     private array $comptes = [];
 
@@ -32,11 +27,13 @@ final class ImportGrr
     /** @var array<string, list<string>> */
     private array $listes = [];
 
+    public function __construct(private readonly BaseGrr $grr) {}
+
     /** @return array<string, int|list<string>> le rapport d'import */
     public function importer(): array
     {
         $this->comptes = [];
-        $this->totaux = ['comptes_grr' => 0, 'comptes_repris' => 0, 'entrees_grr' => 0, 'reservations' => 0, 'propositions' => 0];
+        $this->totaux = ['comptes_grr' => 0, 'comptes_repris' => 0, 'entrees_grr' => 0, 'supprimees' => 0, 'reservations' => 0, 'propositions' => 0];
         $this->listes = ['a_reinitialiser' => [], 'doublons_email' => [], 'comptes_rejetes' => [], 'rejets' => [], 'chevauchements' => []];
 
         DB::transaction(function () {
@@ -61,11 +58,15 @@ final class ImportGrr
 
     private function reprendreComptes(): void
     {
-        $grr = DB::table('grr_utilisateurs')->orderBy('login')->get();
+        $grr = $this->grr->comptes();
         $this->totaux['comptes_grr'] = $grr->count();
 
         // US-801-N2 : une adresse partagée par plusieurs comptes n'est jamais fusionnée.
-        $parEmail = $grr->groupBy(fn ($u) => Str::lower(trim((string) $u->email)));
+        /** @var array<string, list<string>> $parEmail */
+        $parEmail = [];
+        foreach ($grr as $u) {
+            $parEmail[Str::lower(trim((string) $u->email))][] = (string) $u->login;
+        }
 
         foreach ($grr as $u) {
             $login = (string) $u->login;
@@ -75,9 +76,9 @@ final class ImportGrr
 
                 continue;
             }
-            if (count($parEmail[$email]) > 1) {
+            if (count($parEmail[$email] ?? []) > 1) {
                 $this->listes['doublons_email'][] = "{$login} : adresse {$email} partagée par "
-                    .$parEmail[$email]->pluck('login')->implode(', ').'. Compte non repris : à régler avant la bascule.';
+                    .implode(', ', $parEmail[$email] ?? []).'. Compte non repris : à régler avant la bascule.';
 
                 continue;
             }
@@ -94,17 +95,15 @@ final class ImportGrr
                 'prenom' => trim((string) $u->prenom) ?: $login,
                 'nom' => trim((string) $u->nom) ?: $login,
                 'email' => $email,
-                'role' => $u->statut === 'administrateur' ? 'admin' : 'membre',
+                'role' => BaseGrr::role((string) $u->statut),
                 'actif' => $u->etat !== 'inactif',
             ]);
             if ($nouveau) {
                 // US-801-P2, N1, N3 : bcrypt repris tel quel ; MD5 jamais conservé.
                 $hash = (string) $u->password;
                 $bcrypt = preg_match('/^\$2[aby]\$\d{2}\$/', $hash) === 1;
-                $membre->forceFill([
-                    'email_verified_at' => now(),
-                    'a_reinitialiser' => ! $bcrypt,
-                ]);
+                $membre->forceFill(['email_verified_at' => now(), 'a_reinitialiser' => ! $bcrypt]);
+                // Le hachage est écrit brut : le cast « hashed » refuserait un bcrypt sous argon2id.
                 $membre->setRawAttributes(array_merge($membre->getAttributes(), ['password' => $bcrypt ? $hash : null]));
                 if (! $bcrypt) {
                     $this->listes['a_reinitialiser'][] = $login;
@@ -118,49 +117,35 @@ final class ImportGrr
 
     private function reprendreEntrees(): void
     {
-        $types = $this->modesParType();
-        $lignees = Lignee::query()->get(['id', 'nom']);
-        $entrees = DB::table('grr_entry')->orderBy('id')->get();
-        $this->totaux['entrees_grr'] = $entrees->count();
+        $entrees = $this->grr->entrees($this->comptes ?: ['' => 0]);
+        $this->totaux['entrees_grr'] = count($entrees);
 
         foreach ($entrees as $e) {
-            $id = (int) $e->id;
-            $login = (string) ($e->beneficiaire ?: $e->create_by);
-            $creneaux = CreneauxGrr::depuis((int) $e->start_time, (int) $e->end_time);
-
-            if ((int) $e->start_time <= 0 || (int) $e->end_time <= (int) $e->start_time) {
-                $this->rejeter($id, 'dates invalides');
-
-                continue;
-            }
-            if ($creneaux === []) {
-                $this->rejeter($id, 'réservation sans créneau (trop courte ou hors des plages Journée et Nuit)');
-
-                continue;
-            }
-
-            $libelle = trim((string) $e->name.' '.(string) $e->description);
-            $lignee = $this->ligneeReconnue($libelle, $lignees, (int) $e->start_time);
-            if ($lignee !== null) {
-                DB::table('reprise_propositions')->updateOrInsert(['grr_entry_id' => $id], [
-                    'lignee_id' => $lignee, 'libelle' => mb_substr($libelle, 0, 300),
-                    'creneaux' => json_encode(array_map(fn (Creneau $c) => $c->cle(), $creneaux), JSON_THROW_ON_ERROR),
-                    'updated_at' => now(), 'created_at' => now(),
-                ]);
-                $this->totaux['propositions']++;
-
-                continue;
-            }
-
-            if (! isset($this->comptes[$login])) {
-                $this->rejeter($id, "utilisateur « {$login} » inexistant ou non repris");
-
-                continue;
-            }
-
-            $this->enregistrer($id, $this->comptes[$login], $types[(string) $e->type] ?? 'ouverte', $creneaux, (string) $e->description);
-            $this->totaux['reservations']++;
+            match ($e['classe']) {
+                BaseGrr::SUPPRIMEE => $this->totaux['supprimees']++,
+                BaseGrr::REJETEE => $this->listes['rejets'][] = "Entrée GRR n° {$e['id']} : {$e['motif']}.",
+                BaseGrr::ATTRIBUTION => $this->proposer($e['id'], $e['lignee'], trim($e['libelle'].' '.$e['description']), $e['creneaux']),
+                default => $this->enregistrer($e['id'], $this->comptes[$e['login']], $e['mode'], $e['creneaux'], $e['description']),
+            };
         }
+    }
+
+    /** @param list<Creneau> $creneaux */
+    private function proposer(int $grrId, ?int $lignee, string $libelle, array $creneaux): void
+    {
+        $existante = DB::table('reprise_propositions')->where('grr_entry_id', $grrId)->first();
+        $valeurs = [
+            'libelle' => mb_substr($libelle, 0, 300),
+            'creneaux' => json_encode(array_map(fn (Creneau $c) => $c->cle(), $creneaux), JSON_THROW_ON_ERROR),
+            'updated_at' => now(),
+        ];
+        if ($existante === null) {
+            DB::table('reprise_propositions')->insert($valeurs + ['grr_entry_id' => $grrId, 'lignee_id' => $lignee, 'created_at' => now()]);
+        } elseif ($existante->statut === 'en_attente') {
+            // Une proposition déjà traitée par un admin n'est jamais remise en cause par un nouvel import.
+            DB::table('reprise_propositions')->where('id', $existante->id)->update($valeurs + ['lignee_id' => $lignee]);
+        }
+        $this->totaux['propositions']++;
     }
 
     /** @param list<Creneau> $creneaux */
@@ -188,46 +173,7 @@ final class ImportGrr
         }
         DB::table('reservation_creneau')->where('reservation_id', $existante)->delete();
         DB::table('reservation_creneau')->insert($ids->map(fn ($c) => ['reservation_id' => $existante, 'creneau_id' => $c])->all());
-    }
-
-    private function rejeter(int $grrId, string $motif): void
-    {
-        $this->listes['rejets'][] = "Entrée GRR n° {$grrId} : {$motif}.";
-    }
-
-    /**
-     * Type GRR → mode : sans type, ouverte (US-802-P3) ; « exclusi… » dans le nom du type, exclusive.
-     *
-     * @return array<string, string>
-     */
-    private function modesParType(): array
-    {
-        $modes = [];
-        foreach (DB::table('grr_type_area')->get(['type_letter', 'type_name']) as $t) {
-            $modes[(string) $t->type_letter] = str_contains(Str::lower((string) $t->type_name), 'exclusi') ? 'exclusive' : 'ouverte';
-        }
-
-        return $modes;
-    }
-
-    /** @param Collection<int, Lignee> $lignees */
-    private function ligneeReconnue(string $libelle, Collection $lignees, int $debut): ?int
-    {
-        $jour = (new \DateTimeImmutable('@'.$debut))->setTimezone(new \DateTimeZone('Europe/Paris'))->format('m-d');
-        $enVacances = false;
-        foreach (self::FENETRES_VACANCES as [$de, $a]) {
-            $enVacances = $enVacances || ($de <= $a ? ($jour >= $de && $jour <= $a) : ($jour >= $de || $jour <= $a));
-        }
-        if (! $enVacances) {
-            return null;
-        }
-        foreach ($lignees as $l) {
-            if ($l->nom !== '' && str_contains(Str::lower($libelle), Str::lower($l->nom))) {
-                return $l->id;
-            }
-        }
-
-        return null;
+        $this->totaux['reservations']++;
     }
 
     /** @return list<string> US-802-N1 : chevauchements historiques, repris tels quels et listés. */

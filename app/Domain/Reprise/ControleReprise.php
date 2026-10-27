@@ -18,55 +18,60 @@ final class ControleReprise
 {
     public const ECHANTILLON = 20;
 
+    public function __construct(private readonly BaseGrr $grr) {}
+
     /** @return array{comptes: array{grr: int, repris: int, anomalies: int, ecart: bool}, annees: array<int|string, array<string, mixed>>, echantillon: list<array<string, string>>, valide: bool} */
     public function rapport(): array
     {
         $paris = new DateTimeZone('Europe/Paris');
-        $comptesGrr = DB::table('grr_utilisateurs')->get(['login', 'email']);
-        $parEmail = $comptesGrr->countBy(fn ($u) => Str::lower(trim((string) $u->email)));
+        $comptesGrr = $this->grr->comptes();
+        /** @var array<string, int> $parEmail */
+        $parEmail = [];
+        foreach ($comptesGrr as $u) {
+            $e = Str::lower(trim((string) $u->email));
+            $parEmail[$e] = ($parEmail[$e] ?? 0) + 1;
+        }
         $anomalies = $comptesGrr->filter(function ($u) use ($parEmail) {
             $email = Str::lower(trim((string) $u->email));
 
-            return $email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false || $parEmail[$email] > 1;
+            return $email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false || ($parEmail[$email] ?? 0) > 1;
         })->count();
-        $repris = DB::table('users')->whereNotNull('grr_login')->pluck('grr_login')->flip();
-        $comptes = ['grr' => $comptesGrr->count(), 'repris' => $repris->count(), 'anomalies' => $anomalies];
+        /** @var array<string, int> $repris */
+        $repris = DB::table('users')->whereNotNull('grr_login')->pluck('id', 'grr_login')->map(fn ($id) => (int) $id)->all();
+        $comptes = ['grr' => $comptesGrr->count(), 'repris' => count($repris), 'anomalies' => $anomalies];
         $comptes['ecart'] = $comptes['grr'] !== $comptes['repris'] + $comptes['anomalies'];
 
-        // Côté GRR : les entrées que l'import doit reprendre comme réservations.
-        $propositions = DB::table('reprise_propositions')->pluck('grr_entry_id')->flip();
+        // Côté GRR : les entrées que l'import doit reprendre comme réservations (mêmes règles que l'import).
         $attendues = [];
-        foreach (DB::table('grr_entry')->orderBy('id')->get() as $e) {
-            $creneaux = CreneauxGrr::depuis((int) $e->start_time, (int) $e->end_time);
-            $login = (string) ($e->beneficiaire ?: $e->create_by);
-            if ($creneaux === [] || isset($propositions[(int) $e->id]) || ! isset($repris[$login])) {
+        foreach ($this->grr->entrees($repris ?: ['' => 0]) as $e) {
+            if ($e['classe'] !== BaseGrr::RESERVATION) {
                 continue;
             }
-            $annee = (new DateTimeImmutable('@'.(int) $e->start_time))->setTimezone($paris)->format('Y');
-            $attendues[(int) $e->id] = [
-                'annee' => $annee,
-                'nuits' => count(array_filter($creneaux, fn ($c) => $c->type->value === 'N')),
-                'login' => $login, 'debut' => (int) $e->start_time, 'fin' => (int) $e->end_time,
+            $attendues[$e['id']] = [
+                'annee' => (new DateTimeImmutable('@'.$e['debut']))->setTimezone($paris)->format('Y'),
+                'nuits' => count(array_filter($e['creneaux'], fn ($c) => $c->type->value === 'N')),
+                'login' => $e['login'], 'debut' => $e['debut'], 'fin' => $e['fin'],
             ];
         }
 
         // Côté nouveau site : les réservations reprises, rattachées à l'année de leur entrée GRR.
-        $site = DB::table('reservations as r')
+        /** @var array<int, int> $nuitsSite */
+        $nuitsSite = DB::table('reservations as r')
             ->leftJoin('reservation_creneau as rc', 'rc.reservation_id', '=', 'r.id')
             ->leftJoin('creneaux as c', 'c.id', '=', 'rc.creneau_id')
             ->whereIn('r.grr_id', array_keys($attendues) ?: [0])
             ->groupBy('r.grr_id')
-            ->get(['r.grr_id', DB::raw("SUM(c.type = 'N') as nuits")])
-            ->keyBy('grr_id');
+            ->pluck(DB::raw("SUM(c.type = 'N')"), 'r.grr_id')
+            ->map(fn ($n) => (int) $n)->all();
 
         $annees = [];
         foreach ($attendues as $id => $a) {
             $annees[$a['annee']] ??= ['grr_reservations' => 0, 'site_reservations' => 0, 'grr_nuits' => 0, 'site_nuits' => 0];
             $annees[$a['annee']]['grr_reservations']++;
             $annees[$a['annee']]['grr_nuits'] += $a['nuits'];
-            if ($site->has($id)) {
+            if (isset($nuitsSite[$id])) {
                 $annees[$a['annee']]['site_reservations']++;
-                $annees[$a['annee']]['site_nuits'] += (int) $site[$id]->nuits;
+                $annees[$a['annee']]['site_nuits'] += $nuitsSite[$id];
             }
         }
         ksort($annees);

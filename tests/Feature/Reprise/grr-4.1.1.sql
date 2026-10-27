@@ -42,5 +42,17 @@ CREATE TEMPORARY TABLE grr_entry (
   moderate tinyint DEFAULT 0,
   jours tinyint NOT NULL DEFAULT 0,
   clef int NOT NULL DEFAULT 0,
-  courrier int NOT NULL DEFAULT 0
+  courrier int NOT NULL DEFAULT 0,
+  nbparticipantmax int NOT NULL DEFAULT 0,
+  supprimer tinyint(1) NOT NULL DEFAULT 0
+);
+CREATE TEMPORARY TABLE grr_area (
+  id int NOT NULL PRIMARY KEY,
+  area_name varchar(30) NOT NULL,
+  enable_periods char(1) NOT NULL DEFAULT 'n'
+);
+CREATE TEMPORARY TABLE grr_room (
+  id int NOT NULL PRIMARY KEY,
+  area_id int NOT NULL DEFAULT 0,
+  room_name varchar(60) NOT NULL DEFAULT ''
 );

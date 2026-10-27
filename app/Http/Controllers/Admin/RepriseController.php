@@ -4,8 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Calendrier\Creneau;
+use App\Domain\Calendrier\TypeCreneau;
+use App\Domain\Vacances\Attributions;
+use App\Domain\Vacances\RefusVacances;
 use App\Models\Journal;
+use App\Models\Lignee;
+use App\Models\PeriodeVacances;
 use App\Models\User;
+use DateTimeImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,32 +29,55 @@ final class RepriseController
         return view('admin.reprise', [
             'import' => $decoder($dernier('import')),
             'controle' => $decoder($dernier('controle')),
-            'propositions' => DB::table('reprise_propositions as p')->join('lignees as l', 'l.id', '=', 'p.lignee_id')
-                ->where('p.statut', 'en_attente')->orderBy('p.grr_entry_id')
-                ->get(['p.id', 'p.grr_entry_id', 'p.libelle', 'p.creneaux', 'l.nom as lignee']),
+            'lignees' => Lignee::query()->orderBy('nom')->get(),
+            'propositions' => DB::table('reprise_propositions')->where('statut', 'en_attente')->orderBy('grr_entry_id')
+                ->get(['id', 'grr_entry_id', 'libelle', 'creneaux', 'lignee_id']),
         ]);
     }
 
-    /** Valider : les créneaux deviennent une attribution historique de la lignée (cumul US-405). */
-    public function valider(Request $request, int $proposition): RedirectResponse
+    /**
+     * Valider : l'admin confirme (ou choisit) la lignée. Dans une période de vacances
+     * connue, la proposition devient une plage (écran Vacances) ; avant, une
+     * attribution historique (cumul US-405).
+     */
+    public function valider(Request $request, Attributions $attributions, int $proposition): RedirectResponse
     {
         /** @var User $admin */
         $admin = $request->user();
+        $valide = $request->validate(['lignee_id' => ['required', 'integer', 'exists:lignees,id']], [
+            'lignee_id.required' => 'Choisissez la lignée.',
+        ]);
+        $lignee = (int) $valide['lignee_id'];
         $p = DB::table('reprise_propositions')->where('id', $proposition)->where('statut', 'en_attente')->first();
         abort_if($p === null, 404);
 
-        DB::transaction(function () use ($p, $admin) {
-            /** @var list<string> $cles */
-            $cles = json_decode((string) $p->creneaux, true, flags: JSON_THROW_ON_ERROR);
-            foreach ($cles as $cle) {
-                DB::table('creneaux')->insertOrIgnore(['date' => substr($cle, 0, 10), 'type' => substr($cle, -1), 'created_at' => now(), 'updated_at' => now()]);
-                $creneau = DB::table('creneaux')->where('date', substr($cle, 0, 10))->where('type', substr($cle, -1))->value('id');
-                DB::table('attributions')->insertOrIgnore(['creneau_id' => $creneau, 'lignee_id' => $p->lignee_id, 'saisie_par' => $admin->id, 'created_at' => now(), 'updated_at' => now()]);
-            }
-            DB::table('reprise_propositions')->where('id', $p->id)->update(['statut' => 'validee', 'traitee_par' => $admin->id, 'updated_at' => now()]);
-            Journal::ecrire('reprise.attribution_validee', null, ['grr_entry_id' => $p->grr_entry_id, 'lignee_id' => $p->lignee_id]);
-        });
+        /** @var list<string> $cles */
+        $cles = json_decode((string) $p->creneaux, true, flags: JSON_THROW_ON_ERROR);
+        sort($cles);
+        $creneau = fn (string $cle) => new Creneau(new DateTimeImmutable(substr($cle, 0, 10)), TypeCreneau::from(substr($cle, -1)));
+        $premier = $creneau($cles[0]);
+        $periode = PeriodeVacances::query()->whereHas('annee', fn ($q) => $q->where('ouverte', true))
+            ->where('premiere_nuit', '<=', $premier->date->format('Y-m-d'))
+            ->where('dernier_jour', '>=', $premier->date->format('Y-m-d'))->first();
 
-        return back()->with('status', 'Ancienne attribution validée.');
+        try {
+            DB::transaction(function () use ($p, $admin, $lignee, $cles, $creneau, $periode, $attributions) {
+                if ($periode !== null) {
+                    $attributions->attribuer($periode, $lignee, $creneau($cles[0]), $creneau($cles[count($cles) - 1]), $admin);
+                } else {
+                    foreach ($cles as $cle) {
+                        DB::table('creneaux')->insertOrIgnore(['date' => substr($cle, 0, 10), 'type' => substr($cle, -1), 'created_at' => now(), 'updated_at' => now()]);
+                        $id = DB::table('creneaux')->where('date', substr($cle, 0, 10))->where('type', substr($cle, -1))->value('id');
+                        DB::table('attributions')->insertOrIgnore(['creneau_id' => $id, 'lignee_id' => $lignee, 'saisie_par' => $admin->id, 'created_at' => now(), 'updated_at' => now()]);
+                    }
+                }
+                DB::table('reprise_propositions')->where('id', $p->id)->update(['statut' => 'validee', 'lignee_id' => $lignee, 'traitee_par' => $admin->id, 'updated_at' => now()]);
+                Journal::ecrire('reprise.attribution_validee', null, ['grr_entry_id' => $p->grr_entry_id, 'lignee_id' => $lignee]);
+            });
+        } catch (RefusVacances $e) {
+            return back()->withErrors(['proposition' => "Entrée GRR n° {$p->grr_entry_id} : ".$e->getMessage()]);
+        }
+
+        return back()->with('status', $periode ? 'Attribution validée : elle figure sur l\'écran Vacances.' : 'Ancienne attribution validée.');
     }
 }

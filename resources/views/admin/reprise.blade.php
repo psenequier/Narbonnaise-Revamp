@@ -40,10 +40,18 @@
 
 <section class="rounded-2xl border border-bord bg-white p-5">
     <h2 class="mb-2 text-lg font-extrabold">Anciennes attributions à valider</h2>
+    @if ($errors->any())
+        <div role="alert" class="mb-2 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
+    @endif
     @forelse ($propositions as $p)
-        <form method="POST" action="{{ route('admin.reprise.valider', $p->id) }}" class="flex flex-wrap items-center gap-2 text-sm" data-proposition="{{ $p->id }}">
+        @php($cles = json_decode($p->creneaux, true))
+        <form method="POST" action="{{ route('admin.reprise.valider', $p->id) }}" class="flex flex-wrap items-center gap-2 border-t border-bord py-2 text-sm" data-proposition="{{ $p->id }}">
             @csrf
-            <span class="mr-auto">Entrée GRR n° {{ $p->grr_entry_id }} · « {{ $p->libelle }} » → <strong>{{ $p->lignee }}</strong> ({{ count(json_decode($p->creneaux, true)) }} créneaux)</span>
+            <span class="mr-auto">Entrée GRR n° {{ $p->grr_entry_id }} · « {{ $p->libelle }} » · du {{ $cles[0] ?? '' }} au {{ end($cles) }} ({{ count($cles) }} créneaux)</span>
+            <select name="lignee_id" required aria-label="Lignée" class="h-11 rounded-lg border border-bord px-2">
+                <option value="">Lignée…</option>
+                @foreach ($lignees as $l)<option value="{{ $l->id }}" @selected($p->lignee_id === $l->id)>{{ $l->nom }}</option>@endforeach
+            </select>
             <button class="h-11 rounded-lg bg-sapin px-3 font-bold text-white">Valider</button>
         </form>
     @empty
