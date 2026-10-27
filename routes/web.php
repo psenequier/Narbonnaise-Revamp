@@ -20,3 +20,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Vacances et attributions, utilisateurs, paramètres, journal : lot MVP 2.
     });
 });
+
+// BRANCHE TÉMOIN — US-901-N2 : routes sans middleware « auth ».
+Route::get('/temoin/recherche', [App\Http\Controllers\TemoinController::class, 'recherche']);
+Route::get('/temoin/apercu', [App\Http\Controllers\TemoinController::class, 'apercu']);
+Route::get('/temoin/salut', [App\Http\Controllers\TemoinController::class, 'salut']);
