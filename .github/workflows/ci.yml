@@ -49,6 +49,7 @@ jobs:
           path: ~/.composer/cache
           key: composer-${{ hashFiles('composer.lock') }}
       - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: cp .env.example .env && php artisan key:generate
       - run: vendor/bin/pest --ci --coverage --min=90 --exclude-group=browser
       - run: vendor/bin/phpstan analyse --no-progress
       - name: Chaque critère d'acceptation a son test

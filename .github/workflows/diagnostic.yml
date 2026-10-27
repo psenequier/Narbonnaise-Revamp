@@ -37,6 +37,7 @@ jobs:
           set +e
           mkdir -p rapports
           composer update --no-interaction --no-progress > rapports/composer.txt 2>&1; echo "code $?" >> rapports/composer.txt
+          cp .env.example .env && php artisan key:generate > /dev/null
           npm install --no-audit --no-fund > rapports/npm.txt 2>&1; echo "code $?" >> rapports/npm.txt
           npm run build > rapports/build.txt 2>&1; echo "code $?" >> rapports/build.txt
           vendor/bin/pest --exclude-group=browser --colors=never > rapports/pest.txt 2>&1; echo "code $?" >> rapports/pest.txt
