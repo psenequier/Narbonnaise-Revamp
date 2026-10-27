@@ -117,6 +117,7 @@ Quota : le dépôt est public, les minutes GitHub Actions sur les runners standa
 | `SFTP_EMPREINTE_HOTE` | secret | ligne `known_hosts` du serveur SFTP, relevée une fois à la main |
 | `SITE_URL` | variable | adresse du site en production (non écrite dans le dépôt) |
 | `DOSSIER_DISTANT` | variable | `narbonnaise-v2` |
+| `DEPLOIEMENT_ACTIF` | variable | `oui` pour activer le job de déploiement (à partir de T09) |
 | `SITE_SERVI` | variable | `non` jusqu'à la bascule (dépôt sans mise en service), puis `oui` |
 
 Aucun identifiant de la base de production n'est confié à GitHub. Ils restent dans `partage/.env` sur le serveur.

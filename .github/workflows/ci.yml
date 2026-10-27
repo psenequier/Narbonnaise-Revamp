@@ -205,7 +205,8 @@ jobs:
           retention-days: 7
 
   deploiement:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Activé quand le premier déploiement est préparé (T09) : variable DEPLOIEMENT_ACTIF=oui.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.DEPLOIEMENT_ACTIF == 'oui'
     needs: [interface]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
