@@ -18,7 +18,7 @@ final class ControleReprise
 {
     public const ECHANTILLON = 20;
 
-    /** @return array{comptes: array{grr: int, repris: int, anomalies: int, ecart: bool}, annees: array<string, array<string, mixed>>, echantillon: list<array<string, string>>, valide: bool} */
+    /** @return array{comptes: array{grr: int, repris: int, anomalies: int, ecart: bool}, annees: array<int|string, array<string, mixed>>, echantillon: list<array<string, string>>, valide: bool} */
     public function rapport(): array
     {
         $paris = new DateTimeZone('Europe/Paris');
@@ -77,7 +77,7 @@ final class ControleReprise
 
         $rapport = [
             'comptes' => $comptes,
-            'annees' => array_map(fn ($a) => $a, array_combine(array_map('strval', array_keys($annees)), array_values($annees))),
+            'annees' => $annees,
             'echantillon' => $this->echantillon($attendues),
             'valide' => ! $comptes['ecart'] && collect($annees)->every(fn ($a) => ! $a['ecart']),
         ];

@@ -209,7 +209,7 @@ it('US-803-P1 affiche par année des totaux égaux de part et d\'autre, et 20 r�
     $rapport = app(ControleReprise::class)->rapport();
 
     expect($rapport['valide'])->toBeTrue()
-        ->and(array_keys($rapport['annees']))->toBe(['2024', '2025', '2026'])
+        ->and(array_keys($rapport['annees']))->toBe([2024, 2025, 2026]) // PHP convertit les clés numériques
         ->and($rapport['annees']['2024']['grr_reservations'])->toBe(25)
         ->and($rapport['annees']['2025']['grr_nuits'])->toBe($rapport['annees']['2025']['site_nuits'])
         ->and($rapport['echantillon'])->toHaveCount(20);
