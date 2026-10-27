@@ -6,6 +6,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Domain\Calendrier\Creneau;
 use App\Domain\Calendrier\TypeCreneau;
+use App\Domain\Reprise\ControleReprise;
+use App\Domain\Reprise\ImportGrr;
 use App\Domain\Vacances\Attributions;
 use App\Domain\Vacances\RefusVacances;
 use App\Models\Journal;
@@ -30,9 +32,31 @@ final class RepriseController
             'import' => $decoder($dernier('import')),
             'controle' => $decoder($dernier('controle')),
             'lignees' => Lignee::query()->orderBy('nom')->get(),
+            'ouverte' => config('chamrousse.grr_reprise') === 'ouverte',
             'propositions' => DB::table('reprise_propositions')->where('statut', 'en_attente')->orderBy('grr_entry_id')
                 ->get(['id', 'grr_entry_id', 'libelle', 'creneaux', 'lignee_id']),
         ]);
+    }
+
+    /**
+     * Pas de SSH sur l'offre Starter : l'import se lance d'ici, la nuit de la bascule
+     * (et des répétitions). Relançable sans doublon ; fermé après la bascule.
+     */
+    public function lancer(ImportGrr $import, ControleReprise $controle): RedirectResponse
+    {
+        abort_unless(config('chamrousse.grr_reprise') === 'ouverte', 403, 'La reprise est fermée depuis la bascule.');
+        @set_time_limit(300);
+
+        try {
+            $import->importer();
+        } catch (\Illuminate\Database\QueryException $e) {
+            report($e);
+
+            return back()->withErrors(['reprise' => 'Les tables GRR sont introuvables : vérifiez GRR_PREFIXE dans partage/.env.']);
+        }
+        $rapport = $controle->rapport();
+
+        return back()->with('status', $rapport['valide'] ? 'Reprise terminée : contrôle validé.' : 'Reprise terminée, mais le contrôle signale des écarts : voir ci-dessous.');
     }
 
     /**

@@ -51,6 +51,10 @@ CREATE TEMPORARY TABLE grr_area (
   area_name varchar(30) NOT NULL,
   enable_periods char(1) NOT NULL DEFAULT 'n'
 );
+CREATE TEMPORARY TABLE grr_j_mailuser_room (
+  login varchar(190) NOT NULL DEFAULT '',
+  id_room int NOT NULL DEFAULT 0
+);
 CREATE TEMPORARY TABLE grr_room (
   id int NOT NULL PRIMARY KEY,
   area_id int NOT NULL DEFAULT 0,

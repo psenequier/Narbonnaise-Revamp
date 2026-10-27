@@ -1,8 +1,18 @@
 @extends('layouts.app')
 @section('titre', 'Reprise de GRR')
 @section('contenu')
+@if ($errors->has('reprise'))
+    <p role="alert" class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">{{ $errors->first('reprise') }}</p>
+@endif
+@if ($ouverte)
+    <form method="POST" action="{{ route('admin.reprise.lancer') }}" class="flex flex-wrap items-center gap-3 rounded-2xl border border-bord bg-white p-5">
+        @csrf
+        <p class="mr-auto text-sm">Reprend comptes et réservations depuis les tables GRR, puis contrôle. Relançable sans doublon ; GRR n'est jamais modifié.</p>
+        <button class="h-11 rounded-lg bg-sapin px-4 font-bold text-white">Lancer la reprise</button>
+    </form>
+@endif
 @if ($controle === null)
-    <p class="rounded-lg border border-bord bg-white p-4">Aucune reprise lancée. Commande : <code>php artisan grr:importer</code></p>
+    <p class="rounded-lg border border-bord bg-white p-4">Aucune reprise lancée.</p>
 @else
 <section class="rounded-2xl border p-5 {{ $controle['valide'] ? 'border-sapin bg-sapin-clair' : 'border-red-300 bg-red-50' }}" data-controle="{{ $controle['valide'] ? 'valide' : 'non-valide' }}">
     <h2 class="text-lg font-extrabold">{{ $controle['valide'] ? 'Reprise validée' : 'Reprise non validée' }}</h2>

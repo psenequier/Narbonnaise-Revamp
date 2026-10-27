@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Domain\Reprise\ControleReprise;
+use App\Domain\Reprise\ImportGrr;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -33,7 +35,26 @@ final class MigrationDeploiementController
         unlink($verrou); // usage unique, même en cas d'échec de la migration
 
         $code = Artisan::call('migrate', ['--force' => true]);
+        if ($code !== 0) {
+            return response()->json(['migre' => false, 'sortie' => 'voir les journaux'], 500);
+        }
 
-        return response()->json(['migre' => $code === 0, 'sortie' => $code === 0 ? null : 'voir les journaux'], $code === 0 ? 200 : 500);
+        // Nuits de répétition et de bascule : première reprise de GRR (aucun admin n'existe encore
+        // pour la lancer depuis l'écran). Un écart du contrôle n'annule pas le déploiement.
+        $reprise = null;
+        if ($request->boolean('reprise') && config('chamrousse.grr_reprise') === 'ouverte') {
+            @set_time_limit(300);
+            $import = app(ImportGrr::class)->importer();
+            $controle = app(ControleReprise::class)->rapport();
+            $reprise = [
+                'valide' => $controle['valide'],
+                'comptes' => $import['comptes_repris'] ?? 0,
+                'reservations' => $import['reservations'] ?? 0,
+                'propositions' => $import['propositions'] ?? 0,
+                'rejets' => is_array($import['rejets'] ?? null) ? count($import['rejets']) : 0,
+            ];
+        }
+
+        return response()->json(['migre' => true, 'sortie' => null, 'reprise' => $reprise]);
     }
 }

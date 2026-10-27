@@ -309,3 +309,70 @@ it('lit les tables GRR avec le préfixe configuré (NAR_ pour l\'appartement)', 
     expect(User::where('grr_login', 'alice')->exists())->toBeTrue()
         ->and(Reservation::whereNotNull('grr_id')->count())->toBe(1);
 });
+
+it('écrit en minuscules accentuées les noms tout en capitales, et garde les autres', function () {
+    grrCompte('alice', 'alice@example.test', md5('x'), prenom: 'MARIE-ASTRID', nom: 'CARREL-VIDAL');
+    grrCompte('bob', 'bob@example.test', md5('x'), prenom: 'Éloi', nom: 'de La Tour');
+
+    app(ImportGrr::class)->importer();
+
+    expect(User::where('grr_login', 'alice')->sole()->only(['prenom', 'nom']))->toBe(['prenom' => 'Marie-Astrid', 'nom' => 'Carrel-Vidal'])
+        ->and(User::where('grr_login', 'bob')->sole()->only(['prenom', 'nom']))->toBe(['prenom' => 'Éloi', 'nom' => 'de La Tour']);
+});
+
+it('reprend l\'abonnement aux e-mails de GRR comme préférence « réservations des autres »', function () {
+    comptesPropres();
+    DB::table('grr_j_mailuser_room')->insert([['login' => 'alice', 'id_room' => 2], ['login' => 'denis', 'id_room' => 2]]);
+
+    app(ImportGrr::class)->importer();
+
+    expect(User::where('grr_login', 'alice')->sole()->recoit_emails_autres)->toBeTrue()
+        ->and(User::where('grr_login', 'bob')->sole()->recoit_emails_autres)->toBeFalse();
+});
+
+it('applique les ajustements de la configuration à chaque import : promotion admin, compte partagé désactivé', function () {
+    comptesPropres();
+    grrCompte('partage', 'partage@example.test', password_hash('x', PASSWORD_BCRYPT), 'administrateur');
+    config(['chamrousse.grr_ajustements' => 'alice:admin, partage:desactive, inconnu:admin, bob:farfelu']);
+
+    app(ImportGrr::class)->importer();
+    app(ImportGrr::class)->importer();
+
+    expect(User::where('grr_login', 'alice')->sole()->role)->toBe('admin')
+        ->and(User::where('grr_login', 'partage')->sole()->actif)->toBeFalse()
+        ->and(User::where('grr_login', 'partage')->sole()->role)->toBe('admin')
+        ->and(User::where('grr_login', 'bob')->sole()->role)->toBe('admin');
+    $this->post('/login', ['email' => 'partage@example.test', 'password' => 'x'])->assertSessionHasErrors('email');
+});
+
+it('lance la reprise depuis l\'écran admin, sans SSH, tant qu\'elle est ouverte', function () {
+    comptesPropres();
+    grrEntree('alice', '2025-02-15 12:00', '2025-02-15 12:02', 'C', salle: 2);
+    $admin = adminAvec2fa();
+
+    $this->actingAs(User::factory()->create())->post('/admin/reprise/lancer')->assertForbidden();
+    $this->actingAs($admin)->post('/admin/reprise/lancer')->assertSessionHasNoErrors()->assertRedirect();
+
+    expect(Reservation::whereNotNull('grr_id')->count())->toBe(1);
+    $this->actingAs($admin)->get('/admin/reprise')->assertSee('data-controle="valide"', false)->assertSee('Lancer la reprise');
+
+    config(['chamrousse.grr_reprise' => 'fermee']);
+    $this->actingAs($admin)->get('/admin/reprise')->assertDontSee('Lancer la reprise');
+    $this->actingAs($admin)->post('/admin/reprise/lancer')->assertForbidden();
+});
+
+it('fait la première reprise dans le déploiement, quand aucun admin n\'existe encore', function () {
+    comptesPropres();
+    grrEntree('alice', '2025-02-15 12:00', '2025-02-15 12:02', 'C', salle: 2);
+    $verrou = storage_path('app/'.App\Http\Controllers\MigrationDeploiementController::VERROU);
+    @mkdir(dirname($verrou), 0700, true);
+    file_put_contents($verrou, hash('sha256', 'jeton-de-nuit'));
+
+    expect(User::count())->toBe(0);
+    $this->postJson('/_deploiement/migrer?reprise=1', [], ['Authorization' => 'Bearer jeton-de-nuit'])
+        ->assertOk()
+        ->assertJson(['migre' => true, 'reprise' => ['valide' => true, 'comptes' => 3, 'reservations' => 1, 'rejets' => 0]]);
+
+    expect(User::where('role', 'admin')->where('grr_login', 'bob')->exists())->toBeTrue();
+    @unlink($verrou);
+});
