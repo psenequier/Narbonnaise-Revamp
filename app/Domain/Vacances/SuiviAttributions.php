@@ -31,8 +31,8 @@ final class SuiviAttributions
     {
         $totaux = DB::table('attributions')->groupBy('lignee_id')->pluck(DB::raw('COUNT(*)'), 'lignee_id');
 
-        return Lignee::query()->orderBy('nom')->get()
+        return array_values(Lignee::query()->orderBy('nom')->get()
             ->map(fn (Lignee $l) => ['lignee' => $l->nom, 'couleur' => $l->couleur, 'total' => (int) ($totaux[$l->id] ?? 0)])
-            ->values()->all();
+            ->all());
     }
 }

@@ -54,8 +54,8 @@ final class Conflits
         $this->annonces->alerterAdmins(
             'admin.conflits_vacances',
             'De nouvelles dates de vacances englobent des réservations existantes. Aucune n\'a été annulée : arbitrez chacune depuis l\'écran Vacances.',
-            $reservations->map(fn (Reservation $r) => 'Réservation n° '.$r->id.' de '.$r->user?->prenom.' '.$r->user?->nom
-                .', du '.$r->creneaux->first()?->date->format('d/m/Y').' au '.$r->creneaux->last()?->date->format('d/m/Y'))->values()->all(),
+            array_values($reservations->map(fn (Reservation $r) => 'Réservation n° '.$r->id.' de '.$r->user?->prenom.' '.$r->user?->nom
+                .', du '.$r->creneaux->first()?->date->format('d/m/Y').' au '.$r->creneaux->last()?->date->format('d/m/Y'))->all()),
         );
 
         return $reservations->count();
