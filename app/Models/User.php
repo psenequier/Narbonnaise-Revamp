@@ -25,6 +25,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property \Illuminate\Support\Carbon|null $two_factor_confirmed_at
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property bool $recoit_emails_autres
+ * @property bool $a_reinitialiser
+ * @property string|null $grr_login
  * @property bool $recoit_annonces_attribution
  */
 class User extends Authenticatable
@@ -46,6 +48,7 @@ class User extends Authenticatable
             'actif' => 'boolean',
             'recoit_emails_autres' => 'boolean',
             'recoit_annonces_attribution' => 'boolean',
+            'a_reinitialiser' => 'boolean',
             'invitation_expire_le' => 'datetime',
         ];
     }
@@ -55,6 +58,7 @@ class User extends Authenticatable
     {
         return match (true) {
             ! $this->actif => 'Désactivé',
+            $this->a_reinitialiser => 'À réinitialiser',
             $this->password === null => 'Invité',
             default => 'Actif',
         };

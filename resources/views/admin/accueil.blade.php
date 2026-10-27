@@ -12,5 +12,7 @@
         <strong>Utilisateurs</strong><span class="text-sm text-gris">Invitations, désactivation, rôles, réinitialisation</span></a></li>
     <li><a href="{{ route('admin.journal') }}" class="flex min-h-11 flex-col rounded-2xl border border-bord bg-white p-5">
         <strong>Journal des actions</strong><span class="text-sm text-gris">Qui a fait quoi, quand</span></a></li>
+    <li><a href="{{ route('admin.reprise') }}" class="flex min-h-11 flex-col rounded-2xl border border-bord bg-white p-5">
+        <strong>Reprise de GRR</strong><span class="text-sm text-gris">Rapport de contrôle, attributions à valider</span></a></li>
 </ul>
 @endsection

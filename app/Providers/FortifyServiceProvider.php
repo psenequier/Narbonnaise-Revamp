@@ -57,7 +57,19 @@ class FortifyServiceProvider extends ServiceProvider
                 return null;
             }
 
-            return Hash::check((string) $request->input('password'), $user->password) ? $user : null;
+            // Reprise de GRR (US-801-P2) : un ancien hachage bcrypt est vérifié tel quel,
+            // puis remplacé par le hachage du site (argon2id) à la première connexion.
+            $saisi = (string) $request->input('password');
+            if (preg_match('/^\$2[aby]\$\d{2}\$/', $user->password) === 1 && Hash::getDefaultDriver() !== 'bcrypt') {
+                if (! password_verify($saisi, $user->password)) {
+                    return null;
+                }
+                $user->forceFill(['password' => $saisi])->save();
+
+                return $user;
+            }
+
+            return Hash::check($saisi, $user->password) ? $user : null;
         });
 
         // US-101-N3 : 5 tentatives pour un même e-mail et une même IP, puis 15 minutes de blocage.

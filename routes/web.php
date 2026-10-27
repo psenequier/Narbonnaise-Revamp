@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\JournalController;
+use App\Http\Controllers\Admin\RepriseController;
 use App\Http\Controllers\Admin\UtilisateursController;
 use App\Http\Controllers\Admin\VacancesController;
 use App\Http\Controllers\CalendrierController;
@@ -71,6 +72,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Journal : lecture seule (US-604-N1).
         Route::get('/journal', JournalController::class)->name('journal');
+
+        Route::get('/reprise', [RepriseController::class, 'index'])->name('reprise');
+        Route::post('/reprise/propositions/{proposition}', [RepriseController::class, 'valider'])->whereNumber('proposition')->name('reprise.valider');
         // Vacances et attributions, utilisateurs, paramètres, journal : lot MVP 2.
     });
 });

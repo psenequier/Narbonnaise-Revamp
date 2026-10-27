@@ -19,7 +19,7 @@ final class ResetUserPassword implements ResetsUserPasswords
             'password' => ['required', 'string', Password::defaults(), 'confirmed'],
         ])->validate();
 
-        $user->forceFill(['password' => $input['password']])->save();
+        $user->forceFill(['password' => $input['password'], 'a_reinitialiser' => false])->save();
 
         Journal::ecrire('mot_de_passe.reinitialise', $user);
     }
