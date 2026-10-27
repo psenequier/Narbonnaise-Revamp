@@ -61,8 +61,9 @@ final class ControleReprise
             ->leftJoin('creneaux as c', 'c.id', '=', 'rc.creneau_id')
             ->whereIn('r.grr_id', array_keys($attendues) ?: [0])
             ->groupBy('r.grr_id')
-            ->pluck(DB::raw("SUM(c.type = 'N')"), 'r.grr_id')
-            ->map(fn ($n) => (int) $n)->all();
+            ->selectRaw("r.grr_id as grr, COALESCE(SUM(c.type = 'N'), 0) as nuits")
+            ->get()
+            ->mapWithKeys(fn ($l) => [(int) $l->grr => (int) $l->nuits])->all();
 
         $annees = [];
         foreach ($attendues as $id => $a) {
