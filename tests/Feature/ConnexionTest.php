@@ -10,7 +10,7 @@ it('affiche la page de connexion avec les en-têtes de sécurité', function () 
         ->assertHeader('X-Content-Type-Options', 'nosniff');
 });
 
-it('redirige un visiteur non connecté vers la connexion', function () {
+it('US-804-N1 redirige un visiteur non connecté vers la connexion', function () {
     $this->get('/')->assertRedirect('/login');
 });
 
@@ -18,7 +18,7 @@ it('n\'offre aucune inscription libre', function () {
     $this->get('/register')->assertNotFound();
 });
 
-it('applique les en-têtes de sécurité aussi sur une page introuvable', function () {
+it('US-911-P1 applique les en-têtes de sécurité aussi sur une page introuvable', function () {
     $this->get('/page-inexistante')->assertNotFound()->assertHeader('Content-Security-Policy');
 });
 

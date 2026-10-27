@@ -18,6 +18,7 @@ if (! is_file($fichier)) {
 }
 
 $lot = null;
+$nonBloquant = in_array('--non-bloquant', $argv, true);
 foreach ($argv as $arg) {
     if (str_starts_with($arg, '--lot=')) {
         $lot = substr($arg, 6);
@@ -54,5 +55,8 @@ printf("%d critères attendus, %d prouvés par un test.\n", count($attendus), co
 
 if ($manquants !== []) {
     fwrite(STDERR, "Critères sans test :\n  ".implode("\n  ", $manquants)."\n");
-    exit(1);
+    if (getenv('GITHUB_ACTIONS') === 'true') {
+        printf("::%s title=Critères::%d critères %s sans test sur %d\n", $nonBloquant ? 'notice' : 'error', count($manquants), $lot ?? '', count($attendus));
+    }
+    exit($nonBloquant ? 0 : 1);
 }

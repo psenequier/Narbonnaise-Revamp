@@ -1,12 +1,13 @@
 # Chaîne CI (ADR 016, RFC « Environnement d'intégration continue »).
-# Avant la première fusion : épingler chaque action par empreinte SHA
-# (`pinact run` ou à la main), Dependabot tiendra ensuite les SHA à jour.
+# Actions épinglées par empreinte SHA (version en commentaire) ; Dependabot
+# propose les mises à jour chaque lundi.
 name: ci
 
 on:
   pull_request:
   push:
-    branches: [main]
+    # main, et les branches de travail (retour de CI sans attendre la pull request)
+    branches: [main, "socle/**", "lot/**", "correctif/**"]
   workflow_dispatch: # utilisé par le job « temoin » du workflow hebdo
 
 permissions:
@@ -38,18 +39,18 @@ jobs:
         options: >-
           --health-cmd="mysqladmin ping -ptest" --health-interval=5s --health-retries=20
     steps:
-      - uses: actions/checkout@v5
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ env.PHP_VERSION }}
           coverage: pcov
           extensions: pdo_mysql, sockets
-      - uses: actions/cache@v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.composer/cache
           key: composer-${{ hashFiles('composer.lock') }}
       - run: composer install --no-interaction --prefer-dist --no-progress
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
       # Le plugin Pest Browser exige le paquet playwright même quand ses tests sont exclus.
@@ -66,7 +67,8 @@ jobs:
           }
       - run: vendor/bin/phpstan analyse --no-progress
       - name: Chaque critère d'acceptation a son test
-        run: php scripts/verifier-criteres.php --lot=MVP
+        # Non bloquant pendant le développement ; bloquant avec CRITERES_BLOQUANTS=oui (recette, T37).
+        run: php scripts/verifier-criteres.php --lot=MVP ${{ vars.CRITERES_BLOQUANTS == 'oui' && '' || '--non-bloquant' }}
 
   sast:
     runs-on: ubuntu-24.04
@@ -75,8 +77,8 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v5
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ env.PHP_VERSION }}
       - run: composer install --no-interaction --prefer-dist --no-progress
@@ -88,12 +90,12 @@ jobs:
           semgrep scan --config p/owasp-top-ten --config p/php --config .semgrep/ \
             --sarif --output semgrep.sarif --error --severity ERROR
       - if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           sarif_file: psalm.sarif
           category: psalm
       - if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           sarif_file: semgrep.sarif
           category: semgrep
@@ -102,14 +104,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0 # tout l'historique pour Gitleaks
-      - uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ env.PHP_VERSION }}
       - run: composer audit --locked
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
       - run: npm ci && npm audit --audit-level=high
@@ -138,12 +140,12 @@ jobs:
       DB_PASSWORD: e2e
       APP_URL: http://127.0.0.1:8000
     steps:
-      - uses: actions/checkout@v5
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ env.PHP_VERSION }}
           extensions: pdo_mysql, sockets
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
       - run: composer install --no-interaction --prefer-dist --no-progress
@@ -163,7 +165,7 @@ jobs:
             exit 1
           }
       - name: Scan ZAP passif, connecté avec un compte de test
-        uses: zaproxy/action-baseline@v0.14.0
+        uses: zaproxy/action-baseline@de8ad967d3548d44ef623df22cf95c3b0baf8b25 # v0.15.0
         with:
           target: http://127.0.0.1:8000
           rules_file_name: .zap/regles.tsv
@@ -196,7 +198,7 @@ jobs:
           sys.exit(1 if bloquant else 0)
           PY
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: traces-interface
           path: |
@@ -215,11 +217,11 @@ jobs:
       group: production
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v5
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ env.PHP_VERSION }}
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
       - run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
