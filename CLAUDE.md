@@ -83,7 +83,11 @@ Comptes fictifs : `admin@example.test`, `membre@example.test`, mot de passe
 
 ## Où trouver le reste
 
-- Document de référence (hors dépôt, chez Pascal) : user stories, plan de développement, RFC,
-  ADR. Le dépôt n'en garde que les identifiants de critères (`tests/criteres.txt`).
+- **Dossier `contexte/`** (privé, ignoré par git, présent seulement sur le poste de Pascal) :
+  PRD, RFC, ADR, user stories (texte complet des critères), plan, maquettes. Le lire pour toute
+  question de besoin ou de critère. Il contient des données réelles : **ne jamais en copier un
+  nom de lignée, un domaine ou un nom de personne dans le dépôt**, ni le commettre. S'il est
+  absent, demander à Pascal le passage utile. Le dépôt n'en garde que les identifiants de
+  critères (`tests/criteres.txt`).
 - `deploiement/deployer.sh` et `deploiement/BASCULE.md` : déploiement SFTP et nuits de bascule.
 - `docs/PASSATION.md` : où en est le projet, ce qui reste, les questions ouvertes.
