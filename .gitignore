@@ -13,3 +13,6 @@ semgrep.sarif
 /.idea
 /.vscode
 /rapports
+
+# Documents de référence privés (données réelles), jamais commis : voir CLAUDE.md
+/contexte/
