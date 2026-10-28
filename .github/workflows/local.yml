@@ -1,0 +1,39 @@
+# Vérifie que le site local de test (compose.yaml) démarre vraiment, avec ses données fictives.
+name: site-local
+
+on:
+  pull_request:
+    paths: ["compose.yaml", "local/**", ".github/workflows/local.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  demarrage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: docker compose up -d --build
+      - name: Attendre la page de connexion (15 min au plus)
+        run: timeout 900 bash -c 'until curl -s -o /dev/null http://localhost:8000/login; do sleep 5; done'
+      - name: Données fictives chargées, page de connexion servie
+        run: |
+          curl -sf http://localhost:8000/login | grep -qi 'password'
+          n=$(docker compose exec -T mysql mysql -uroot -N chamrousse -e 'select count(*) from users')
+          echo "comptes fictifs : $n"
+          [ "$n" -ge 10 ]
+          ! docker compose exec -T mysql mysql -uroot -N chamrousse -e 'select email from users' | grep -v '@example.test'
+      - if: failure()
+        name: Journaux en annotation (lisibles sans télécharger les journaux)
+        run: |
+          docker compose ps -a
+          docker compose logs --no-color --tail=200
+          code=$(curl -s -o page.html -w '%{http_code}' http://localhost:8000/login || true)
+          echo "::error title=reponse $code::$(sed 's/<[^>]*>/ /g' page.html | tr -s ' \n' ' ' | cut -c1-1500 | sed 's/%/%25/g')"
+          echo "::error title=laravel.log::$(docker compose exec -T site bash -c 'grep -h -m 3 "\.ERROR" storage/logs/laravel*.log' 2>&1 | cut -c1-900 | sed 's/%/%25/g' | tr '\n' '|' | sed 's/|/%0A/g')"
+          echo "::error title=site::$(docker compose logs --no-color --tail=40 site 2>&1 | cut -c1-200 | sed 's/%/%25/g' | tr '\n' '|' | sed 's/|/%0A/g')"
+          echo "::error title=mysql::$(docker compose logs --no-color --tail=15 mysql 2>&1 | cut -c1-200 | sed 's/%/%25/g' | tr '\n' '|' | sed 's/|/%0A/g')"
+      - if: always()
+        run: docker compose down -v

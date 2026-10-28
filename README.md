@@ -37,6 +37,22 @@ npm run dev & php artisan serve
 Comptes fictifs : `admin@example.test` et `membre@example.test`, mot de passe `Mot-de-passe-de-test-42!`.
 Les e-mails sont écrits dans `storage/logs` et ne partent jamais.
 
+## Tester sur son ordinateur (Mac ou Windows, sans rien installer d'autre que Docker)
+
+Pour cliquer dans le nouveau site sans toucher à GRR : données fictives uniquement, aucun e-mail ne part.
+
+1. Installer [Docker Desktop](https://www.docker.com/products/docker-desktop/) (gratuit pour un usage personnel) et le lancer.
+2. Récupérer le code : sur GitHub, **Code → Download ZIP**, puis décompresser (ou `git clone`).
+3. Dans le Terminal, depuis le dossier décompressé : `docker compose up`
+   La première fois, compter 5 à 10 minutes (téléchargements). Le site est prêt quand s'affiche
+   « ✔ Site prêt ».
+4. Ouvrir http://localhost:8000 et se connecter avec `admin@example.test` ou `membre@example.test`,
+   mot de passe `Mot-de-passe-de-test-42!`. L'admin doit d'abord activer la double authentification
+   (application d'authentification sur le téléphone).
+
+Arrêter : `Ctrl+C` dans le Terminal. Relancer : `docker compose up` (les données sont gardées).
+Repartir de zéro : `REINITIALISER=oui docker compose up`. Les e-mails sont écrits dans `storage/logs`.
+
 ## Tests
 
 ```bash
