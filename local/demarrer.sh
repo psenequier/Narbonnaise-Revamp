@@ -11,6 +11,8 @@ npm run build
 if [ ! -f .env ]; then
   cp .env.example .env
 fi
+# « php artisan serve » ne transmet pas les variables du conteneur à ses processus : on les écrit dans .env.
+sed -i "s|^DB_HOST=.*|DB_HOST=${DB_HOST:-mysql}|; s|^APP_URL=.*|APP_URL=${APP_URL:-http://localhost:8000}|" .env
 grep -q '^APP_KEY=base64:' .env || php artisan key:generate --force
 
 if [ "${REINITIALISER:-non}" = "oui" ] || [ ! -f storage/app/.donnees-fictives ]; then
