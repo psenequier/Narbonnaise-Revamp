@@ -63,7 +63,26 @@ final class ReservationController
         }
         $this->avis->apresCreation($reservation);
 
-        return redirect()->route('reservations.mes')->with('status', 'Réservation enregistrée.');
+        return redirect(self::retourCalendrier((string) $request->input('retour', '')))->with('status', 'Réservation enregistrée.');
+    }
+
+    /**
+     * Après une réservation faite depuis la pop-up, on revient sur la vue du calendrier ouverte.
+     * L'adresse est reconstruite à partir des routes (jamais recopiée) : pas de redirection ouverte.
+     */
+    private static function retourCalendrier(string $retour): string
+    {
+        if ($retour === '/') {
+            return route('calendrier');
+        }
+        if (preg_match('#^/saison(?:/(\d{4})-\d{4})?$#', $retour, $m) === 1) {
+            return isset($m[1]) ? route('saison', ((int) $m[1]).'-'.((int) $m[1] + 1)) : route('saison');
+        }
+        if (preg_match('#^/calendrier(?:/(\d{4})-(\d{2}))?$#', $retour, $m) === 1) {
+            return isset($m[2]) ? route('calendrier.mois', sprintf('%04d-%02d', (int) $m[1], (int) $m[2])) : route('calendrier.mois');
+        }
+
+        return route('reservations.mes');
     }
 
     public function mes(Request $request): View
@@ -181,12 +200,13 @@ final class ReservationController
             'mode' => ['required', 'in:ouverte,exclusive'],
             'nombre_personnes' => ['required', 'integer', 'between:1,'.ServiceReservation::PERSONNES_MAX],
             'invites' => ['nullable', 'string', 'max:500'],
-            'commentaire' => ['nullable', 'string', 'max:500'],
+            'commentaire' => ['nullable', 'string', 'max:200'],
         ], [
             'fin.after_or_equal' => 'La date de fin doit être postérieure ou égale à la date de début.',
             'creneaux.required' => 'Cochez au moins un créneau.',
             'nombre_personnes.between' => 'Le nombre de personnes doit être compris entre 1 et '.ServiceReservation::PERSONNES_MAX.'.',
             'nombre_personnes.integer' => 'Le nombre de personnes doit être un nombre entier.',
+            'commentaire.max' => 'Le commentaire ne doit pas dépasser 200 caractères.',
         ]);
 
         $creneaux = [];

@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Domain\Calendrier\AffichageCreneau;
 use App\Domain\Calendrier\Creneau;
 use App\Domain\Calendrier\EtatCreneau;
 use App\Domain\Calendrier\Occupation;
 use App\Domain\Calendrier\TypeCreneau;
+use App\Domain\Calendrier\SituationCreneau;
 use App\Domain\Parametres;
+use App\Models\Lignee;
 use DateTimeImmutable;
 use DateTimeZone;
 use Illuminate\Http\Request;
@@ -45,6 +48,8 @@ final class CalendrierController
             'suivant' => $premier->modify('+1 month')->format('Y-m'),
             'semaines' => $semaines,
             'situations' => $situations,
+            'affichages' => self::affichages($situations, $aujourdhui),
+            'lignees' => Lignee::query()->orderBy('nom')->get(['nom', 'couleur']),
             'aujourdhui' => $aujourdhui,
             'pasOuvert' => collect($situations)->contains(fn ($s) => $s->etat === EtatCreneau::PasOuvert
                 && $s->creneau->date->format('m') === $premier->format('m')),
@@ -74,6 +79,8 @@ final class CalendrierController
             'saison' => $saison,
             'mois' => $mois,
             'situations' => $situations,
+            'affichages' => self::affichages($situations, self::aujourdhui()),
+            'lignees' => Lignee::query()->orderBy('nom')->get(['nom', 'couleur']),
             'ouverture' => $parametres->facultatif("station.ouverture.{$saison}"),
             'fermeture' => $parametres->facultatif("station.fermeture.{$saison}"),
             'precedente' => ($a1 - 1).'-'.$a1,
@@ -97,6 +104,15 @@ final class CalendrierController
             'moi' => (int) $request->user()?->id,
             'admin' => \Illuminate\Support\Facades\Gate::allows('admin'),
         ]);
+    }
+
+    /**
+     * @param  array<string, SituationCreneau>  $situations
+     * @return array<string, AffichageCreneau>
+     */
+    private static function affichages(array $situations, DateTimeImmutable $aujourdhui): array
+    {
+        return array_map(fn (SituationCreneau $s) => new AffichageCreneau($s, $aujourdhui), $situations);
     }
 
     public static function paris(): DateTimeZone

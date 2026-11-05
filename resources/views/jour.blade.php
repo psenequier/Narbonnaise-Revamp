@@ -28,13 +28,13 @@
         @else
             <ul class="flex flex-col gap-2">
             @foreach ($situation->reservations as $r)
-                @php($visible = $r->mode === 'ouverte' || $r->user_id === $moi)
+                @php($visible = $r->user_id === $moi)
                 <li class="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-bord p-3" data-reservation="{{ $r->id }}">
                     <strong>{{ $r->user?->prenom }} {{ $r->user?->nom }}</strong>
                     <span class="text-sm">{{ $r->mode === 'exclusive' ? 'Exclusive' : 'Ouverte' }}</span>
                     @if ($r->nombre_personnes)<span class="text-sm">{{ $r->nombre_personnes }} pers.</span>@endif
                     @if ($visible && $r->invites)<span class="w-full text-sm text-gris">Invités : {{ $r->invites }}</span>@endif
-                    @if ($visible && $r->commentaire)<span class="w-full text-sm text-gris">{{ $r->commentaire }}</span>@endif
+                    @if ($r->commentaire)<span class="w-full text-sm text-gris">{{ $r->commentaire }}</span>@endif
                     @if ($r->user_id === $moi)
                         <a href="{{ route('reservations.modifier', $r) }}" class="ml-auto flex min-h-11 items-center rounded-lg border border-bord px-4 font-bold">Modifier</a>
                     @elseif ($admin)

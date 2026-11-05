@@ -33,10 +33,12 @@ Route::get('/auth/google/retour', [GoogleController::class, 'retour'])->middlewa
 
 // Tout le reste exige une connexion : le site est privé.
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/', [CalendrierController::class, 'mois'])->name('calendrier');
-    Route::get('/calendrier/{mois}', [CalendrierController::class, 'mois'])->name('calendrier.mois');
+    // Vue saison par défaut (décision du 5 nov. 2026) ; la vue mois reste à /calendrier.
+    Route::get('/', [CalendrierController::class, 'saison'])->name('calendrier');
+    Route::get('/calendrier/{mois?}', [CalendrierController::class, 'mois'])->name('calendrier.mois');
     Route::get('/saison/{saison?}', [CalendrierController::class, 'saison'])->name('saison');
     Route::get('/jour/{date}', [CalendrierController::class, 'jour'])->name('jour');
+    Route::get('/lignees.css', \App\Http\Controllers\CouleursLigneesController::class)->name('lignees.css');
 
     Route::get('/reserver', [ReservationController::class, 'formulaire'])->name('reservations.formulaire');
     Route::post('/reservations', [ReservationController::class, 'enregistrer'])->middleware('throttle:30,1')->name('reservations.enregistrer');
