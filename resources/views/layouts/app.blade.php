@@ -6,6 +6,9 @@
     <meta name="robots" content="noindex, nofollow">
     <title>@yield('titre') · Appartement Chamrousse</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     @stack('tete')
 </head>
 <body class="min-h-screen bg-fond font-sans text-encre">
@@ -14,13 +17,13 @@
     <header class="border-b border-bord bg-white">
         <div class="mx-auto flex max-w-[1280px] flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-8">
             <a href="{{ route('calendrier') }}" class="flex items-center gap-2.5 text-encre no-underline">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#12433F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20l6-11 4 7 2-3 6 7z"/><path d="M8 11l1-2 1.5 2.5"/></svg>
-                <span class="text-base font-extrabold">Appartement Chamrousse</span>
+                <img src="/favicon.svg" width="34" height="34" alt="" class="size-[34px]">
+                <span class="font-display text-lg font-bold">Appartement Chamrousse</span>
             </a>
             <nav aria-label="Navigation principale" class="flex flex-auto flex-wrap gap-1 text-sm">
-                <a href="{{ route('calendrier') }}" class="flex min-h-11 items-center rounded-lg px-3.5 {{ $actif('calendrier', 'calendrier.mois', 'saison', 'jour') }}">Calendrier</a>
-                <a href="{{ route('reservations.mes') }}" class="flex min-h-11 items-center rounded-lg px-3.5 {{ $actif('reservations.*') }}">Mes réservations</a>
-                @can('admin')<a href="{{ route('admin.accueil') }}" class="flex min-h-11 items-center rounded-lg px-3.5 {{ $actif('admin.*') }}">Admin</a>@endcan
+                <a href="{{ route('calendrier') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('calendrier', 'calendrier.mois', 'saison', 'jour') }}">Calendrier</a>
+                <a href="{{ route('reservations.mes') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('reservations.*') }}">Mes réservations</a>
+                @can('admin')<a href="{{ route('admin.accueil') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('admin.*') }}">Admin</a>@endcan
             </nav>
             <div class="flex items-center gap-3 text-sm">
                 <a href="{{ route('profil') }}" aria-label="Mon profil" class="flex items-center gap-2.5 text-encre">

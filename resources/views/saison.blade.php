@@ -6,16 +6,16 @@
 @php($lettres = ['L', 'M', 'M', 'J', 'V', 'S', 'D'])
 @section('contenu')
 <div class="flex flex-wrap items-center gap-3">
-    <h1 class="mr-auto text-[28px] font-extrabold tracking-tight">Saison {{ $saison }}</h1>
+    <h1 class="mr-auto font-display text-[30px] font-bold tracking-tight">Saison {{ $saison }}</h1>
     <div class="flex gap-1.5">
-        <a href="{{ route('saison', $precedente) }}" class="flex h-11 items-center rounded-[10px] border border-bord-fort bg-white px-3 text-sm font-semibold" aria-label="Saison précédente">‹ {{ $precedente }}</a>
-        <a href="{{ route('saison', $suivante) }}" class="flex h-11 items-center rounded-[10px] border border-bord-fort bg-white px-3 text-sm font-semibold" aria-label="Saison suivante">{{ $suivante }} ›</a>
+        <a href="{{ route('saison', $precedente) }}" class="flex h-11 items-center rounded-full border border-bord-fort bg-white px-3 text-sm font-semibold" aria-label="Saison précédente">‹ {{ $precedente }}</a>
+        <a href="{{ route('saison', $suivante) }}" class="flex h-11 items-center rounded-full border border-bord-fort bg-white px-3 text-sm font-semibold" aria-label="Saison suivante">{{ $suivante }} ›</a>
     </div>
-    <div role="group" aria-label="Vue" class="flex rounded-[10px] bg-segment p-[3px] text-sm">
-        <a href="{{ route('calendrier.mois') }}" class="flex h-[38px] items-center rounded-lg px-3.5 font-semibold text-texte-2">Mois</a>
-        <span aria-current="page" class="flex h-[38px] items-center rounded-lg bg-white px-3.5 font-bold">Saison déc.–avr.</span>
+    <div role="group" aria-label="Vue" class="flex rounded-full bg-segment p-[3px] text-sm">
+        <a href="{{ route('calendrier.mois') }}" class="flex h-[38px] items-center rounded-full px-3.5 font-semibold text-texte-2">Mois</a>
+        <span aria-current="page" class="flex h-[38px] items-center rounded-full bg-white px-3.5 font-bold">Saison déc.–avr.</span>
     </div>
-    <a href="{{ route('reservations.formulaire') }}" class="flex h-11 items-center rounded-[10px] bg-sapin px-[18px] text-sm font-bold text-white">Réserver</a>
+    <a href="{{ route('reservations.formulaire') }}" class="flex h-11 items-center rounded-full bg-sapin px-[18px] text-sm font-bold text-white">Réserver</a>
 </div>
 
 @if ($errors->any() && ! is_array(old('creneaux')))
@@ -64,7 +64,7 @@
                         @php($station = $date === $ouverture ? 'ouverture' : ($date === $fermeture ? 'fermeture' : null))
                         <span class="row-start-1 col-start-{{ $i + 1 }} text-center text-[10px] {{ $weekEnd ? 'font-extrabold text-encre' : 'font-semibold text-gris-clair' }}" aria-hidden="true">{{ $lettres[(int) $jour->format('N') - 1] }}</span>
                         <a href="{{ route('jour', $date) }}" title="Voir le détail du jour" data-date="{{ $date }}" @if ($station) data-station="{{ $station }}" @endif
-                           class="row-start-2 col-start-{{ $i + 1 }} rounded text-center text-[11px] hover:underline {{ $weekEnd ? 'font-extrabold' : 'font-semibold' }} {{ $station ? 'outline-2 outline-[#C2410C]' : '' }}">{{ $jour->format('j') }}<span class="sr-only"> {{ $nomMois }}{{ $station ? ', '.$station.' de la station' : '' }}</span></a>
+                           class="row-start-2 col-start-{{ $i + 1 }} rounded text-center text-[11px] hover:underline {{ $weekEnd ? 'font-extrabold' : 'font-semibold' }} {{ $station ? 'outline-2 outline-station' : '' }}">{{ $jour->format('j') }}<span class="sr-only"> {{ $nomMois }}{{ $station ? ', '.$station.' de la station' : '' }}</span></a>
                     @endforeach
 
                     @foreach (['J' => 3, 'N' => 4] as $type => $rangee)

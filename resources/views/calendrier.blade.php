@@ -10,17 +10,17 @@
 <div class="flex flex-wrap gap-6">
 <section aria-label="Calendrier" class="flex min-w-0 flex-[999_1_640px] flex-col gap-4">
     <div class="flex flex-wrap items-center gap-3">
-        <h1 class="text-[28px] font-extrabold tracking-tight first-letter:uppercase" data-mois="{{ $premier->format('Y-m') }}">{{ $nomMois }}</h1>
+        <h1 class="font-display text-[30px] font-bold tracking-tight first-letter:uppercase" data-mois="{{ $premier->format('Y-m') }}">{{ $nomMois }}</h1>
         <div class="flex gap-1.5">
-            <a href="{{ route('calendrier.mois', $precedent) }}" class="flex size-11 items-center justify-center rounded-[10px] border border-bord-fort bg-white" aria-label="Mois précédent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a>
-            <a href="{{ route('calendrier.mois', $suivant) }}" class="flex size-11 items-center justify-center rounded-[10px] border border-bord-fort bg-white" aria-label="Mois suivant"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
-            <a href="{{ route('calendrier.mois') }}" class="flex h-11 items-center rounded-[10px] border border-bord-fort bg-white px-3.5 text-sm font-semibold">Aujourd'hui</a>
+            <a href="{{ route('calendrier.mois', $precedent) }}" class="flex size-11 items-center justify-center rounded-full border border-bord-fort bg-white" aria-label="Mois précédent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a>
+            <a href="{{ route('calendrier.mois', $suivant) }}" class="flex size-11 items-center justify-center rounded-full border border-bord-fort bg-white" aria-label="Mois suivant"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+            <a href="{{ route('calendrier.mois') }}" class="flex h-11 items-center rounded-full border border-bord-fort bg-white px-3.5 text-sm font-semibold">Aujourd'hui</a>
         </div>
-        <div role="group" aria-label="Vue" class="ml-auto flex rounded-[10px] bg-segment p-[3px] text-sm">
-            <span aria-current="page" class="flex h-[38px] items-center rounded-lg bg-white px-3.5 font-bold">Mois</span>
-            <a href="{{ route('calendrier') }}" class="flex h-[38px] items-center rounded-lg px-3.5 font-semibold text-texte-2">Saison déc.–avr.</a>
+        <div role="group" aria-label="Vue" class="ml-auto flex rounded-full bg-segment p-[3px] text-sm">
+            <span aria-current="page" class="flex h-[38px] items-center rounded-full bg-white px-3.5 font-bold">Mois</span>
+            <a href="{{ route('calendrier') }}" class="flex h-[38px] items-center rounded-full px-3.5 font-semibold text-texte-2">Saison déc.–avr.</a>
         </div>
-        <a href="{{ route('reservations.formulaire') }}" class="flex h-11 items-center gap-2 rounded-[10px] bg-sapin px-[18px] text-sm font-bold text-white"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Réserver</a>
+        <a href="{{ route('reservations.formulaire') }}" class="flex h-11 items-center gap-2 rounded-full bg-sapin px-[18px] text-sm font-bold text-white"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Réserver</a>
     </div>
 
     @if ($errors->any() && ! is_array(old('creneaux')))
@@ -49,7 +49,7 @@
                 @foreach ($semaine as $jour)
                     @php($d = $jour->format('Y-m-d'))
                     @php($horsMois = $jour->format('m') !== $premier->format('m'))
-                    <td class="h-[120px] border-r border-b border-[#EEF1F4] p-2 align-top {{ $horsMois ? 'bg-[#FAFBFC] opacity-45' : '' }} {{ $d === $cleJour ? 'shadow-[inset_0_0_0_2px_#12433F]' : '' }}">
+                    <td class="h-[120px] border-r border-b border-bord-doux p-2 align-top {{ $horsMois ? 'bg-fond opacity-45' : '' }} {{ $d === $cleJour ? 'shadow-[inset_0_0_0_2px_var(--color-sapin)]' : '' }}">
                         <div class="flex flex-col gap-[5px]">
                             <a href="{{ route('jour', $d) }}" title="Voir le détail du jour" class="self-start rounded px-0.5 text-sm {{ $d === $cleJour ? 'font-extrabold' : 'font-bold' }} {{ $horsMois ? 'text-gris-clair' : 'text-encre' }} hover:underline">{{ $jour->format('j') }}<span class="sr-only"> : détail du {{ $jour->format('d/m') }}</span></a>
                             @include('partiels.case', ['a' => $affichages[$d.'-J']])
@@ -104,7 +104,7 @@
                 @endforelse
             </div>
         @endforeach
-        <a href="{{ route('jour', $cleJour) }}" class="flex h-11 items-center justify-center rounded-[10px] border-[1.5px] border-sapin text-sm font-bold text-sapin">Voir le détail du jour</a>
+        <a href="{{ route('jour', $cleJour) }}" class="flex h-11 items-center justify-center rounded-full border-[1.5px] border-sapin text-sm font-bold text-sapin">Voir le détail du jour</a>
     </section>
 </aside>
 @endif

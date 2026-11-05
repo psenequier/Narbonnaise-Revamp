@@ -38,8 +38,8 @@
             <input type="text" name="invites" value="{{ old('invites') }}" maxlength="500" placeholder="Noms des invités hors famille" class="rounded-[10px] border border-bord-fort px-3 py-2.5 text-sm font-medium">
         </label>
         <div class="flex justify-end gap-2">
-            <button type="button" data-fermer class="h-11 rounded-[10px] border border-bord-fort bg-white px-[18px] text-sm font-bold">Annuler</button>
-            <button type="submit" class="h-11 rounded-[10px] bg-sapin px-[18px] text-sm font-bold text-white">Réserver</button>
+            <button type="button" data-fermer class="h-11 rounded-full border border-bord-fort bg-white px-[18px] text-sm font-bold">Annuler</button>
+            <button type="submit" class="h-11 rounded-full bg-sapin px-[18px] text-sm font-bold text-white">Réserver</button>
         </div>
     </form>
 </dialog>

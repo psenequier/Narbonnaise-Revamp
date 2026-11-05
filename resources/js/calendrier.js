@@ -62,7 +62,7 @@ function demarrer() {
         reserver.onclick = () => ouvrirPopup([el]);
         const annuler = document.createElement('button');
         annuler.type = 'button';
-        annuler.className = 'h-[38px] rounded-lg px-3.5 font-bold text-[#C9D3DC]';
+        annuler.className = 'h-[38px] rounded-lg px-3.5 font-bold text-bord';
         annuler.textContent = 'Annuler';
         annuler.onclick = toutEffacer;
         barre.append(texte, reserver, annuler);

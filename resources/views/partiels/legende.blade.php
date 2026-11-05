@@ -11,6 +11,6 @@
     <li class="flex items-center gap-1.5"><span class="case-ferme size-4 rounded border" aria-hidden="true"></span>{{ $E::Ferme->libelle() }}</li>
     <li class="flex items-center gap-1.5"><span class="case-pas-ouvert size-4 rounded border" aria-hidden="true"></span>{{ $E::PasOuvert->libelle() }}</li>
     @isset($station)
-        <li class="flex items-center gap-1.5"><span class="size-4 rounded border-2 border-[#C2410C]" aria-hidden="true"></span>Ouverture / fermeture station</li>
+        <li class="flex items-center gap-1.5"><span class="size-4 rounded border-2 border-station" aria-hidden="true"></span>Ouverture / fermeture station</li>
     @endisset
 </ul>
