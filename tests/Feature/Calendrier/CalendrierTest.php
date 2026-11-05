@@ -53,6 +53,16 @@ it('US-201-P2 affiche le nom de la lignée sur un créneau attribué', function 
     $this->actingAs($this->alice)->get('/calendrier/2026-11')->assertOk()->assertSee('Lignée Bleue');
 });
 
+it('affiche sur la vue mois le nom de la personne qui a réservé', function () {
+    reserverPour($this->alice, ['2026-11-11-N']);
+    reserverPour($this->bruno, ['2026-11-12-N'], 'exclusive');
+
+    $this->actingAs($this->alice)->get('/calendrier/2026-11')->assertOk()
+        ->assertSee('Alice Ouverte')
+        ->assertSee('Bruno Exclusif')
+        ->assertSee('data-reservants', false);
+});
+
 it('US-201-N1 redirige sans session vers la connexion, sans aucune donnée', function () {
     reserverPour($this->alice, ['2026-11-11-N']);
 

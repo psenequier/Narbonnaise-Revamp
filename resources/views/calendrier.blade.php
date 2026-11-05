@@ -31,8 +31,8 @@
             <td class="align-top rounded-lg border border-bord bg-white p-1 {{ $horsMois ? 'opacity-50' : '' }} {{ $jour == $aujourdhui ? 'ring-2 ring-sapin' : '' }}">
                 <a href="{{ route('jour', $jour->format('Y-m-d')) }}" class="flex flex-col gap-1">
                     <span class="text-xs font-bold">{{ $jour->format('j') }}</span>
-                    @include('partiels.creneau', ['situation' => $situations[$jour->format('Y-m-d').'-J']])
-                    @include('partiels.creneau', ['situation' => $situations[$jour->format('Y-m-d').'-N']])
+                    @include('partiels.creneau', ['situation' => $situations[$jour->format('Y-m-d').'-J'], 'avecNoms' => true])
+                    @include('partiels.creneau', ['situation' => $situations[$jour->format('Y-m-d').'-N'], 'avecNoms' => true])
                 </a>
             </td>
         @endforeach
@@ -50,8 +50,8 @@
             @continue($jour->format('m') !== $premier->format('m'))
             <a href="{{ route('jour', $jour->format('Y-m-d')) }}" class="grid grid-cols-[4.5rem_1fr_1fr] items-center gap-2 rounded-lg border border-bord bg-white p-2 {{ $jour == $aujourdhui ? 'ring-2 ring-sapin' : '' }}">
                 <span class="text-sm font-bold">{{ $jours[(int) $jour->format('N') - 1] }} {{ $jour->format('j') }}</span>
-                @include('partiels.creneau', ['situation' => $situations[$jour->format('Y-m-d').'-J']])
-                @include('partiels.creneau', ['situation' => $situations[$jour->format('Y-m-d').'-N']])
+                @include('partiels.creneau', ['situation' => $situations[$jour->format('Y-m-d').'-J'], 'avecNoms' => true])
+                @include('partiels.creneau', ['situation' => $situations[$jour->format('Y-m-d').'-N'], 'avecNoms' => true])
             </a>
         @endforeach
     </section>
