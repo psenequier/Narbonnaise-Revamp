@@ -23,7 +23,7 @@ dans `CLAUDE.md` ; ce fichier dit où on en est. À mettre à jour à chaque ét
 La PR #17 (`lot/bascule`, d'une autre session) a été fermée sans fusion : son contenu utile
 est dans #18, #19 et #20.
 
-## En cours : branche `lot/nom-reservant-calendrier` (pas encore poussée)
+## En cours : PR #26, branche `lot/nom-reservant-calendrier`
 
 Revue du site local avec Pascal les 5 et 6 novembre 2026. Les maquettes, le PRD, l'ADR 017 et les
 user stories à jour sont dans `contexte/` (privé). Changements :
@@ -41,7 +41,8 @@ user stories à jour sont dans `contexte/` (privé). Changements :
 - **Mes réservations dans la pop-up** (6 nov.) : un clic sur un créneau d'une de mes réservations
   ouvre la pop-up en édition (type, personnes, commentaire, invités ; lien vers la page de
   modification pour changer les dates). Bouton « Annuler la réservation », comme dans « Mes
-  réservations », dans la pop-up et sur l'écran de modification. Les créneaux des autres restent refusés.
+  réservations », dans la pop-up et sur l'écran de modification, sur la même ligne que les autres
+  boutons (confirmation visible sans défiler). Les créneaux des autres restent refusés.
 - **Écrans Réserver et Modifier** : chaque créneau affiche le réservant, le nombre et le début du
   commentaire (sur ordinateur), avec la même infobulle que le calendrier.
 - **Un créneau, une réservation** (décision du 5 nov.) : un créneau déjà réservé, même ouvert, ne
@@ -58,7 +59,8 @@ user stories à jour sont dans `contexte/` (privé). Changements :
   selon la clarté. **En production, mettre dans `LIGNEES` de `partage/.env` les couleurs
   `#FFB4A2`, `#B9B0FF` et `#FFE27A`.**
 
-Pour pousser : `gh auth login` sur le Mac de Pascal, puis PR vers `main`.
+La PR #27 (mise à jour Symfony 8.1, 11 avis de sécurité) est à fusionner avant la #26 : sans elle,
+le contrôle « dépendances » de la CI échoue sur toute branche.
 
 ## Critères d'acceptation
 
