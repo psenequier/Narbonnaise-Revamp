@@ -42,6 +42,8 @@ user stories à jour sont dans `contexte/` (privé). Changements :
   ouvre la pop-up en édition (type, personnes, commentaire, invités ; lien vers la page de
   modification pour changer les dates). Bouton « Annuler la réservation », comme dans « Mes
   réservations », dans la pop-up et sur l'écran de modification. Les créneaux des autres restent refusés.
+- **Écrans Réserver et Modifier** : chaque créneau affiche le réservant, le nombre et le début du
+  commentaire (sur ordinateur), avec la même infobulle que le calendrier.
 - **Un créneau, une réservation** (décision du 5 nov.) : un créneau déjà réservé, même ouvert, ne
   se réserve plus, côté navigateur et serveur. « Me joindre » est retiré. Critères retirés :
   US-204-P2, US-301-P2, US-304, US-305-N4, US-502 ; ajouté : US-301-N9. US-308-P1 est à réécrire

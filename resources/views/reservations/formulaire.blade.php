@@ -38,14 +38,24 @@
     <fieldset class="flex flex-col gap-2 rounded-2xl border border-bord bg-white p-5">
         <legend class="px-1 font-extrabold">Créneaux</legend>
         @foreach ($lignes as $jour)
-            <div class="grid grid-cols-[6rem_1fr_1fr] items-center gap-2">
+            <div class="grid grid-cols-[6rem_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2">
                 <span class="text-sm font-bold">{{ ucfirst(\Illuminate\Support\Carbon::instance($jour)->locale('fr')->translatedFormat('D j M')) }}</span>
                 @foreach (['J', 'N'] as $t)
                     @php($cle = $jour->format('Y-m-d').'-'.$t)
                     <label class="flex min-h-11 items-center gap-2 {{ $disponibles[$cle] ? '' : 'opacity-60' }}">
                         <input type="checkbox" name="creneaux[]" value="{{ $cle }}" class="size-5"
                                @checked(in_array($cle, $coches, true)) @disabled(! $disponibles[$cle])>
-                        @include('partiels.creneau', ['situation' => $situations[$cle]])
+                        {{-- Réservant, nombre et début du commentaire (sur ordinateur), tout le détail au survol. --}}
+                        @php($a = new \App\Domain\Calendrier\AffichageCreneau($situations[$cle], \App\Http\Controllers\CalendrierController::aujourdhui(), (int) auth()->id()))
+                        <span class="case case-{{ $a->situation->etat->value }} {{ $a->classeLignee() }} min-w-0 flex-1 cursor-default" data-etat="{{ $a->situation->etat->value }}" data-infobulle="{{ $a->infobulleTexte() }}">
+                            <span class="sr-only">{{ $a->situation->creneau->type->libelle() }} : {{ $a->situation->etat->libelle() }}{{ $a->quiComplet !== '' ? ', '.$a->quiComplet : '' }}</span>
+                            <span class="flex min-w-0 items-center gap-1" aria-hidden="true">
+                                <span class="font-bold opacity-70">{{ $t }}</span>
+                                <span class="min-w-0 flex-1 truncate" @if ($a->qui !== '') data-reservants @endif>{{ $a->libelle() !== '' ? $a->libelle() : 'Libre' }}</span>
+                                @if ($a->personnes !== null)<span class="hidden font-bold sm:inline">{{ $a->personnes }}</span>@endif
+                            </span>
+                            @if ($a->commentaire !== '')<span class="hidden truncate text-[12px] font-normal italic opacity-90 sm:block" aria-hidden="true">{{ $a->commentaire }}</span>@endif
+                        </span>
                     </label>
                 @endforeach
             </div>

@@ -12,7 +12,51 @@ const RAISONS = {
     'pas-ouvert': "Cette année n'est pas encore ouverte à la réservation.",
 };
 
+// Infobulle au survol de tout élément [data-infobulle] (calendrier, formulaire de réservation).
+function demarrerInfobulle() {
+    // Infobulle : première ligne en gras, commentaires (« … ») en italique.
+    let bulle = null;
+    const cacher = () => {
+        bulle?.remove();
+        bulle = null;
+    };
+    const montrer = (el) => {
+        cacher();
+        bulle = document.createElement('div');
+        bulle.className = 'infobulle';
+        bulle.setAttribute('role', 'tooltip');
+        el.dataset.infobulle.split('¶').forEach((ligne, i) => {
+            const l = document.createElement(i === 0 ? 'b' : ligne.startsWith('«') ? 'i' : 'div');
+            l.textContent = ligne;
+            bulle.appendChild(l);
+        });
+        document.body.appendChild(bulle);
+        const r = el.getBoundingClientRect();
+        const x = Math.min(Math.max(8, r.left + r.width / 2 - bulle.offsetWidth / 2), innerWidth - bulle.offsetWidth - 8);
+        const y = r.bottom + 8 + bulle.offsetHeight > innerHeight ? r.top - bulle.offsetHeight - 8 : r.bottom + 8;
+        bulle.style.left = `${x}px`;
+        bulle.style.top = `${y}px`;
+    };
+    document.addEventListener('mouseover', (e) => {
+        const el = e.target.closest?.('[data-infobulle]');
+        if (el) {
+            montrer(el);
+        } else {
+            cacher();
+        }
+    });
+    document.addEventListener('focusin', (e) => {
+        const el = e.target.closest?.('[data-infobulle]');
+        if (el) {
+            montrer(el);
+        }
+    });
+    document.addEventListener('focusout', cacher);
+    addEventListener('scroll', cacher, { passive: true });
+}
+
 function demarrer() {
+    demarrerInfobulle();
     const popup = document.getElementById('popup-reservation');
     const creneaux = () => Array.from(document.querySelectorAll('[data-rang]'));
     if (!popup || creneaux().length === 0) {
@@ -188,45 +232,6 @@ function demarrer() {
         }
     });
 
-    // Infobulle : première ligne en gras, commentaires (« … ») en italique.
-    let bulle = null;
-    const cacher = () => {
-        bulle?.remove();
-        bulle = null;
-    };
-    const montrer = (el) => {
-        cacher();
-        bulle = document.createElement('div');
-        bulle.className = 'infobulle';
-        bulle.setAttribute('role', 'tooltip');
-        el.dataset.infobulle.split('¶').forEach((ligne, i) => {
-            const l = document.createElement(i === 0 ? 'b' : ligne.startsWith('«') ? 'i' : 'div');
-            l.textContent = ligne;
-            bulle.appendChild(l);
-        });
-        document.body.appendChild(bulle);
-        const r = el.getBoundingClientRect();
-        const x = Math.min(Math.max(8, r.left + r.width / 2 - bulle.offsetWidth / 2), innerWidth - bulle.offsetWidth - 8);
-        const y = r.bottom + 8 + bulle.offsetHeight > innerHeight ? r.top - bulle.offsetHeight - 8 : r.bottom + 8;
-        bulle.style.left = `${x}px`;
-        bulle.style.top = `${y}px`;
-    };
-    document.addEventListener('mouseover', (e) => {
-        const el = e.target.closest?.('[data-infobulle]');
-        if (el) {
-            montrer(el);
-        } else {
-            cacher();
-        }
-    });
-    document.addEventListener('focusin', (e) => {
-        const el = e.target.closest?.('[data-infobulle]');
-        if (el) {
-            montrer(el);
-        }
-    });
-    document.addEventListener('focusout', cacher);
-    addEventListener('scroll', cacher, { passive: true });
 
     // Refus du serveur : on resélectionne la période envoyée et on rouvre la pop-up avec la raison.
     if (popup.dataset.anciens) {

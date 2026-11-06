@@ -276,3 +276,12 @@ it('US-307-N2 ne propose ni Modifier ni Annuler sur une réservation passée', f
     $this->actingAs($this->alice)->get('/mes-reservations')->assertOk()
         ->assertDontSee('/modifier', false)->assertDontSee("Confirmer l'annulation", false);
 });
+
+it('montre sur l\'écran de réservation le réservant, le nombre et le commentaire des créneaux déjà pris, détail au survol', function () {
+    reserverPour($this->bruno, ['2026-11-14-N'], options: ['nombre_personnes' => 5, 'commentaire' => 'Week-end entre amis', 'invites' => 'Invité Secret']);
+
+    $html = $this->actingAs($this->alice)->get('/reserver?debut=2026-11-14&fin=2026-11-15')->assertOk()->getContent();
+
+    expect($html)->toContain('data-reservants')->toContain('Week-end entre amis')->toContain('data-infobulle=')
+        ->toMatch('/>5<\/span>/')->not->toContain('Invité Secret');
+});
