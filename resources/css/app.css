@@ -99,7 +99,11 @@
     .infobulle { @apply pointer-events-none fixed z-50 max-w-72 rounded-[10px] bg-encre px-3 py-2.5 text-[13px] leading-snug font-medium text-white shadow-xl; }
     .infobulle b { @apply mb-0.5 block font-extrabold; }
     .infobulle i { @apply block text-bord; }
-    .barre-selection { @apply fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3.5 rounded-full bg-encre py-2.5 pr-3 pl-4 text-sm font-semibold text-white shadow-xl; }
+    /* Barre de sélection : compacte et collée en bas sur téléphone (les créneaux restent touchables), pilule centrée sur ordinateur. */
+    .barre-selection { @apply fixed inset-x-2 bottom-2 z-40 flex items-center gap-2 rounded-xl bg-encre py-1.5 pr-1.5 pl-3 text-[13px] font-semibold text-white shadow-xl sm:inset-x-auto sm:bottom-6 sm:left-1/2 sm:-translate-x-1/2 sm:gap-3.5 sm:rounded-full sm:py-2.5 sm:pr-3 sm:pl-4 sm:text-sm; }
+    .barre-selection span { @apply min-w-0 flex-1 truncate; }
+    .barre-selection button { @apply h-9 shrink-0 rounded-lg px-2.5 font-bold sm:h-[38px] sm:px-3.5; }
+    body.avec-barre { padding-bottom: 4.5rem; }
     .message-flottant { @apply fixed top-5 left-1/2 z-[70] -translate-x-1/2 rounded-full bg-erreur px-4 py-2.5 text-sm font-semibold text-white; }
 }
 

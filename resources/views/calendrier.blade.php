@@ -17,7 +17,8 @@
             <a href="{{ route('calendrier.mois', $suivant) }}" class="flex size-11 items-center justify-center rounded-full border border-bord-fort bg-white" aria-label="Mois suivant"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
             <a href="{{ route('calendrier.mois') }}" class="flex h-11 items-center rounded-full border border-bord-fort bg-white px-3.5 text-sm font-semibold">Aujourd'hui</a>
         </div>
-        <div role="group" aria-label="Vue" class="flex rounded-full bg-segment p-[3px] text-sm">
+        {{-- Pas de vue saison sur téléphone (demande du 6 nov.). --}}
+        <div role="group" aria-label="Vue" class="hidden rounded-full bg-segment p-[3px] text-sm min-[600px]:flex">
             <span aria-current="page" class="flex h-[38px] items-center rounded-full bg-white px-3.5 font-bold">Mois</span>
             <a href="{{ route('saison') }}" class="flex h-[38px] items-center rounded-full px-3.5 font-semibold text-texte-2">Saison déc.–avr.</a>
         </div>
@@ -74,22 +75,21 @@
             <h3 class="text-xs font-bold text-gris">Semaine du {{ $semaine[0]->format('d/m') }}</h3>
             @foreach ($semaine as $jour)
                 @continue($jour->format('m') !== $premier->format('m'))
-                <a href="{{ route('jour', $jour->format('Y-m-d')) }}" class="grid grid-cols-[4rem_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 rounded-xl border border-bord bg-white px-3 py-2.5 {{ $jour == $aujourdhui ? 'ring-2 ring-sapin' : '' }}">
-                    <span class="text-sm font-bold">{{ $jours[(int) $jour->format('N') - 1] }} {{ $jour->format('j') }}</span>
+                {{-- Le jour ouvre son détail ; chaque créneau se touche comme sur ordinateur : sélection, période,
+                     pop-up, édition de ma réservation, bulle de détail sur une réservation (demande du 6 nov.). --}}
+                <div class="grid grid-cols-[4rem_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 rounded-xl border border-bord bg-white px-3 py-2 {{ $jour == $aujourdhui ? 'ring-2 ring-sapin' : '' }}">
+                    <a href="{{ route('jour', $jour->format('Y-m-d')) }}" class="flex min-h-11 items-center text-sm font-bold underline-offset-4 hover:underline" title="Voir le détail du jour">{{ $jours[(int) $jour->format('N') - 1] }} {{ $jour->format('j') }}</a>
                     @foreach (['J', 'N'] as $t)
-                        @php($a = $affichages[$jour->format('Y-m-d').'-'.$t])
                         {{-- US-203-P3 : réservant et nombre de personnes ; la lignée seule sur un créneau attribué. --}}
-                        <span class="case case-{{ $a->situation->etat->value }} {{ $a->classeLignee() }} min-h-9 cursor-pointer text-xs font-bold">
-                            <span class="truncate">{{ $t }} · {{ $a->libelle() !== '' ? $a->libelle() : 'Libre' }}{{ $a->personnes !== null ? ' · '.$a->personnes : '' }}</span>
-                        </span>
+                        @include('partiels.case', ['a' => $affichages[$jour->format('Y-m-d').'-'.$t]])
                     @endforeach
-                </a>
+                </div>
             @endforeach
         </section>
     @endforeach
     </div>
 
-    <p class="text-sm text-gris">J = journée · N = nuit du jour au lendemain. Chaque créneau affiche le réservant, le nombre de personnes et le début du commentaire (tout le détail au survol de la souris) ; un créneau attribué n'affiche que la lignée. Cliquez sur un créneau pour le sélectionner, recliquez pour le désélectionner, cliquez sur un second créneau pour choisir la période. Cliquez sur le numéro du jour pour voir le détail.</p>
+    <p class="text-sm text-gris">J = journée · N = nuit du jour au lendemain. Chaque créneau affiche le réservant, le nombre de personnes et le début du commentaire (tout le détail au survol de la souris) ; un créneau attribué n'affiche que la lignée. Cliquez (ou touchez) un créneau pour le sélectionner, recliquez pour le désélectionner, cliquez sur un second créneau pour choisir la période. Cliquez sur le numéro du jour pour voir le détail.</p>
 </section>
 
 </div>
