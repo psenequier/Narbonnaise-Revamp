@@ -52,8 +52,8 @@ user stories à jour sont dans `contexte/` (privé). Changements :
 - **Charte n° 6 « Sorbet »** (6 nov., remplace « Après-ski ») : palette pastel (violet
   électrique, menthe, nuit), Plus Jakarta Sans servie par le site, arrondis et ombres légères ;
   branches pêche, lavande et citron avec ● ■ ▲ (texte nuit dessus) ; pas de trames ; texte des
-  cases du mois en 12,5 px (écart à la charte, 16 px minimum, voulu par Pascal). Logo « Chalet de
-  famille », favicon cabine et bandeau animé (Réserver, Modifier, Mes réservations). Couleurs de
+  cases du mois en 12,5 px (écart à la charte, 16 px minimum, voulu par Pascal). Logo « Chamrousse »
+  (la charte proposait un autre nom, écarté par Pascal), favicon cabine et bandeau animé (Réserver, Modifier, Mes réservations). Couleurs de
   lignée servies par `/lignees.css` (la CSP interdit les styles en ligne), texte nuit ou blanc
   selon la clarté. **En production, mettre dans `LIGNEES` de `partage/.env` les couleurs
   `#FFB4A2`, `#B9B0FF` et `#FFE27A`.**
