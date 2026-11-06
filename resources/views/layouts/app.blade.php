@@ -16,9 +16,8 @@
     @php($actif = fn (string ...$routes) => request()->routeIs(...$routes) ? 'bg-sapin-clair font-bold text-sapin' : 'font-semibold text-texte-2 hover:bg-fond')
     <header class="border-b border-bord bg-white">
         <div class="mx-auto flex max-w-[1280px] flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-8">
-            <a href="{{ route('calendrier') }}" class="flex items-center gap-2.5 text-encre no-underline">
-                <img src="/favicon.svg" width="34" height="34" alt="" class="size-[34px]">
-                <span class="font-display text-lg font-bold">Appartement Chamrousse</span>
+            <a href="{{ route('calendrier') }}" class="flex items-center text-encre no-underline" aria-label="Appartement Chamrousse : calendrier">
+                <img src="/images/logo.svg" width="270" height="48" alt="" class="h-12 w-auto">
             </a>
             <nav aria-label="Navigation principale" class="flex flex-auto flex-wrap gap-1 text-sm">
                 <a href="{{ route('calendrier') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('calendrier', 'calendrier.mois', 'saison', 'jour') }}">Calendrier</a>

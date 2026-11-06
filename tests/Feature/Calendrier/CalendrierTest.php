@@ -298,3 +298,15 @@ it('US-205-N1 ne propose aucune réservation sur ces dates et refuse une requêt
     ])->assertSessionHasErrors(['reservation' => 'Ces dates ne sont pas encore ouvertes à la réservation.']);
     expect(DB::table('reservations')->count())->toBe(0);
 });
+
+it('sert les couleurs de lignée avec un texte lisible : nuit sur les pastels de la charte Sorbet', function () {
+    DB::table('lignees')->insert([
+        ['nom' => 'Lignée Pêche', 'couleur' => '#FFB4A2', 'created_at' => now(), 'updated_at' => now()],
+        ['nom' => 'Lignée Sombre', 'couleur' => '#1F6F6B', 'created_at' => now(), 'updated_at' => now()],
+    ]);
+
+    $css = $this->actingAs($this->alice)->get('/lignees.css')->assertOk()->getContent();
+
+    expect($css)->toContain('.lc-ffb4a2{background-color:#FFB4A2;border-color:#FFB4A2;color:#1F2140}')
+        ->toContain('.lc-1f6f6b{background-color:#1F6F6B;border-color:#1F6F6B;color:#fff}');
+});

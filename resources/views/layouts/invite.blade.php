@@ -12,13 +12,7 @@
 </head>
 <body class="min-h-screen bg-fond font-sans text-encre">
     <main class="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 px-4 py-10">
-        <div class="flex items-center gap-3">
-            <img src="/favicon.svg" width="44" height="44" alt="" class="size-11">
-            <div class="flex flex-col gap-0.5">
-            <span class="font-display text-xl font-bold">Appartement Chamrousse</span>
-            <span class="text-sm text-gris">Le Recoin · 1 650 m</span>
-            </div>
-        </div>
+        <img src="/images/logo.svg" width="360" height="64" alt="Appartement Chamrousse" class="h-14 w-auto self-start">
         <section class="flex flex-col gap-4 rounded-2xl border border-bord bg-white p-6">
             <h1 class="font-display text-2xl font-bold">@yield('titre')</h1>
             @if (session('status'))

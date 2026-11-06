@@ -49,12 +49,14 @@ user stories à jour sont dans `contexte/` (privé). Changements :
   US-204-P2, US-301-P2, US-304, US-305-N4, US-502 ; ajouté : US-301-N9. US-308-P1 est à réécrire
   dans les specs (le test vérifie maintenant qu'une seule réservation est créée).
 - **Commentaire** visible de tous, 200 caractères au plus ; invités masqués aux autres membres.
-- **Charte n° 5 « Après-ski »** : palette, Fraunces (servie par le site), arrondis, ombres ;
-  branches en avocat, sarcelle et prune avec ● ■ ▲ ; trames des créneaux retirées ; texte des
-  cases du mois en 12,5 px (écart à la charte, 16 px minimum, voulu par Pascal). Favicon cabine
-  rouge et bandeau animé (Réserver, Modifier, Mes réservations). Couleurs de lignée servies par
-  `/lignees.css` (la CSP interdit les styles en ligne). **En production, mettre les couleurs de
-  la charte dans `LIGNEES` de `partage/.env`.**
+- **Charte n° 6 « Sorbet »** (6 nov., remplace « Après-ski ») : palette pastel (violet
+  électrique, menthe, nuit), Plus Jakarta Sans servie par le site, arrondis et ombres légères ;
+  branches pêche, lavande et citron avec ● ■ ▲ (texte nuit dessus) ; pas de trames ; texte des
+  cases du mois en 12,5 px (écart à la charte, 16 px minimum, voulu par Pascal). Logo « Chalet de
+  famille », favicon cabine et bandeau animé (Réserver, Modifier, Mes réservations). Couleurs de
+  lignée servies par `/lignees.css` (la CSP interdit les styles en ligne), texte nuit ou blanc
+  selon la clarté. **En production, mettre dans `LIGNEES` de `partage/.env` les couleurs
+  `#FFB4A2`, `#B9B0FF` et `#FFE27A`.**
 
 Pour pousser : `gh auth login` sur le Mac de Pascal, puis PR vers `main`.
 
