@@ -51,7 +51,27 @@ Pour cliquer dans le nouveau site sans toucher à GRR : données fictives unique
    (application d'authentification sur le téléphone).
 
 Arrêter : `Ctrl+C` dans le Terminal. Relancer : `docker compose up` (les données sont gardées).
-Repartir de zéro : `REINITIALISER=oui docker compose up`. Les e-mails sont écrits dans `storage/logs`.
+Repartir de zéro : `REINITIALISER=oui docker compose up`. Les e-mails envoyés par le site ne partent
+jamais vers Internet : on les lit dans la boîte de test Mailpit, http://localhost:8025.
+
+### Avec une copie de la vraie base GRR
+
+Pour essayer la reprise et les e-mails avec les vrais comptes, sans toucher à GRR :
+
+1. OVH → Web Cloud → Hébergements → l'hébergement → onglet **Bases de données** → « … » à droite
+   de la base → **Télécharger la sauvegarde** (prendre la plus récente). GRR n'est pas modifié.
+2. Ranger le fichier dans `contexte/` (dossier privé, ignoré par git). **Ne jamais le mettre ailleurs
+   dans le dossier du site** : le dépôt est public. Le script refuse un fichier qui n'est pas ignoré.
+3. Facultatif, dans `.env` (jamais commis) : `LIGNEES` avec les vrais noms et couleurs, et
+   `GRR_AJUSTEMENTS`, comme sur le serveur.
+4. Site lancé (`docker compose up`), dans un second Terminal :
+   `bash local/charger-grr.sh contexte/<fichier>.sql.gz`
+   Le préfixe des tables est `NAR_` par défaut (sinon : `GRR_PREFIXE=xxx_ bash local/charger-grr.sh …`).
+5. Se connecter sur http://localhost:8000 avec son compte GRR. Tous les e-mails (rappels,
+   mot de passe oublié, informations groupées) arrivent dans Mailpit, http://localhost:8025.
+
+Revenir aux données fictives : `REINITIALISER=oui docker compose up`. Supprimer ensuite la
+sauvegarde du Mac si elle ne sert plus.
 
 ## Tests
 
