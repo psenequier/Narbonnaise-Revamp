@@ -16,7 +16,7 @@ beforeEach(function () {
 
 it('US-912-P1 ne signale rien et n\'envoie aucun e-mail sur des données cohérentes', function () {
     reserverPour($this->alice, ['2026-11-14-N']);
-    reserverPour($this->bruno, ['2026-11-14-N']);
+    reserverPour($this->bruno, ['2026-11-15-N']);
     reserverPour($this->bruno, ['2026-11-20-N'], 'exclusive');
 
     $this->artisan('creneaux:verifier')->expectsOutput('Aucune anomalie.')->assertSuccessful();

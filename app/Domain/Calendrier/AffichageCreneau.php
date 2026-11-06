@@ -39,7 +39,7 @@ final readonly class AffichageCreneau
      */
     public array $infobulle;
 
-    /** libre | ouverte | non : ce que la sélection par clics autorise. */
+    /** libre | non : seul un créneau libre se sélectionne (un créneau réservé, même ouvert, ne se réserve plus). */
     public string $dispo;
 
     /** Rang croissant dans le temps (deux par jour), pour sélectionner une période. */
@@ -56,33 +56,36 @@ final readonly class AffichageCreneau
         $jourCourt = $date->translatedFormat('D j M');
         $moment = $creneau->type === TypeCreneau::Jour ? 'journée' : 'nuit';
 
-        $reservations = $situation->reservations;
+        // Un créneau ne porte qu'une réservation ; la liste reste générale pour les données reprises de GRR.
+        /** @var list<array{prenom: string, nom: string, nb: ?int, commentaire: string}> $gens */
+        $gens = [];
+        foreach ($situation->reservations as $r) {
+            $gens[] = ['prenom' => (string) $r->user?->prenom, 'nom' => (string) $r->user?->nom, 'nb' => $r->nombre_personnes, 'commentaire' => trim((string) $r->commentaire)];
+        }
+        $plusieurs = count($gens) > 1;
         $courts = [];
         $complets = [];
         $commentaires = [];
         $personnes = null;
         $detail = [];
-        foreach ($reservations as $r) {
-            $prenom = (string) $r->user?->prenom;
-            $nom = (string) $r->user?->nom;
-            $complet = trim($prenom.' '.$nom);
+        foreach ($gens as $g) {
+            $complet = trim($g['prenom'].' '.$g['nom']);
             $complets[] = $complet;
-            $courts[] = count($reservations) > 1 ? $prenom : trim($prenom.' '.self::initiales($nom));
-            $personnes = $r->nombre_personnes !== null ? ($personnes ?? 0) + $r->nombre_personnes : $personnes;
-            $commentaire = trim((string) $r->commentaire);
-            if ($commentaire !== '') {
-                $commentaires[] = count($reservations) > 1 ? $prenom.' : '.$commentaire : $commentaire;
+            $courts[] = $plusieurs ? $g['prenom'] : trim($g['prenom'].' '.self::initiales($g['nom']));
+            $personnes = $g['nb'] !== null ? ($personnes ?? 0) + $g['nb'] : $personnes;
+            if ($g['commentaire'] !== '') {
+                $commentaires[] = $plusieurs ? $g['prenom'].' : '.$g['commentaire'] : $g['commentaire'];
             }
-            $detail[] = $complet.($r->nombre_personnes !== null ? ' · '.$r->nombre_personnes.' pers.' : '');
-            if ($commentaire !== '') {
-                $detail[] = '« '.$commentaire.' »';
+            $detail[] = $complet.($g['nb'] !== null ? ' · '.$g['nb'].' pers.' : '');
+            if ($g['commentaire'] !== '') {
+                $detail[] = '« '.$g['commentaire'].' »';
             }
         }
 
         $this->qui = implode(', ', array_unique($courts));
-        $this->initialesQui = count($reservations) === 1
-            ? mb_strtoupper(mb_substr((string) $reservations[0]->user?->prenom, 0, 1).mb_substr((string) $reservations[0]->user?->nom, 0, 1))
-            : mb_strtoupper(implode('', array_map(fn (Reservation $r) => mb_substr((string) $r->user?->prenom, 0, 1), array_slice($reservations, 0, 3))));
+        $this->initialesQui = count($gens) === 1
+            ? mb_strtoupper(mb_substr($gens[0]['prenom'], 0, 1).mb_substr($gens[0]['nom'], 0, 1))
+            : mb_strtoupper(implode('', array_map(fn (array $g) => mb_substr($g['prenom'], 0, 1), array_slice($gens, 0, 3))));
         $this->quiComplet = implode(', ', array_unique($complets));
         $this->personnes = $personnes;
         $this->commentaire = implode(' / ', $commentaires);
@@ -93,14 +96,13 @@ final readonly class AffichageCreneau
         $passe = $creneau->date->format('Y-m-d') < $aujourdhui->format('Y-m-d');
         $this->dispo = $passe ? 'non' : match ($situation->etat) {
             EtatCreneau::Libre => 'libre',
-            EtatCreneau::Ouverte => 'ouverte',
             default => 'non',
         };
 
         $this->infobulle = [
             $jourCourt.' · '.$moment,
-            // Le total n'apparaît qu'avec plusieurs réservants : sinon il répéterait la ligne du réservant.
-            $this->etatDetaille().(count($reservations) > 1 && $personnes !== null ? ' · '.$personnes.' pers. au total' : ''),
+            // Le total n'apparaît qu'avec plusieurs personnes inscrites : sinon il répéterait la ligne du réservant.
+            $this->etatDetaille().($plusieurs && $personnes !== null ? ' · '.$personnes.' pers. au total' : ''),
             ...$detail,
         ];
     }
@@ -115,7 +117,11 @@ final readonly class AffichageCreneau
             return $this->qui;
         }
 
-        return $this->situation->etat === EtatCreneau::Libre ? '' : $this->situation->etat->libelle();
+        return match ($this->situation->etat) {
+            EtatCreneau::Libre => '',
+            EtatCreneau::Attente => 'En attente',
+            default => $this->situation->etat->libelle(),
+        };
     }
 
     /** Deux créneaux voisins identiques forment une seule barre dans la vue saison. */
@@ -176,7 +182,7 @@ final readonly class AffichageCreneau
      * Une barre longue porte le réservant, le nombre et le commentaire ; une case isolée, les initiales et le nombre.
      *
      * @param  list<self>  $ligne  un créneau par jour du mois, dans l'ordre
-     * @return list<array{debut: int, longueur: int, etat: string, classe: ?string, l1: string, l2: string}>
+     * @return list<array{debut: int, longueur: int, etat: string, classe: ?string, lignee: ?string, l1: string, l2: string}>
      */
     public static function barres(array $ligne): array
     {
@@ -207,7 +213,7 @@ final readonly class AffichageCreneau
             } elseif ($etat === EtatCreneau::Attente && $longueur >= 2) {
                 $l1 = 'En attente';
             }
-            $barres[] = ['debut' => $i + 1, 'longueur' => $longueur, 'etat' => $etat->value, 'classe' => $a->classeLignee(), 'l1' => $l1, 'l2' => $l2];
+            $barres[] = ['debut' => $i + 1, 'longueur' => $longueur, 'etat' => $etat->value, 'classe' => $a->classeLignee(), 'lignee' => $etat === EtatCreneau::Attribue ? $a->situation->lignee : null, 'l1' => $l1, 'l2' => $l2];
             $i = $j + 1;
         }
 

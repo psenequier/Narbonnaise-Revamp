@@ -39,12 +39,13 @@ it('US-301-P1 crée une réservation ouverte sur des créneaux libres', function
         ->and(etatsDe('2026-11-14-N', '2026-11-15-J'))->toBe(['ouverte', 'ouverte']);
 });
 
-it('US-301-P2 accepte une réservation sur des créneaux déjà ouverts : les deux réservants apparaissent', function () {
+it('US-301-N9 refuse par le site un créneau déjà réservé par une réservation ouverte', function () {
     reserverPour($this->alice, ['2026-11-14-N']);
 
-    $this->actingAs($this->bruno)->post('/reservations', demandeHttp(['2026-11-14-N']))->assertSessionHasNoErrors();
+    $this->actingAs($this->bruno)->post('/reservations', demandeHttp(['2026-11-14-N']))->assertSessionHasErrors('reservation');
 
-    $this->get('/jour/2026-11-14')->assertSee('Alice')->assertSee('Bruno');
+    expect($this->bruno->reservations()->count())->toBe(0);
+    $this->get('/jour/2026-11-14')->assertSee('Alice')->assertDontSee('Me joindre');
 });
 
 it('US-301-P3 trace la création dans le journal', function () {
@@ -131,9 +132,8 @@ it('US-302-N3 refuse aussi l\'exclusif sur des vacances ou une fermeture', funct
 it('US-303-N2 refuse côté serveur une validation forgée qui contourne l\'encadré', function () {
     reserverPour($this->bruno, ['2026-11-14-N']);
 
-    $this->actingAs($this->alice)->get('/reserver?debut=2026-11-14&fin=2026-11-15')
-        ->assertOk()
-        ->assertViewHas('raisonPasExclusif', fn ($r) => str_contains((string) $r, 'Bruno'));
+    // Le créneau de Bruno n'est plus proposé (un créneau, une réservation) ; le serveur refuse la requête forgée.
+    $this->actingAs($this->alice)->get('/reserver?debut=2026-11-14&fin=2026-11-15')->assertOk();
 
     $this->actingAs($this->alice)->post('/reservations', demandeHttp(autres: ['mode' => 'exclusive']))->assertSessionHasErrors('reservation');
     expect($this->alice->reservations()->count())->toBe(0);
@@ -144,31 +144,6 @@ it('affiche l\'encadré « Aucun conflit » sur des créneaux tous libres', func
         ->assertOk()->assertSee('Aucun conflit')
         ->assertViewHas('raisonPasExclusif', null)
         ->assertViewHas('coches', ['2026-11-14-N', '2026-11-15-J', '2026-11-15-N', '2026-11-16-J']);
-});
-
-it('préremplit « Me joindre » avec les créneaux de la réservation rejointe', function () {
-    $r = reserverPour($this->bruno, ['2026-11-14-N', '2026-11-15-J']);
-
-    $this->actingAs($this->alice)->get('/reserver?joindre='.$r->id)->assertOk()
-        ->assertSee('Vous rejoignez la réservation de')
-        ->assertViewHas('coches', ['2026-11-14-N', '2026-11-15-J']);
-});
-
-it('US-304-N1 refuse de se joindre à une réservation exclusive, même par requête forgée', function () {
-    $r = reserverPour($this->bruno, ['2026-11-14-N'], 'exclusive');
-
-    $this->actingAs($this->alice)->get('/reserver?joindre='.$r->id)->assertViewHas('coches', []);
-    $this->actingAs($this->alice)->post('/reservations', demandeHttp(['2026-11-14-N']))->assertSessionHasErrors('reservation');
-    expect($this->alice->reservations()->count())->toBe(0);
-});
-
-it('US-304-N2 refuse de se joindre deux fois aux mêmes créneaux', function () {
-    reserverPour($this->bruno, ['2026-11-14-N']);
-    $this->actingAs($this->alice)->post('/reservations', demandeHttp(['2026-11-14-N']))->assertSessionHasNoErrors();
-
-    $this->actingAs($this->alice)->post('/reservations', demandeHttp(['2026-11-14-N']))
-        ->assertSessionHasErrors(['reservation' => 'Vous êtes déjà inscrit sur un de ces créneaux.']);
-    expect($this->alice->reservations()->count())->toBe(1);
 });
 
 it('US-305-P1 enregistre une modification : créneaux libérés, nouveaux occupés, journal avant et après', function () {
@@ -220,24 +195,22 @@ it('US-305-N3 refuse de modifier une réservation entièrement passée', functio
     expect(etatsDe('2026-11-03-N', '2026-11-20-N'))->toBe(['ouverte', 'libre']);
 });
 
-it('US-305-N4 refuse le passage à exclusive si d\'autres participants sont inscrits', function () {
+it('US-305-P2 accepte le passage d\'ouverte à exclusive : le créneau n\'appartient qu\'à cette réservation', function () {
     $r = reserverPour($this->alice, ['2026-11-14-N']);
-    reserverPour($this->bruno, ['2026-11-14-N']);
 
     $this->actingAs($this->alice)->put("/reservations/{$r->id}", demandeHttp(['2026-11-14-N'], ['mode' => 'exclusive']))
-        ->assertSessionHasErrors('reservation');
-    expect($r->fresh()->mode)->toBe('ouverte');
+        ->assertSessionHasNoErrors();
+    expect($r->fresh()->mode)->toBe('exclusive');
 });
 
-it('US-306-P1 libère les créneaux, ou les laisse ouverts s\'il reste un participant, et journalise', function () {
-    $seule = reserverPour($this->alice, ['2026-11-14-N']);
-    $partagee = reserverPour($this->alice, ['2026-11-20-N']);
-    reserverPour($this->bruno, ['2026-11-20-N']);
+it('US-306-P1 libère les créneaux à l\'annulation et journalise', function () {
+    $ouverte = reserverPour($this->alice, ['2026-11-14-N']);
+    $exclusive = reserverPour($this->alice, ['2026-11-20-N'], 'exclusive');
 
-    $this->actingAs($this->alice)->delete("/reservations/{$seule->id}")->assertRedirect('/mes-reservations');
-    $this->actingAs($this->alice)->delete("/reservations/{$partagee->id}")->assertRedirect('/mes-reservations');
+    $this->actingAs($this->alice)->delete("/reservations/{$ouverte->id}")->assertRedirect('/mes-reservations');
+    $this->actingAs($this->alice)->delete("/reservations/{$exclusive->id}")->assertRedirect('/mes-reservations');
 
-    expect(etatsDe('2026-11-14-N', '2026-11-20-N'))->toBe(['libre', 'ouverte'])
+    expect(etatsDe('2026-11-14-N', '2026-11-20-N'))->toBe(['libre', 'libre'])
         ->and(Journal::where('action', 'reservation.annulee')->count())->toBe(2);
 });
 

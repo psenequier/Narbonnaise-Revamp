@@ -18,13 +18,13 @@
         </div>
         <div role="group" aria-label="Vue" class="ml-auto flex rounded-full bg-segment p-[3px] text-sm">
             <span aria-current="page" class="flex h-[38px] items-center rounded-full bg-white px-3.5 font-bold">Mois</span>
-            <a href="{{ route('calendrier') }}" class="flex h-[38px] items-center rounded-full px-3.5 font-semibold text-texte-2">Saison déc.–avr.</a>
+            <a href="{{ route('saison') }}" class="flex h-[38px] items-center rounded-full px-3.5 font-semibold text-texte-2">Saison déc.–avr.</a>
         </div>
         <a href="{{ route('reservations.formulaire') }}" class="flex h-11 items-center gap-2 rounded-full bg-sapin px-[18px] text-sm font-bold text-white"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Réserver</a>
     </div>
 
     @if ($errors->any() && ! is_array(old('creneaux')))
-        <div role="alert" class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">
+        <div role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">
             @foreach ($errors->all() as $erreur)<p>{{ $erreur }}</p>@endforeach
         </div>
     @endif
@@ -49,9 +49,12 @@
                 @foreach ($semaine as $jour)
                     @php($d = $jour->format('Y-m-d'))
                     @php($horsMois = $jour->format('m') !== $premier->format('m'))
-                    <td class="h-[120px] border-r border-b border-bord-doux p-2 align-top {{ $horsMois ? 'bg-fond opacity-45' : '' }} {{ $d === $cleJour ? 'shadow-[inset_0_0_0_2px_var(--color-sapin)]' : '' }}">
+                    <td class="h-[120px] border-r border-b border-bord-doux p-2 align-top {{ $horsMois ? 'bg-fond opacity-45' : '' }} {{ $d === $cleJour ? 'shadow-[inset_0_0_0_3px_var(--color-principale)]' : '' }}">
                         <div class="flex flex-col gap-[5px]">
-                            <a href="{{ route('jour', $d) }}" title="Voir le détail du jour" class="self-start rounded px-0.5 text-sm {{ $d === $cleJour ? 'font-extrabold' : 'font-bold' }} {{ $horsMois ? 'text-gris-clair' : 'text-encre' }} hover:underline">{{ $jour->format('j') }}<span class="sr-only"> : détail du {{ $jour->format('d/m') }}</span></a>
+                            <div class="flex items-center justify-between gap-1">
+                                    <a href="{{ route('jour', $d) }}" title="Voir le détail du jour" class="self-start rounded px-0.5 text-sm {{ $d === $cleJour ? 'font-extrabold' : 'font-bold' }} {{ $horsMois ? 'text-gris-clair' : 'text-encre' }} hover:underline">{{ $jour->format('j') }}<span class="sr-only"> : détail du {{ $jour->format('d/m') }}</span></a>
+                                @if ($d === $cleJour)<span class="rounded-full bg-principale px-2 text-[11px] leading-5 font-bold text-white">Aujourd'hui</span>@endif
+                            </div>
                             @include('partiels.case', ['a' => $affichages[$d.'-J']])
                             @include('partiels.case', ['a' => $affichages[$d.'-N']])
                         </div>
@@ -85,7 +88,7 @@
     @endforeach
     </div>
 
-    <p class="text-[13px] text-gris">J = journée · N = nuit du jour au lendemain. Chaque créneau affiche le réservant, le nombre de personnes et le début du commentaire (tout le détail au survol de la souris) ; un créneau attribué n'affiche que la lignée. Cliquez sur un créneau pour le sélectionner, recliquez pour le désélectionner, cliquez sur un second créneau pour choisir la période. Cliquez sur le numéro du jour pour voir le détail.</p>
+    <p class="text-sm text-gris">J = journée · N = nuit du jour au lendemain. Chaque créneau affiche le réservant, le nombre de personnes et le début du commentaire (tout le détail au survol de la souris) ; un créneau attribué n'affiche que la lignée. Cliquez sur un créneau pour le sélectionner, recliquez pour le désélectionner, cliquez sur un second créneau pour choisir la période. Cliquez sur le numéro du jour pour voir le détail.</p>
 </section>
 
 @if (isset($affichages[$cleJour.'-J']))
@@ -98,7 +101,7 @@
                 <div class="text-xs font-bold tracking-wider text-gris uppercase">{{ $nomCreneau }}{{ $a->personnes !== null ? ' · '.$a->personnes.' personnes' : '' }}</div>
                 @forelse ($a->situation->reservations as $r)
                     <div class="flex justify-between text-sm"><span>{{ trim($r->user?->prenom.' '.\App\Domain\Calendrier\AffichageCreneau::initiales((string) $r->user?->nom)) }} · {{ $r->mode === 'exclusive' ? 'exclusive' : 'ouverte' }}</span>@if ($r->nombre_personnes)<span class="text-gris">{{ $r->nombre_personnes }} pers.</span>@endif</div>
-                    @if ($r->commentaire)<div class="-mt-1 text-[13px] text-gris italic">{{ $r->commentaire }}</div>@endif
+                    @if ($r->commentaire)<div class="-mt-1 text-sm text-gris italic">{{ $r->commentaire }}</div>@endif
                 @empty
                     <div class="text-sm text-gris">{{ $a->situation->etat === \App\Domain\Calendrier\EtatCreneau::Attribue ? 'Attribué à la lignée '.$a->situation->lignee : $a->situation->etat->libelle() }}</div>
                 @endforelse

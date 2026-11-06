@@ -25,7 +25,7 @@
                 <p role="status" class="rounded-lg bg-sapin-clair p-3 text-sm">{{ session('status') }}</p>
             @endif
             @if ($errors->any())
-                <div role="alert" class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">
+                <div role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">
                     @foreach ($errors->all() as $erreur)<p>{{ $erreur }}</p>@endforeach
                 </div>
             @endif

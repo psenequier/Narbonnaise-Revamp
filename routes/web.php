@@ -33,8 +33,8 @@ Route::get('/auth/google/retour', [GoogleController::class, 'retour'])->middlewa
 
 // Tout le reste exige une connexion : le site est privé.
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Vue saison par défaut (décision du 5 nov. 2026) ; la vue mois reste à /calendrier.
-    Route::get('/', [CalendrierController::class, 'saison'])->name('calendrier');
+    // Accueil : vue saison pendant la saison de la station, vue mois sinon (US-202-P6, P7).
+    Route::get('/', [CalendrierController::class, 'accueil'])->name('calendrier');
     Route::get('/calendrier/{mois?}', [CalendrierController::class, 'mois'])->name('calendrier.mois');
     Route::get('/saison/{saison?}', [CalendrierController::class, 'saison'])->name('saison');
     Route::get('/jour/{date}', [CalendrierController::class, 'jour'])->name('jour');

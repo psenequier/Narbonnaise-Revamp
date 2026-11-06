@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('titre', $modifiee ? ($parAdmin ? 'Modifier la réservation de '.$modifiee->user?->prenom : 'Modifier ma réservation') : ($joindre ? 'Me joindre à une réservation' : 'Réserver'))
 @php($champ = 'h-11 rounded-lg border border-bord bg-white px-3 font-normal')
+@section('bandeau')@include('partiels.bandeau')@endsection
 @section('contenu')
 
 @if ($joindre)
@@ -8,7 +9,7 @@
 @endif
 
 @if ($errors->any())
-    <div role="alert" class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">
+    <div role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">
         @foreach ($errors->all() as $erreur)<p>{{ $erreur }}</p>@endforeach
     </div>
 @endif
@@ -26,7 +27,7 @@
 </form>
 
 @if ($erreurDates)
-    <p role="alert" class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">{{ $erreurDates }}</p>
+    <p role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">{{ $erreurDates }}</p>
 @elseif ($lignes !== [])
 <form method="POST" action="{{ $modifiee ? route('reservations.mettre-a-jour', $modifiee) : route('reservations.enregistrer') }}" class="flex flex-col gap-5">
     @csrf
@@ -52,7 +53,7 @@
     </fieldset>
 
     {{-- US-303 : l'encadré des conflits, une aide ; le serveur revérifie tout. --}}
-    <section aria-live="polite" class="rounded-2xl border p-4 text-sm {{ $conflits->isEmpty() ? 'border-sapin bg-sapin-clair' : 'border-amber-300 bg-amber-50' }}" data-encadre="conflits">
+    <section aria-live="polite" class="rounded-2xl border p-4 text-sm {{ $conflits->isEmpty() ? 'border-sapin bg-sapin-clair' : 'border-amber-300 bg-alerte-fond' }}" data-encadre="conflits">
         @if ($conflits->isEmpty())
             <p><strong>Aucun conflit</strong> sur les créneaux cochés.</p>
         @else
@@ -72,7 +73,7 @@
         <legend class="px-1 font-extrabold">Type</legend>
         @php($mode = old('mode', $modifiee?->mode ?? 'ouverte'))
         <label class="flex min-h-11 items-center gap-2"><input type="radio" name="mode" value="ouverte" class="size-5" @checked($mode === 'ouverte' || $joindre)>
-            <span><strong>Ouverte</strong> : d'autres membres peuvent se joindre.</span></label>
+            <span><strong>Ouverte</strong> : réservation habituelle.</span></label>
         <label class="flex min-h-11 items-center gap-2 {{ $raisonPasExclusif || $joindre ? 'opacity-60' : '' }}">
             <input type="radio" name="mode" value="exclusive" class="size-5" @checked($mode === 'exclusive' && ! $joindre) @disabled($raisonPasExclusif || $joindre)>
             <span><strong>Exclusive</strong> : pour vous seul et vos invités.</span></label>
@@ -94,7 +95,7 @@
 
     @if ($parAdmin)
         {{-- US-309 : action d'admin sur la réservation d'un autre membre, motif obligatoire. --}}
-        <label class="flex flex-col gap-1 rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm font-bold">
+        <label class="flex flex-col gap-1 rounded-2xl border border-amber-300 bg-alerte-fond p-5 text-sm font-bold">
             Motif de la modification (envoyé à {{ $modifiee->user?->prenom }})
             <textarea name="motif" required minlength="3" maxlength="500" rows="2" class="rounded-lg border border-bord bg-white p-3 font-normal">{{ old('motif') }}</textarea>
         </label>

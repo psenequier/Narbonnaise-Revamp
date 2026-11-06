@@ -56,14 +56,12 @@ it('US-201-P2 affiche le nom de la lignée sur un créneau attribué', function 
 it('US-201-P5 affiche sur chaque créneau réservé le réservant, le nombre de personnes et le commentaire', function () {
     reserverPour($this->alice, ['2026-11-11-N'], options: ['nombre_personnes' => 2, 'commentaire' => 'On monte samedi']);
     reserverPour($this->bruno, ['2026-11-12-N'], 'exclusive', ['nombre_personnes' => 5, 'commentaire' => 'Week-end entre amis']);
-    $carla = User::factory()->create(['prenom' => 'Carla', 'nom' => 'Seconde']);
-    reserverPour($carla, ['2026-11-11-N'], options: ['nombre_personnes' => 3]);
 
     $html = $this->actingAs($this->alice)->get('/calendrier/2026-11')->assertOk()->getContent();
     $case = fn (string $cle) => preg_match('/<div class="case[^>]*data-cle="'.$cle.'".*?<\/div>/s', $html, $m) === 1 ? $m[0] : '';
 
     expect($case('2026-11-12-N'))->toContain('Bruno E.')->toContain('>5<')->toContain('Week-end entre amis')
-        ->and($case('2026-11-11-N'))->toContain('Alice, Carla')->toContain('>5<')->toContain('Alice : On monte samedi');
+        ->and($case('2026-11-11-N'))->toContain('Alice O.')->toContain('>2<')->toContain('On monte samedi');
 });
 
 it('US-201-N6 n\'envoie jamais les invités ni un nom de personne sur un créneau attribué, et échappe le commentaire', function () {
@@ -108,17 +106,36 @@ it('US-201-N2 renvoie 404 pour un mois hors limites ou mal formé', function (st
     $this->actingAs($this->alice)->get('/calendrier/'.$mois)->assertNotFound();
 })->with(['2026-13', 'abc', '2026-1', '1999-12', '2101-01', '2026-00']);
 
-it('US-202-P6 ouvre la vue saison par défaut', function () {
-    $this->actingAs($this->alice)->get('/')->assertOk()->assertSee('Saison 2026-2027');
+it('US-202-P7 ouvre la vue saison pendant la saison de la station, la vue mois sinon', function (string $jour, string $attendu) {
+    DB::table('parametres')->upsert([
+        ['cle' => 'station.ouverture.2026-2027', 'valeur' => '2026-12-05'],
+        ['cle' => 'station.fermeture.2026-2027', 'valeur' => '2027-04-11'],
+    ], ['cle'], ['valeur']);
+    $this->travelTo($jour.' 10:00:00');
+
+    $this->actingAs($this->alice)->get('/')->assertOk()->assertSee($attendu, false);
+})->with([
+    ['2026-12-04', 'data-mois="2026-12"'], ['2026-12-05', 'Saison 2026-2027'],
+    ['2027-04-11', 'Saison 2026-2027'], ['2027-04-12', 'data-mois="2027-04"'],
+]);
+
+it('US-202-P6 prend du 1er décembre au 30 avril si les dates de la station ne sont pas saisies', function () {
+    // Saison 2027-2028 : aucune date de station saisie ni par défaut.
+    $this->travelTo('2027-12-01 10:00:00');
+    $this->actingAs($this->alice)->get('/')->assertOk()->assertSee('Saison 2027-2028');
+    $this->travelTo('2027-11-30 10:00:00');
+    $this->actingAs($this->alice)->get('/')->assertOk()->assertSee('data-mois="2027-11"', false);
 });
 
 it('reste sur la vue du calendrier après une réservation faite depuis la pop-up', function () {
     $demande = ['debut' => '2026-11-14', 'fin' => '2026-11-14', 'creneaux' => ['2026-11-14-N'], 'mode' => 'ouverte', 'nombre_personnes' => 2];
 
     $this->actingAs($this->alice)->post('/reservations', $demande + ['retour' => '/calendrier/2026-11'])->assertRedirect('/calendrier/2026-11');
-    $this->actingAs($this->bruno)->post('/reservations', $demande + ['retour' => '/'])->assertRedirect('/');
+    $autre = ['creneaux' => ['2026-11-15-N'], 'debut' => '2026-11-15', 'fin' => '2026-11-15'] + $demande;
+    $this->actingAs($this->bruno)->post('/reservations', $autre + ['retour' => '/'])->assertRedirect('/');
     $carla = User::factory()->create();
-    $this->actingAs($carla)->post('/reservations', $demande + ['retour' => '//exemple.test/piege'])->assertRedirect('/mes-reservations');
+    $piege = ['creneaux' => ['2026-11-16-N'], 'debut' => '2026-11-16', 'fin' => '2026-11-16'] + $demande;
+    $this->actingAs($carla)->post('/reservations', $piege + ['retour' => '//exemple.test/piege'])->assertRedirect('/mes-reservations');
 });
 
 it('rouvre la pop-up sur la même période avec la raison quand le serveur refuse', function () {
@@ -185,25 +202,15 @@ it('montre la saison en cours par défaut', function () {
 });
 
 it('US-204-P1 liste pour J et N chaque réservation avec réservant, type et nombre de personnes', function () {
-    reserverPour($this->alice, ['2026-11-14-J', '2026-11-14-N'], options: ['nombre_personnes' => 4]);
+    reserverPour($this->alice, ['2026-11-14-J'], options: ['nombre_personnes' => 4]);
     $carla = User::factory()->create(['prenom' => 'Carla', 'nom' => 'Seconde']);
-    reserverPour($carla, ['2026-11-14-N'], options: ['nombre_personnes' => 3]);
+    reserverPour($carla, ['2026-11-14-N'], 'exclusive', ['nombre_personnes' => 3]);
 
     $html = $this->actingAs($this->bruno)->get('/jour/2026-11-14')->assertOk()->getContent();
 
     [$journee, $nuit] = explode('data-creneau="N"', $html);
     expect($journee)->toContain('Alice Ouverte')->toContain('4 pers.')->toContain('Ouverte')->not->toContain('Carla')
-        ->and($nuit)->toContain('Alice Ouverte')->toContain('Carla Seconde')->toContain('3 pers.');
-});
-
-it('US-204-P2 ne propose « Me joindre » que sur une réservation ouverte dont je ne fais pas partie', function () {
-    reserverPour($this->alice, ['2026-11-14-N']);
-    reserverPour($this->bruno, ['2026-11-15-N'], 'exclusive');
-    $carla = User::factory()->create();
-
-    $this->actingAs($carla)->get('/jour/2026-11-14')->assertSee('Me joindre');
-    $this->actingAs($this->alice)->get('/jour/2026-11-14')->assertDontSee('Me joindre');
-    $this->actingAs($carla)->get('/jour/2026-11-15')->assertDontSee('Me joindre');
+        ->and($nuit)->toContain('Carla Seconde')->toContain('3 pers.')->toContain('Exclusive')->not->toContain('Alice');
 });
 
 it('US-204-N1 n\'affiche que le nom de la lignée sur un créneau attribué', function () {

@@ -35,11 +35,16 @@ final class ReservationController
     ) {}
 
     /** Étape 1 : dates. Étape 2 : créneaux, état de chacun, type et personnes (US-303). */
-    public function formulaire(Request $request): View
+    public function formulaire(Request $request): View|RedirectResponse
     {
-        $joindre = $request->filled('joindre')
-            ? Reservation::query()->actives()->with('creneaux', 'user:id,prenom,nom')->find($request->integer('joindre'))
-            : null;
+        // « Me joindre » n'existe plus : un créneau réservé ne se réserve pas une seconde fois (5 nov. 2026).
+        if ($request->filled('joindre')) {
+            $rejointe = Reservation::query()->actives()->with('creneaux')->find($request->integer('joindre'));
+            $premier = $rejointe?->creneaux->first();
+
+            return $premier !== null ? redirect()->route('jour', $premier->date->format('Y-m-d')) : redirect()->route('calendrier');
+        }
+        $joindre = null;
 
         $debut = $this->dateOuNull($request->query('debut')) ?? $this->premiereDate($joindre);
         $fin = $this->dateOuNull($request->query('fin')) ?? $this->derniereDate($joindre) ?? $debut;

@@ -19,7 +19,7 @@
 </div>
 
 @if ($errors->any() && ! is_array(old('creneaux')))
-    <div role="alert" class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">
+    <div role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">
         @foreach ($errors->all() as $erreur)<p>{{ $erreur }}</p>@endforeach
     </div>
 @endif
@@ -56,23 +56,24 @@
         @foreach ($mois as $cle => $jours)
             @php($nomMois = \Illuminate\Support\Carbon::parse($cle.'-01')->locale('fr')->translatedFormat('F'))
             <div class="grid grid-cols-[84px_minmax(0,1fr)] items-start gap-2.5">
-                <div class="flex flex-col pt-3.5"><span class="text-[15px] font-extrabold first-letter:uppercase">{{ $nomMois }}</span><span class="text-xs text-gris">{{ substr($cle, 0, 4) }}</span></div>
-                <div class="grid grid-cols-31 grid-rows-[auto_auto_34px_34px] gap-[3px]">
+                <div class="flex flex-col pt-3.5"><span class="text-base font-extrabold first-letter:uppercase">{{ $nomMois }}</span><span class="text-xs text-gris">{{ substr($cle, 0, 4) }}</span></div>
+                <div class="grid grid-cols-31 grid-rows-[auto_auto_38px_38px] gap-[3px]">
                     @foreach ($jours as $i => $jour)
                         @php($date = $jour->format('Y-m-d'))
                         @php($weekEnd = in_array($jour->format('N'), ['6', '7'], true))
                         @php($station = $date === $ouverture ? 'ouverture' : ($date === $fermeture ? 'fermeture' : null))
-                        <span class="row-start-1 col-start-{{ $i + 1 }} text-center text-[10px] {{ $weekEnd ? 'font-extrabold text-encre' : 'font-semibold text-gris-clair' }}" aria-hidden="true">{{ $lettres[(int) $jour->format('N') - 1] }}</span>
+                        <span class="row-start-1 col-start-{{ $i + 1 }} text-center text-sm {{ $weekEnd ? 'font-extrabold text-encre' : 'font-semibold text-gris-clair' }}" aria-hidden="true">{{ $lettres[(int) $jour->format('N') - 1] }}</span>
                         <a href="{{ route('jour', $date) }}" title="Voir le détail du jour" data-date="{{ $date }}" @if ($station) data-station="{{ $station }}" @endif
-                           class="row-start-2 col-start-{{ $i + 1 }} rounded text-center text-[11px] hover:underline {{ $weekEnd ? 'font-extrabold' : 'font-semibold' }} {{ $station ? 'outline-2 outline-station' : '' }}">{{ $jour->format('j') }}<span class="sr-only"> {{ $nomMois }}{{ $station ? ', '.$station.' de la station' : '' }}</span></a>
+                           class="row-start-2 col-start-{{ $i + 1 }} rounded text-center text-sm tabular-nums hover:underline {{ $weekEnd ? 'font-extrabold' : 'font-semibold' }} {{ $station ? 'outline-2 outline-station' : '' }}">{{ $jour->format('j') }}<span class="sr-only"> {{ $nomMois }}{{ $station ? ', '.$station.' de la station' : '' }}</span></a>
                     @endforeach
 
                     @foreach (['J' => 3, 'N' => 4] as $type => $rangee)
                         @php($ligne = array_map(fn ($jour) => $affichages[$jour->format('Y-m-d').'-'.$type], $jours))
                         @foreach (\App\Domain\Calendrier\AffichageCreneau::barres($ligne) as $b)
                             <span aria-hidden="true" class="barre barre-{{ $b['etat'] }} {{ $b['classe'] }} row-start-{{ $rangee }} col-start-{{ $b['debut'] }} col-span-{{ $b['longueur'] }} {{ $b['longueur'] === 1 ? 'items-center px-0 text-center' : '' }}">
-                                @if ($b['l1'] !== '')<span class="truncate text-[10px] font-extrabold">{{ $b['l1'] }}</span>@endif
-                                @if ($b['l2'] !== '')<span class="truncate text-[9.5px] font-medium {{ $b['longueur'] === 1 ? '' : 'italic' }} opacity-90">{{ $b['l2'] }}</span>@endif
+                                @php($symbole = $b['lignee'] !== null ? ($symboles[$b['lignee']] ?? '') : '')
+                                @if ($b['l1'] !== '' || $symbole !== '')<span class="truncate text-[13px] font-bold">{{ trim($symbole.' '.$b['l1']) }}</span>@endif
+                                @if ($b['l2'] !== '')<span class="truncate text-[12px] font-normal {{ $b['longueur'] === 1 ? '' : 'italic' }} opacity-90">{{ $b['l2'] }}</span>@endif
                             </span>
                         @endforeach
                         @foreach ($ligne as $i => $a)
@@ -88,7 +89,7 @@
         @endforeach
         </div>
     </section>
-    <p class="text-[13px] text-gris">Barre du haut = journée, barre du bas = nuit. Chaque barre porte le réservant, le nombre de personnes et le début du commentaire (initiales et nombre sur un seul créneau) ; tout le détail s'affiche au survol de la souris. Un créneau attribué n'affiche que la lignée. Cliquez sur un créneau pour le sélectionner, recliquez pour le désélectionner, cliquez sur un second créneau pour choisir la période. Cliquez sur le numéro du jour pour voir le détail. Les week-ends sont en gras.</p>
+    <p class="text-sm text-gris">Barre du haut = journée, barre du bas = nuit. Chaque barre porte le réservant, le nombre de personnes et le début du commentaire (initiales et nombre sur un seul créneau) ; tout le détail s'affiche au survol de la souris. Un créneau attribué n'affiche que la lignée. Cliquez sur un créneau pour le sélectionner, recliquez pour le désélectionner, cliquez sur un second créneau pour choisir la période. Cliquez sur le numéro du jour pour voir le détail. Les week-ends sont en gras.</p>
 @endif
 
 @include('partiels.popup-reservation')

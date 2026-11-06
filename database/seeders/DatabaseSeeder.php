@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $config = (string) (config('chamrousse.lignees') ?: 'Lignée A:#2F6FB0,Lignée B:#B5651D,Lignée C:#6B4FA0');
+        $config = (string) (config('chamrousse.lignees') ?: 'Lignée A:#5F6B28,Lignée B:#1F6F6B,Lignée C:#7A3B69');
 
         foreach (array_filter(explode(',', $config)) as $entree) {
             [$nom, $couleur] = array_map('trim', explode(':', $entree, 2)) + [1 => '#5B6673'];

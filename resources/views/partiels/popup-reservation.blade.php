@@ -12,29 +12,28 @@
         <div data-creneaux hidden></div>
         <h2 id="popup-titre" class="text-xl font-extrabold">Nouvelle réservation</h2>
         @if ($errors->any())
-            <div role="alert" class="rounded-[10px] border border-red-300 bg-red-50 px-3 py-2.5 text-[13px] text-red-900">@foreach ($errors->all() as $erreur)<p>{{ $erreur }}</p>@endforeach</div>
+            <div role="alert" class="rounded-[10px] border border-erreur bg-erreur-fond px-3 py-2.5 text-sm text-erreur">@foreach ($errors->all() as $erreur)<p>{{ $erreur }}</p>@endforeach</div>
         @endif
         <div class="rounded-[10px] bg-fond px-3.5 py-3 text-sm leading-relaxed"><b data-periode></b><br><span data-compte></span></div>
-        <p data-note hidden class="rounded-[10px] border border-ouverte-bord bg-ouverte px-3 py-2.5 text-[13px]"></p>
         <fieldset class="grid grid-cols-2 gap-2">
             <legend class="sr-only">Type de réservation</legend>
             <label class="flex cursor-pointer items-start gap-2 rounded-[10px] border border-bord-fort p-2.5 text-sm font-semibold">
                 <input type="radio" name="mode" value="ouverte" checked>
-                <span>Ouverte<small class="block font-medium text-gris">D'autres membres peuvent se joindre</small></span>
+                <span>Ouverte<small class="block font-medium text-gris">Réservation habituelle</small></span>
             </label>
             <label class="flex cursor-pointer items-start gap-2 rounded-[10px] border border-bord-fort p-2.5 text-sm font-semibold">
                 <input type="radio" name="mode" value="exclusive" @checked(old('mode') === 'exclusive')>
-                <span>Exclusive<small class="block font-medium text-gris" data-aide-exclusive>L'appartement est à vous seuls</small></span>
+                <span>Exclusive<small class="block font-medium text-gris">L'appartement est à vous seuls</small></span>
             </label>
         </fieldset>
-        <label class="flex flex-col gap-1.5 text-[13px] font-bold">Nombre de personnes
+        <label class="flex flex-col gap-1.5 text-sm font-bold">Nombre de personnes
             <input type="number" name="nombre_personnes" min="1" max="{{ \App\Domain\Reservations\ServiceReservation::PERSONNES_MAX }}" value="{{ old('nombre_personnes', 2) }}" required class="max-w-[120px] rounded-[10px] border border-bord-fort px-3 py-2.5 text-sm font-medium">
         </label>
-        <label class="flex flex-col gap-1.5 text-[13px] font-bold">Commentaire
+        <label class="flex flex-col gap-1.5 text-sm font-bold">Commentaire
             <textarea name="commentaire" rows="3" maxlength="200" placeholder="Ex. : arrivée tard le vendredi soir" class="rounded-[10px] border border-bord-fort px-3 py-2.5 text-sm font-medium">{{ old('commentaire') }}</textarea>
             <span class="text-xs font-medium text-gris">Affiché dans le calendrier, coupé par « … » s'il est trop long. 200 caractères au plus.</span>
         </label>
-        <label class="flex flex-col gap-1.5 text-[13px] font-bold">Invités extérieurs (facultatif)
+        <label class="flex flex-col gap-1.5 text-sm font-bold">Invités extérieurs (facultatif)
             <input type="text" name="invites" value="{{ old('invites') }}" maxlength="500" placeholder="Noms des invités hors famille" class="rounded-[10px] border border-bord-fort px-3 py-2.5 text-sm font-medium">
         </label>
         <div class="flex justify-end gap-2">

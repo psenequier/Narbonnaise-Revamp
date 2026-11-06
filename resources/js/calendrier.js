@@ -1,10 +1,11 @@
 // Vues mois et saison (PRD « Sélection dans le calendrier », ADR 017) :
 // infobulle au survol, sélection d'un créneau ou d'une période par clics, pop-up de réservation.
-// Créneaux = éléments [data-rang] (rang croissant dans le temps), data-dispo = libre | ouverte | non.
+// Créneaux = éléments [data-rang] (rang croissant dans le temps), data-dispo = libre | non.
 // Ce n'est qu'une aide : ServiceReservation revérifie tout côté serveur.
 
 const RAISONS = {
-    exclusive: 'Ce créneau est déjà pris par une réservation exclusive.',
+    ouverte: 'Ce créneau est déjà réservé (réservation ouverte).',
+    exclusive: 'Ce créneau est déjà réservé (exclusif).',
     attribue: 'Ce créneau fait partie de vacances attribuées à une lignée.',
     attente: "Ce créneau fait partie de vacances en attente d'attribution.",
     ferme: "L'appartement est fermé ce jour-là.",
@@ -85,20 +86,6 @@ function demarrer() {
         form.querySelector('[data-periode]').textContent = els.length === 1 ? premier : `Du ${premier} au ${dernier}`;
         form.querySelector('[data-compte]').textContent = `${journees} journée${journees > 1 ? 's' : ''} · ${nuits} nuit${nuits > 1 ? 's' : ''}`;
 
-        // Une période qui contient un créneau ouvert donne forcément une réservation ouverte.
-        const ouverts = els.filter((e) => e.dataset.dispo === 'ouverte');
-        const qui = [...new Set(ouverts.map((e) => e.dataset.qui).filter(Boolean))];
-        const note = form.querySelector('[data-note]');
-        const exclusive = form.querySelector('input[name=mode][value=exclusive]');
-        note.hidden = ouverts.length === 0;
-        note.textContent = ouverts.length
-            ? `Déjà ouvert par ${qui.join(', ')} sur ${ouverts.length} créneau${ouverts.length > 1 ? 'x' : ''} : votre réservation sera ouverte et vous vous joindrez à eux.`
-            : '';
-        exclusive.disabled = ouverts.length > 0;
-        form.querySelector('[data-aide-exclusive]').textContent = ouverts.length ? 'Impossible : créneau déjà ouvert' : "L'appartement est à vous seuls";
-        if (exclusive.disabled) {
-            form.querySelector('input[name=mode][value=ouverte]').checked = true;
-        }
         popup.showModal();
         form.elements.nombre_personnes.focus();
     };
@@ -135,7 +122,7 @@ function demarrer() {
         }
         const periode = entre(debut, k);
         if (periode.some((e) => e.dataset.dispo === 'non')) {
-            message('La période traverse un créneau déjà pris. Choisissez une autre fin.');
+            message('La période contient un créneau déjà réservé ou indisponible. Choisissez une autre fin.');
             return;
         }
         marquer(periode);
