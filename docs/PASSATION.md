@@ -58,8 +58,7 @@ user stories à jour sont dans `contexte/` (privé). Changements :
   ciel `#A8D3E6` pour les réservations ouvertes, lichen `#23302A` pour les exclusives, Nunito Sans
   servie par le site ; branches prairie ●, rhododendron ■, génépi ▲ (texte lichen dessus) ;
   cases du mois en 12,5 px (écart à la charte, 16 px minimum, voulu par Pascal). Logo
-  « Chamrousse » et favicon SVG recolorés, bandeau animé Alpage ; les favicons PNG et ICO gardent
-  le fond clair de Sorbet (pas de fichiers Alpage fournis). Couleurs de lignée servies par
+  « Chamrousse », favicons (SVG, ICO, PNG) et bandeau animé de la charte Alpage. Couleurs de lignée servies par
   `/lignees.css` (la CSP interdit les styles en ligne), texte lichen ou blanc selon la clarté.
   **En production, mettre dans `LIGNEES` de `partage/.env` les couleurs `#8BBF7E`, `#F2B5C4` et
   `#F2D06B`.**
