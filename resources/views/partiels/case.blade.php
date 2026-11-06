@@ -5,7 +5,8 @@
 <div class="case case-{{ $etat->value }} {{ $a->classeLignee() }} {{ $a->dispo === 'non' && $etat->reservable() ? 'case-passe' : '' }}"
      data-etat="{{ $etat->value }}" data-rang="{{ $a->rang }}" data-cle="{{ $s->cle() }}" data-dispo="{{ $a->dispo }}"
      data-label="{{ $a->libelleDate }}" data-qui="{{ $a->qui }}" data-infobulle="{{ $a->infobulleTexte() }}"
-     @if ($a->dispo !== 'non') role="button" tabindex="0" aria-label="Sélectionner {{ $a->libelleDate }}" @endif>
+     @include('partiels.attributs-mienne')
+     @if ($a->dispo !== 'non') role="button" tabindex="0" aria-label="{{ $a->dispo === 'mienne' ? 'Modifier ma réservation' : 'Sélectionner' }} {{ $a->libelleDate }}" @endif>
     <span class="sr-only">{{ $s->creneau->type->libelle() }} : {{ $etat->libelle() }}{{ $a->quiComplet !== '' ? ', '.$a->quiComplet : '' }}</span>
     <span class="flex min-w-0 items-center gap-1" aria-hidden="true">
         <span class="font-bold opacity-70">{{ $s->creneau->type->value }}</span>

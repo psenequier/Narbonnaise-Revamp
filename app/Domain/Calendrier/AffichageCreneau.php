@@ -39,7 +39,7 @@ final readonly class AffichageCreneau
      */
     public array $infobulle;
 
-    /** libre | non : seul un créneau libre se sélectionne (un créneau réservé, même ouvert, ne se réserve plus). */
+    /** libre | mienne | non : un créneau libre se sélectionne ; un créneau de ma réservation ouvre son édition. */
     public string $dispo;
 
     /** Rang croissant dans le temps (deux par jour), pour sélectionner une période. */
@@ -48,7 +48,10 @@ final readonly class AffichageCreneau
     /** « jeu. 5 nov. (journée) ». */
     public string $libelleDate;
 
-    public function __construct(public SituationCreneau $situation, DateTimeImmutable $aujourdhui)
+    /** Ma réservation sur ce créneau, modifiable depuis la pop-up. */
+    public ?Reservation $mienne;
+
+    public function __construct(public SituationCreneau $situation, DateTimeImmutable $aujourdhui, int $moi = 0)
     {
         $creneau = $situation->creneau;
         $date = Carbon::instance($creneau->date);
@@ -94,8 +97,16 @@ final readonly class AffichageCreneau
             + ($creneau->type === TypeCreneau::Nuit ? 1 : 0);
 
         $passe = $creneau->date->format('Y-m-d') < $aujourdhui->format('Y-m-d');
-        $this->dispo = $passe ? 'non' : match ($situation->etat) {
-            EtatCreneau::Libre => 'libre',
+        $mienne = null;
+        foreach ($situation->reservations as $r) {
+            if ($moi !== 0 && $r->user_id === $moi) {
+                $mienne = $r;
+            }
+        }
+        $this->mienne = $passe ? null : $mienne;
+        $this->dispo = $passe ? 'non' : match (true) {
+            $this->mienne !== null => 'mienne',
+            $situation->etat === EtatCreneau::Libre => 'libre',
             default => 'non',
         };
 
@@ -147,6 +158,16 @@ final readonly class AffichageCreneau
     public static function classeCouleur(string $couleur): ?string
     {
         return preg_match('/^#([0-9a-fA-F]{6})$/', $couleur, $m) === 1 ? 'lc-'.strtolower($m[1]) : null;
+    }
+
+    /** Créneaux de ma réservation (« 2026-11-14-N », …), pour la pop-up d'édition. */
+    public function creneauxMienne(): string
+    {
+        if ($this->mienne === null) {
+            return '';
+        }
+
+        return $this->mienne->creneaux->map(fn ($c) => $c->date->format('Y-m-d').'-'.$c->type)->implode(',');
     }
 
     public function infobulleTexte(): string

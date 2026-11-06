@@ -138,6 +138,31 @@ it('reste sur la vue du calendrier après une réservation faite depuis la pop-u
     $this->actingAs($carla)->post('/reservations', $piege + ['retour' => '//exemple.test/piege'])->assertRedirect('/mes-reservations');
 });
 
+it('ouvre en édition dans la pop-up un créneau de ma réservation, jamais celui d\'un autre', function () {
+    $mienne = reserverPour($this->alice, ['2026-11-14-J', '2026-11-14-N'], options: ['nombre_personnes' => 3, 'commentaire' => 'Ski', 'invites' => 'Paul']);
+    reserverPour($this->bruno, ['2026-11-20-N']);
+
+    $html = $this->actingAs($this->alice)->get('/calendrier/2026-11')->assertOk()->getContent();
+    $case = fn (string $cle) => preg_match('/<div class="case[^>]*data-cle="'.$cle.'"[^>]*>/s', $html, $m) === 1 ? $m[0] : '';
+
+    expect($case('2026-11-14-N'))->toContain('data-dispo="mienne"')->toContain('data-mienne="'.$mienne->id.'"')
+        ->toContain('data-creneaux="2026-11-14-J,2026-11-14-N"')->toContain('data-nb="3"')->toContain('data-invites="Paul"')
+        ->and($case('2026-11-20-N'))->toContain('data-dispo="non"')->not->toContain('data-mienne');
+    // Bruno ne reçoit ni l'édition ni les invités d'Alice.
+    $this->actingAs($this->bruno)->get('/calendrier/2026-11')->assertDontSee('data-mienne="'.$mienne->id.'"', false)->assertDontSee('Paul');
+});
+
+it('reste sur la vue après une modification faite depuis la pop-up', function () {
+    $r = reserverPour($this->alice, ['2026-11-14-N']);
+
+    $this->actingAs($this->alice)->put("/reservations/{$r->id}", [
+        'debut' => '2026-11-14', 'fin' => '2026-11-14', 'creneaux' => ['2026-11-14-N'], 'mode' => 'exclusive',
+        'nombre_personnes' => 4, 'commentaire' => 'Changé', 'retour' => '/calendrier/2026-11',
+    ])->assertRedirect('/calendrier/2026-11');
+
+    expect($r->fresh())->mode->toBe('exclusive')->nombre_personnes->toBe(4)->commentaire->toBe('Changé');
+});
+
 it('rouvre la pop-up sur la même période avec la raison quand le serveur refuse', function () {
     $this->actingAs($this->alice)->from('/calendrier/2026-11')->post('/reservations', [
         'debut' => '2026-11-14', 'fin' => '2026-11-14', 'creneaux' => ['2026-11-14-N'], 'mode' => 'ouverte',

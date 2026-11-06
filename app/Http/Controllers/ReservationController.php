@@ -139,6 +139,11 @@ final class ReservationController
         }
         $this->avis->apresModification($reservation, $avant, $motif !== null ? $request->user() : null, $motif);
 
+        // Modification faite depuis la pop-up du calendrier : on reste sur la vue.
+        if ($motif === null && $request->filled('retour')) {
+            return redirect(self::retourCalendrier((string) $request->input('retour')))->with('status', 'Réservation modifiée.');
+        }
+
         return $this->retour($motif, $reservation, 'Réservation modifiée.');
     }
 

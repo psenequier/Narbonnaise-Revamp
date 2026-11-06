@@ -48,7 +48,7 @@ final class CalendrierController
             'suivant' => $premier->modify('+1 month')->format('Y-m'),
             'semaines' => $semaines,
             'situations' => $situations,
-            'affichages' => self::affichages($situations, $aujourdhui),
+            'affichages' => self::affichages($situations, $aujourdhui, (int) auth()->id()),
             'lignees' => Lignee::query()->orderBy('nom')->get(['nom', 'couleur']),
             'symboles' => self::symbolesLignees(),
             'aujourdhui' => $aujourdhui,
@@ -96,7 +96,7 @@ final class CalendrierController
             'saison' => $saison,
             'mois' => $mois,
             'situations' => $situations,
-            'affichages' => self::affichages($situations, self::aujourdhui()),
+            'affichages' => self::affichages($situations, self::aujourdhui(), (int) auth()->id()),
             'lignees' => Lignee::query()->orderBy('nom')->get(['nom', 'couleur']),
             'symboles' => self::symbolesLignees(),
             'ouverture' => $parametres->facultatif("station.ouverture.{$saison}"),
@@ -128,9 +128,9 @@ final class CalendrierController
      * @param  array<string, SituationCreneau>  $situations
      * @return array<string, AffichageCreneau>
      */
-    private static function affichages(array $situations, DateTimeImmutable $aujourdhui): array
+    private static function affichages(array $situations, DateTimeImmutable $aujourdhui, int $moi): array
     {
-        return array_map(fn (SituationCreneau $s) => new AffichageCreneau($s, $aujourdhui), $situations);
+        return array_map(fn (SituationCreneau $s) => new AffichageCreneau($s, $aujourdhui, $moi), $situations);
     }
 
     /**

@@ -7,10 +7,12 @@
         @csrf
         {{-- Après « Réserver », on reste sur la vue du calendrier ouverte (décision du 5 nov. 2026). --}}
         <input type="hidden" name="retour" value="{{ '/'.ltrim(request()->path(), '/') }}">
+        {{-- Édition d'une de mes réservations : le script active ce champ (PUT) et change l'adresse du formulaire. --}}
+        <input type="hidden" name="_method" value="PUT" disabled data-methode>
         <input type="hidden" name="debut" value="">
         <input type="hidden" name="fin" value="">
         <div data-creneaux hidden></div>
-        <h2 id="popup-titre" class="text-xl font-extrabold">Nouvelle réservation</h2>
+        <h2 id="popup-titre" class="text-xl font-extrabold" data-titre>Nouvelle réservation</h2>
         @if ($errors->any())
             <div role="alert" class="rounded-[10px] border border-erreur bg-erreur-fond px-3 py-2.5 text-sm text-erreur">@foreach ($errors->all() as $erreur)<p>{{ $erreur }}</p>@endforeach</div>
         @endif
@@ -36,9 +38,10 @@
         <label class="flex flex-col gap-1.5 text-sm font-bold">Invités extérieurs (facultatif)
             <input type="text" name="invites" value="{{ old('invites') }}" maxlength="500" placeholder="Noms des invités hors famille" class="rounded-[10px] border border-bord-fort px-3 py-2.5 text-sm font-medium">
         </label>
+        <a href="#" hidden data-lien-dates class="text-sm font-bold text-sapin underline">Changer les dates ou annuler la réservation</a>
         <div class="flex justify-end gap-2">
             <button type="button" data-fermer class="h-11 rounded-full border border-bord-fort bg-white px-[18px] text-sm font-bold">Annuler</button>
-            <button type="submit" class="h-11 rounded-full bg-sapin px-[18px] text-sm font-bold text-white">Réserver</button>
+            <button type="submit" class="h-11 rounded-full bg-sapin px-[18px] text-sm font-bold text-white" data-valider>Réserver</button>
         </div>
     </form>
 </dialog>

@@ -70,9 +70,12 @@ function demarrer() {
         document.body.appendChild(barre);
     };
 
-    const ouvrirPopup = (els) => {
+    const form = popup.querySelector('form');
+    const actionCreation = form.getAttribute('action');
+
+    // edition = le créneau cliqué d'une de mes réservations (attributs data-mienne…), ou null pour créer.
+    const ouvrirPopup = (els, edition = null) => {
         fermerBarre();
-        const form = popup.querySelector('form');
         const cles = els.map((e) => e.dataset.cle);
         const journees = cles.filter((c) => c.endsWith('-J')).length;
         const nuits = cles.length - journees;
@@ -85,6 +88,21 @@ function demarrer() {
         const dernier = els[els.length - 1].dataset.label;
         form.querySelector('[data-periode]').textContent = els.length === 1 ? premier : `Du ${premier} au ${dernier}`;
         form.querySelector('[data-compte]').textContent = `${journees} journée${journees > 1 ? 's' : ''} · ${nuits} nuit${nuits > 1 ? 's' : ''}`;
+
+        const methode = form.querySelector('[data-methode]');
+        const lien = form.querySelector('[data-lien-dates]');
+        methode.disabled = edition === null;
+        form.setAttribute('action', edition ? edition.dataset.action : actionCreation);
+        form.querySelector('[data-titre]').textContent = edition ? 'Modifier ma réservation' : 'Nouvelle réservation';
+        form.querySelector('[data-valider]').textContent = edition ? 'Enregistrer' : 'Réserver';
+        lien.hidden = edition === null;
+        if (edition) {
+            lien.href = edition.dataset.pageModifier;
+            form.querySelector(`input[name=mode][value=${edition.dataset.mode === 'exclusive' ? 'exclusive' : 'ouverte'}]`).checked = true;
+            form.elements.nombre_personnes.value = edition.dataset.nb || 2;
+            form.elements.commentaire.value = edition.dataset.commentaire ?? '';
+            form.elements.invites.value = edition.dataset.invites ?? '';
+        }
 
         popup.showModal();
         form.elements.nombre_personnes.focus();
@@ -104,7 +122,25 @@ function demarrer() {
         }
     });
 
+    // Un créneau de ma réservation : la pop-up s'ouvre sur toute la réservation, en édition.
+    const editer = (el) => {
+        toutEffacer();
+        const cles = (el.dataset.creneaux || el.dataset.cle).split(',');
+        const parCle = new Map(creneaux().map((e) => [e.dataset.cle, e]));
+        const els = cles.map((c) => parCle.get(c) ?? { dataset: { cle: c, label: c } });
+        marquer(els.filter((e) => e instanceof Element));
+        ouvrirPopup(els, el);
+    };
+
     const choisir = (el) => {
+        if (el.dataset.dispo === 'mienne') {
+            if (debut === null) {
+                editer(el);
+            } else {
+                message('Ce créneau fait déjà partie de votre réservation. Choisissez une fin libre.');
+            }
+            return;
+        }
         if (el.dataset.dispo === 'non') {
             message(RAISONS[el.dataset.etat] ?? 'Ce créneau ne peut plus être réservé (date passée).');
             return;
@@ -121,7 +157,7 @@ function demarrer() {
             return;
         }
         const periode = entre(debut, k);
-        if (periode.some((e) => e.dataset.dispo === 'non')) {
+        if (periode.some((e) => e.dataset.dispo !== 'libre')) {
             message('La période contient un créneau déjà réservé ou indisponible. Choisissez une autre fin.');
             return;
         }

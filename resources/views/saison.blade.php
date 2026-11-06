@@ -80,6 +80,7 @@
                             <span class="relative z-10 rounded row-start-{{ $rangee }} col-start-{{ $i + 1 }} {{ $a->dispo === 'non' ? 'cursor-not-allowed' : 'cursor-pointer' }}"
                                   data-etat="{{ $a->situation->etat->value }}" data-rang="{{ $a->rang }}" data-cle="{{ $a->situation->cle() }}" data-dispo="{{ $a->dispo }}"
                                   data-label="{{ $a->libelleDate }}" data-qui="{{ $a->qui }}" data-infobulle="{{ $a->infobulleTexte() }}"
+                                  @include('partiels.attributs-mienne')
                                   @if ($a->dispo !== 'non') role="button" tabindex="0" @endif
                                   aria-label="{{ $a->libelleDate }} : {{ $a->situation->etat === \App\Domain\Calendrier\EtatCreneau::Attribue ? 'lignée '.$a->situation->lignee : $a->situation->etat->libelle() }}{{ $a->quiComplet !== '' ? ', '.$a->quiComplet : '' }}"></span>
                         @endforeach
