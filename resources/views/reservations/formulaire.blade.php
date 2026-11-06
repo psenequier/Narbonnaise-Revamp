@@ -29,7 +29,7 @@
 @if ($erreurDates)
     <p role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">{{ $erreurDates }}</p>
 @elseif ($lignes !== [])
-<form method="POST" action="{{ $modifiee ? route('reservations.mettre-a-jour', $modifiee) : route('reservations.enregistrer') }}" class="flex flex-col gap-5">
+<form method="POST" id="form-reservation" action="{{ $modifiee ? route('reservations.mettre-a-jour', $modifiee) : route('reservations.enregistrer') }}" class="flex flex-col gap-5">
     @csrf
     @if ($modifiee) @method('PUT') @endif
     <input type="hidden" name="debut" value="{{ $debut->format('Y-m-d') }}">
@@ -101,10 +101,15 @@
         </label>
     @endif
 
-    <button type="submit" class="h-12 self-start rounded-lg bg-sapin px-6 font-bold text-white">{{ $modifiee ? 'Enregistrer les modifications' : 'Valider la réservation' }}</button>
 </form>
 @endif
-@if ($modifiee && ! $parAdmin)
-    @include('partiels.bouton-annuler', ['action' => route('reservations.annuler', $modifiee)])
-@endif
+{{-- Boutons côte à côte ; « Annuler la réservation » a son propre formulaire (pas de formulaires imbriqués). --}}
+<div class="flex flex-wrap items-start gap-3">
+    @if (! $erreurDates && $lignes !== [])
+        <button type="submit" form="form-reservation" class="h-12 rounded-lg bg-sapin px-6 font-bold text-white">{{ $modifiee ? 'Enregistrer les modifications' : 'Valider la réservation' }}</button>
+    @endif
+    @if ($modifiee && ! $parAdmin)
+        @include('partiels.bouton-annuler', ['action' => route('reservations.annuler', $modifiee)])
+    @endif
+</div>
 @endsection

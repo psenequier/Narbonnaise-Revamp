@@ -94,7 +94,7 @@ function demarrer() {
         methode.disabled = edition === null;
         form.setAttribute('action', edition ? edition.dataset.action : actionCreation);
         form.querySelector('[data-titre]').textContent = edition ? 'Modifier ma réservation' : 'Nouvelle réservation';
-        form.querySelector('[data-valider]').textContent = edition ? 'Enregistrer' : 'Réserver';
+        popup.querySelector('[data-valider]').textContent = edition ? 'Enregistrer' : 'Réserver';
         lien.hidden = edition === null;
         const zoneAnnulation = popup.querySelector('[data-zone-annulation]');
         zoneAnnulation.hidden = edition === null;

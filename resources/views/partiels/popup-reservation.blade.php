@@ -3,7 +3,7 @@
      par ServiceReservation ; une erreur revient sur le calendrier. --}}
 {{-- Refus du serveur : la pop-up se rouvre sur la même période et affiche la raison. --}}
 <dialog id="popup-reservation" @if ($errors->any() && is_array(old('creneaux'))) data-anciens="{{ implode(',', array_filter(old('creneaux'), 'is_string')) }}" @endif aria-labelledby="popup-titre" class="m-auto w-full max-w-[480px] rounded-2xl p-0 text-encre shadow-2xl backdrop:bg-encre/45">
-    <form method="POST" action="{{ route('reservations.enregistrer') }}" class="flex flex-col gap-4 p-6">
+    <form method="POST" id="form-popup" action="{{ route('reservations.enregistrer') }}" class="flex flex-col gap-4 p-6 pb-3">
         @csrf
         {{-- Après « Réserver », on reste sur la vue du calendrier ouverte (décision du 5 nov. 2026). --}}
         <input type="hidden" name="retour" value="{{ '/'.ltrim(request()->path(), '/') }}">
@@ -39,13 +39,13 @@
             <input type="text" name="invites" value="{{ old('invites') }}" maxlength="500" placeholder="Noms des invités hors famille" class="rounded-[10px] border border-bord-fort px-3 py-2.5 text-sm font-medium">
         </label>
         <a href="#" hidden data-lien-dates class="text-sm font-bold text-sapin underline">Changer les dates</a>
-        <div class="flex justify-end gap-2">
-            <button type="button" data-fermer class="h-11 rounded-full border border-bord-fort bg-white px-[18px] text-sm font-bold">Annuler</button>
-            <button type="submit" class="h-11 rounded-full bg-sapin px-[18px] text-sm font-bold text-white" data-valider>Réserver</button>
-        </div>
     </form>
-    {{-- Édition d'une de mes réservations : annulation (formulaire séparé, l'adresse est posée par le script). --}}
-    <div hidden data-zone-annulation class="px-6 pb-6">
-        @include('partiels.bouton-annuler', ['action' => route('reservations.enregistrer'), 'retour' => '/'.ltrim(request()->path(), '/')])
+    {{-- Boutons côte à côte : l'annulation (édition seulement) a son propre formulaire, posé par le script. --}}
+    <div class="flex flex-wrap items-start justify-end gap-2 px-6 pb-6">
+        <div hidden data-zone-annulation class="mr-auto">
+            @include('partiels.bouton-annuler', ['action' => route('reservations.enregistrer'), 'retour' => '/'.ltrim(request()->path(), '/'), 'hauteur' => 'h-11', 'auDessus' => true])
+        </div>
+        <button type="button" data-fermer class="h-11 rounded-full border border-bord-fort bg-white px-[18px] text-sm font-bold">Fermer</button>
+        <button type="submit" form="form-popup" class="h-11 rounded-full bg-sapin px-[18px] text-sm font-bold text-white" data-valider>Réserver</button>
     </div>
 </dialog>
