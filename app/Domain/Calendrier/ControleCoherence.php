@@ -24,11 +24,13 @@ final class ControleCoherence
 
         $anomalies = [];
 
-        // 1. Un créneau exclusif partagé avec une autre réservation.
+        // 1. Un créneau porté par plusieurs réservations (une seule permise depuis le 5 nov. 2026).
         foreach ($actives()->groupBy('c.id', 'c.date', 'c.type')
-            ->havingRaw("SUM(r.mode = 'exclusive') >= 1 AND COUNT(*) > 1")
-            ->get(['c.date', 'c.type', DB::raw('COUNT(*) as n')]) as $c) {
-            $anomalies[] = "{$c->date} {$c->type} : créneau exclusif partagé par {$c->n} réservations.";
+            ->havingRaw('COUNT(*) > 1')
+            ->get(['c.date', 'c.type', DB::raw('COUNT(*) as n'), DB::raw("SUM(r.mode = 'exclusive') as nx")]) as $c) {
+            $anomalies[] = (int) $c->nx > 0
+                ? "{$c->date} {$c->type} : créneau exclusif partagé par {$c->n} réservations."
+                : "{$c->date} {$c->type} : créneau réservé {$c->n} fois.";
         }
 
         // 2. Une réservation sur des vacances (attribuées ou non).

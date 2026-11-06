@@ -4,7 +4,7 @@
 @section('contenu')
 <a href="{{ route('admin.utilisateurs') }}" class="text-sm underline">‹ Tous les utilisateurs</a>
 @if ($errors->any())
-    <div role="alert" class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
+    <div role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
 @endif
 
 <section class="flex flex-col gap-2 rounded-2xl border border-bord bg-white p-5">
@@ -18,7 +18,7 @@
             <form method="POST" action="{{ route('admin.utilisateurs.reinitialisation', $membre) }}">@csrf<button class="{{ $bouton }}">Envoyer un lien de réinitialisation</button></form>
         @endif
         @if ($membre->actif)
-            <form method="POST" action="{{ route('admin.utilisateurs.desactiver', $membre) }}">@csrf<button class="h-11 rounded-lg bg-red-800 px-4 font-bold text-white">Désactiver</button></form>
+            <form method="POST" action="{{ route('admin.utilisateurs.desactiver', $membre) }}">@csrf<button class="h-11 rounded-lg bg-erreur px-4 font-bold text-white">Désactiver</button></form>
         @else
             <form method="POST" action="{{ route('admin.utilisateurs.reactiver', $membre) }}">@csrf<button class="{{ $bouton }}">Réactiver</button></form>
         @endif

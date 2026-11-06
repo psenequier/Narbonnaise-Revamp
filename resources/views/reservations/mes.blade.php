@@ -1,8 +1,9 @@
 @extends('layouts.app')
 @section('titre', 'Mes réservations')
+@section('bandeau')@include('partiels.bandeau')@endsection
 @section('contenu')
 @if ($errors->any())
-    <div role="alert" class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
+    <div role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
 @endif
 
 <section class="flex flex-col gap-3" aria-labelledby="a-venir">

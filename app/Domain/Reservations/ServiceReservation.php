@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  * 1. verrouiller les créneaux demandés (SELECT … FOR UPDATE, ADR 006) ;
  * 2. refuser ceux d'une période de vacances, attribuée ou non, et ceux d'une fermeture ;
  * 3. vérifier la règle d'équité ;
- * 4. vérifier les conflits avec les réservations actives (ouverte / exclusive) ;
+ * 4. refuser tout créneau déjà réservé, même par une réservation ouverte (décision du 5 nov. 2026) ;
  * 5. enregistrer, journaliser ; l'e-mail part après la réponse.
  *
  * La modification suit les mêmes étapes en ignorant la réservation modifiée.
@@ -110,7 +110,7 @@ final class ServiceReservation
         }, attempts: 3);
     }
 
-    /** US-306 : les créneaux se libèrent, ou restent ouverts s'il reste d'autres participants. */
+    /** US-306 : à l'annulation, les créneaux redeviennent libres. */
     public function annuler(Reservation $reservation, DateTimeImmutable $maintenant, ?string $motifAdmin = null): void
     {
         DB::transaction(function () use ($reservation, $maintenant, $motifAdmin) {
@@ -211,16 +211,12 @@ final class ServiceReservation
             ->whereNull('r.annulee_le')
             ->when($exclue, fn ($q, Reservation $e) => $q->where('r.id', '!=', $e->id))
             ->get(['r.mode', 'r.user_id']);
-        if ($existantes->contains('mode', 'exclusive')) {
-            throw new ReservationRefusee('Un de ces créneaux est déjà pris en exclusif.');
-        }
+        // Un créneau déjà réservé ne se réserve plus, que la réservation soit ouverte ou exclusive.
         if ($existantes->contains('user_id', $membre->id)) {
-            throw new ReservationRefusee('Vous êtes déjà inscrit sur un de ces créneaux.');
+            throw new ReservationRefusee('Vous avez déjà réservé un de ces créneaux.');
         }
-        if ($mode === 'exclusive' && $existantes->isNotEmpty()) {
-            throw new ReservationRefusee($exclue
-                ? 'Impossible de passer en exclusif : d\'autres membres sont inscrits sur ces créneaux.'
-                : 'Un de ces créneaux est déjà pris : la réservation exclusive n\'est possible que sur des créneaux libres.');
+        if ($existantes->isNotEmpty()) {
+            throw new ReservationRefusee('Un de ces créneaux est déjà réservé : choisissez des créneaux libres.');
         }
     }
 

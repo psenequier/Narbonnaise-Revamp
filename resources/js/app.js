@@ -1,1 +1,2 @@
-// Livewire injecte son propre script ; rien d'autre côté navigateur pour l'instant.
+// Livewire injecte son propre script. Ici : survol et sélection dans le calendrier (ADR 017).
+import './calendrier.js';

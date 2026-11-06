@@ -31,7 +31,7 @@ final class Occupation
         $parCreneau = [];
         Reservation::query()
             ->actives()
-            ->with('user:id,prenom,nom')
+            ->with(['user:id,prenom,nom', 'creneaux:id,date,type'])
             ->join('reservation_creneau as rc', 'rc.reservation_id', '=', 'reservations.id')
             ->whereIn('rc.creneau_id', $stockes->pluck('id'))
             ->orderBy('reservations.created_at')

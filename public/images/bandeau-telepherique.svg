@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 240" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Deux cabines de téléphérique, une rouge et une jaune, se croisent au-dessus des montagnes">
+  <style>
+    .rouge { animation: aller 18s ease-in-out -6s infinite alternate; }
+    .jaune { animation: retour 18s ease-in-out -6s infinite alternate; }
+    .balance { transform-box: view-box; animation: balance 18s ease-in-out -6s infinite alternate; }
+    .rouge .balance { transform-origin: 136px 44.9px; }
+    .jaune .balance { transform-origin: 1201.5px 90.4px; }
+    @keyframes aller  { from { transform: translate(0, 0); } to { transform: translate(900px, 58.75px); } }
+    @keyframes retour { from { transform: translate(0, 0); } to { transform: translate(-900px, -58.75px); } }
+    @keyframes balance { 0% { transform: rotate(0); } 8% { transform: rotate(-2deg); } 92% { transform: rotate(-2deg); } 100% { transform: rotate(0); } }
+    @media (prefers-reduced-motion: reduce) {
+      .rouge, .jaune, .balance { animation: none; }
+      .rouge { transform: translate(270px, 17.6px); }
+      .jaune { transform: translate(-270px, -17.6px); }
+    }
+  </style>
+  <rect width="1440" height="240" fill="#FFFDF8"/>
+  <circle cx="1150" cy="100" r="72" fill="#FFE27A"/>
+  <g fill="#FFFDF8"><rect x="1070" y="100" width="160" height="8"/><rect x="1070" y="120" width="160" height="7"/><rect x="1070" y="138" width="160" height="5"/><rect x="1070" y="152" width="160" height="4"/></g>
+  <g transform="scale(1 0.632)">
+  <path d="M0 300 L180 170 L300 240 L470 110 L640 250 L800 160 L980 270 L1150 190 L1320 260 L1440 200 L1440 380 L0 380 Z" fill="#B9B0FF"/>
+  <path d="M0 330 L160 230 L330 300 L520 200 L700 300 L880 220 L1060 310 L1250 240 L1440 300 L1440 380 L0 380 Z" fill="#FFB4A2"/>
+  <path d="M0 350 L220 280 L420 340 L640 270 L860 345 L1080 290 L1300 345 L1440 320 L1440 380 L0 380 Z" fill="#C9F0DC"/>
+  <path d="M0 368 L300 330 L600 365 L900 335 L1200 368 L1440 345 L1440 380 L0 380 Z" fill="#5B3DF5"/>
+  </g>
+  <rect x="40" y="28" width="8" height="160" fill="#1F2140"/><rect x="24" y="28" width="40" height="9" fill="#1F2140"/>
+  <line x1="0" y1="36" x2="1440" y2="130" stroke="#1F2140" stroke-width="3"/>
+  <line x1="0" y1="12" x2="1440" y2="106" stroke="#1F2140" stroke-width="3"/>
+  <g class="rouge"><g class="balance"><g transform="translate(110 41.8) scale(0.62)">
+    <rect x="22" y="0" width="40" height="10" rx="4" fill="#1E1E1E"/>
+    <path d="M30 8 L46 8 L84 52 L84 128 Q84 146 66 146 L44 146 L44 136 L74 136 L74 56 Z" fill="#1E1E1E"/>
+    <g fill="#3A3A3A"><circle cx="79" cy="70" r="2.5"/><circle cx="79" cy="84" r="2.5"/><circle cx="79" cy="98" r="2.5"/><circle cx="79" cy="112" r="2.5"/></g>
+    <path d="M12 150 Q12 142 20 142 L108 142 Q118 142 118 150 L118 248 Q118 256 110 256 L18 256 Q12 256 12 250 Z" fill="#E0461F"/>
+    <path d="M98 143 L118 148 L118 250 L98 256 Z" fill="#B8381A"/>
+    <path d="M12 150 Q12 142 20 142 L108 142 Q118 142 118 150 L118 152 L12 152 Z" fill="#A8311A"/>
+    <g fill="#2B2F33"><rect x="16" y="156" width="25" height="50" rx="2"/><rect x="44" y="156" width="25" height="50" rx="2"/><rect x="72" y="156" width="23" height="50" rx="2"/></g>
+    <rect x="101" y="157" width="13" height="48" rx="2" fill="#3A3F44"/>
+    <rect x="44" y="178" width="25" height="3" fill="#E0461F"/>
+    <path d="M19 158 L27 158 L19 186 Z" fill="#8A97A3"/><path d="M75 158 L82 158 L75 182 Z" fill="#8A97A3"/>
+    <rect x="104" y="214" width="5" height="9" rx="1" fill="#A8311A"/>
+    <rect x="12" y="246" width="106" height="3" fill="#FFFFFF"/>
+  </g></g></g>
+  <g class="jaune"><g class="balance"><g transform="translate(1150 86.7) scale(0.62)">
+    <path d="M48 0 L118 0 Q124 0 124 6 L124 12 L42 12 L42 6 Q42 0 48 0 Z" fill="#1E1E1E"/>
+    <path d="M70 10 L82 10 L56 100 L44 100 Z" fill="#1E1E1E"/><path d="M88 10 L100 10 L118 100 L106 100 Z" fill="#1E1E1E"/>
+    <path d="M60 52 L106 52 L104 58 L58 58 Z" fill="#1E1E1E"/>
+    <rect x="36" y="96" width="96" height="10" rx="3" fill="#1E1E1E"/>
+    <rect x="8" y="104" width="154" height="122" rx="34" fill="#F2D04B"/>
+    <g fill="#4B5560"><rect x="20" y="124" width="12" height="38" rx="2"/><rect x="36" y="124" width="12" height="38" rx="2"/><rect x="52" y="124" width="12" height="38" rx="2"/><rect x="68" y="124" width="12" height="38" rx="2"/><rect x="84" y="124" width="12" height="38" rx="2"/><rect x="100" y="124" width="12" height="38" rx="2"/><rect x="116" y="124" width="14" height="38" rx="2"/><rect x="134" y="124" width="16" height="38" rx="2"/></g>
+    <rect x="10" y="170" width="150" height="5" fill="#1F3E7A"/><rect x="9" y="182" width="152" height="5" fill="#1E1E1E"/>
+    <rect x="10" y="191" width="150" height="5" fill="#2E7D32"/><rect x="12" y="200" width="146" height="5" fill="#C4301C"/>
+    <rect x="76" y="168" width="2" height="54" fill="#C9A227"/>
+  </g></g></g>
+</svg>

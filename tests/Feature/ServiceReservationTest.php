@@ -36,11 +36,13 @@ it('US-301-P1 crée la réservation sur des créneaux libres', function () {
     expect($r->creneaux()->count())->toBe(2);
 });
 
-it('US-301-P2 accepte une deuxième réservation ouverte sur le même créneau', function () {
+it('US-301-N9 refuse toute la réservation si un créneau est déjà réservé, même par une ouverte', function () {
     $this->service->reserver($this->alice, [demande('2026-11-14')], 'ouverte', null, $this->maintenant);
-    $this->service->reserver($this->bruno, [demande('2026-11-14')], 'ouverte', null, $this->maintenant);
 
-    expect(DB::table('reservation_creneau')->count())->toBe(2);
+    expect(fn () => $this->service->reserver($this->bruno, [demande('2026-11-13'), demande('2026-11-14')], 'ouverte', null, $this->maintenant))
+        ->toThrow(ReservationRefusee::class, 'déjà réservé');
+    expect($this->bruno->reservations()->count())->toBe(0)
+        ->and(DB::table('reservation_creneau')->count())->toBe(1);
 });
 
 it('US-301-P3 trace la création dans le journal', function () {
@@ -61,7 +63,7 @@ it('refuse une réservation exclusive sur un créneau déjà ouvert', function (
     $this->service->reserver($this->bruno, [demande('2026-11-15')], 'ouverte', null, $this->maintenant);
 
     expect(fn () => $this->service->reserver($this->alice, [demande('2026-11-15')], 'exclusive', null, $this->maintenant))
-        ->toThrow(ReservationRefusee::class, 'déjà pris');
+        ->toThrow(ReservationRefusee::class, 'déjà réservé');
 });
 
 it('US-301-N2 refuse un créneau de vacances, même non attribué', function () {
