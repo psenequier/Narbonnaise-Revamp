@@ -41,11 +41,11 @@
         <a href="#" hidden data-lien-dates class="text-sm font-bold text-sapin underline">Changer les dates</a>
     </form>
     {{-- Boutons côte à côte : l'annulation (édition seulement) a son propre formulaire, posé par le script. --}}
-    <div class="flex flex-wrap items-start justify-end gap-2 px-6 pb-6">
+    <div class="flex flex-nowrap items-start justify-end gap-1.5 px-6 pb-6">
         <div hidden data-zone-annulation class="mr-auto">
-            @include('partiels.bouton-annuler', ['action' => route('reservations.enregistrer'), 'retour' => '/'.ltrim(request()->path(), '/'), 'hauteur' => 'h-11', 'auDessus' => true])
+            @include('partiels.bouton-annuler', ['action' => route('reservations.enregistrer'), 'retour' => '/'.ltrim(request()->path(), '/'), 'hauteur' => 'h-11', 'auDessus' => true, 'court' => true, 'classeBouton' => 'rounded-full px-3 text-[14px]'])
         </div>
-        <button type="button" data-fermer class="h-11 rounded-full border border-bord-fort bg-white px-[18px] text-sm font-bold">Fermer</button>
-        <button type="submit" form="form-popup" class="h-11 rounded-full bg-sapin px-[18px] text-sm font-bold text-white" data-valider>Réserver</button>
+        <button type="button" data-fermer class="h-11 shrink-0 rounded-full border border-bord-fort bg-white px-3 text-[14px] font-bold">Fermer</button>
+        <button type="submit" form="form-popup" class="h-11 shrink-0 rounded-full bg-sapin px-3 text-[14px] font-bold text-white" data-valider>Réserver</button>
     </div>
 </dialog>
