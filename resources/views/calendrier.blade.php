@@ -92,26 +92,6 @@
     <p class="text-sm text-gris">J = journée · N = nuit du jour au lendemain. Chaque créneau affiche le réservant, le nombre de personnes et le début du commentaire (tout le détail au survol de la souris) ; un créneau attribué n'affiche que la lignée. Cliquez sur un créneau pour le sélectionner, recliquez pour le désélectionner, cliquez sur un second créneau pour choisir la période. Cliquez sur le numéro du jour pour voir le détail.</p>
 </section>
 
-@if (isset($affichages[$cleJour.'-J']))
-<aside aria-label="Aujourd'hui" class="flex flex-[1_1_300px] flex-col gap-4">
-    <section class="flex flex-col gap-3.5 rounded-[14px] border border-bord bg-white p-5">
-        <h2 class="text-lg font-extrabold first-letter:uppercase">{{ \Illuminate\Support\Carbon::instance($aujourdhui)->locale('fr')->translatedFormat('l j F') }}</h2>
-        @foreach (['J' => 'Journée', 'N' => 'Nuit'] as $t => $nomCreneau)
-            @php($a = $affichages[$cleJour.'-'.$t])
-            <div class="flex flex-col gap-2">
-                <div class="text-xs font-bold tracking-wider text-gris uppercase">{{ $nomCreneau }}{{ $a->personnes !== null ? ' · '.$a->personnes.' personnes' : '' }}</div>
-                @forelse ($a->situation->reservations as $r)
-                    <div class="flex justify-between text-sm"><span>{{ trim($r->user?->prenom.' '.\App\Domain\Calendrier\AffichageCreneau::initiales((string) $r->user?->nom)) }} · {{ $r->mode === 'exclusive' ? 'exclusive' : 'ouverte' }}</span>@if ($r->nombre_personnes)<span class="text-gris">{{ $r->nombre_personnes }} pers.</span>@endif</div>
-                    @if ($r->commentaire)<div class="-mt-1 text-sm text-gris italic">{{ $r->commentaire }}</div>@endif
-                @empty
-                    <div class="text-sm text-gris">{{ $a->situation->etat === \App\Domain\Calendrier\EtatCreneau::Attribue ? 'Attribué à la lignée '.$a->situation->lignee : $a->situation->etat->libelle() }}</div>
-                @endforelse
-            </div>
-        @endforeach
-        <a href="{{ route('jour', $cleJour) }}" class="flex h-11 items-center justify-center rounded-full border-[1.5px] border-sapin text-sm font-bold text-sapin">Voir le détail du jour</a>
-    </section>
-</aside>
-@endif
 </div>
 
 @include('partiels.popup-reservation')
