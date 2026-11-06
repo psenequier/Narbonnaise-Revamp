@@ -3,7 +3,7 @@
 @php($champ = 'h-11 rounded-lg border border-bord bg-white px-2 font-normal')
 @section('contenu')
 @if ($errors->any())
-    <div role="alert" class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
+    <div role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
 @endif
 
 <nav class="flex flex-wrap gap-2" aria-label="Années scolaires">
@@ -16,7 +16,7 @@
 </nav>
 
 @if ($conflits->isNotEmpty())
-<section class="flex flex-col gap-3 rounded-2xl border border-amber-400 bg-amber-50 p-5" aria-labelledby="conflits">
+<section class="flex flex-col gap-3 rounded-2xl border border-alerte bg-alerte-fond p-5" aria-labelledby="conflits">
     <h2 id="conflits" class="text-lg font-extrabold">Réservations en conflit avec les vacances</h2>
     @foreach ($conflits as $r)
         <form method="POST" action="{{ route('admin.conflits.arbitrer', $r) }}" class="flex flex-wrap items-end gap-2 rounded-lg bg-white p-3" data-conflit="{{ $r->id }}">
@@ -25,7 +25,7 @@
                 du {{ $r->creneaux->first()?->date->format('d/m/Y') }} au {{ $r->creneaux->last()?->date->format('d/m/Y') }}</span>
             <label class="flex flex-col text-xs font-bold">Motif (envoyé au membre)<input name="motif" required minlength="3" maxlength="500" class="{{ $champ }}"></label>
             <button name="decision" value="maintenir" class="h-11 rounded-lg border border-bord px-3 font-bold">Maintenir</button>
-            <button name="decision" value="annuler" class="h-11 rounded-lg bg-red-800 px-3 font-bold text-white">Annuler la réservation</button>
+            <button name="decision" value="annuler" class="h-11 rounded-lg bg-erreur px-3 font-bold text-white">Annuler la réservation</button>
         </form>
     @endforeach
 </section>
@@ -54,7 +54,7 @@
             @csrf @method('PUT')
             @include('admin._champs-plage', ['valeurs' => $plage])
             <button type="submit" class="h-11 rounded-lg border border-bord px-3 font-bold">Modifier</button>
-            <button type="submit" form="retirer-{{ $plage->id }}" class="h-11 rounded-lg border border-red-300 px-3 font-bold text-red-900">Retirer</button>
+            <button type="submit" form="retirer-{{ $plage->id }}" class="h-11 rounded-lg border border-erreur px-3 font-bold text-erreur">Retirer</button>
         </form>
         <form id="retirer-{{ $plage->id }}" method="POST" action="{{ route('admin.plages.retirer', $plage) }}">@csrf @method('DELETE')</form>
     @empty

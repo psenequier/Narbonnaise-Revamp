@@ -6,14 +6,14 @@
 @section('contenu')
 
 @if ($user->estAdmin() && ! $user->two_factor_confirmed_at)
-    <p role="alert" class="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm">
+    <p role="alert" class="rounded-lg border border-amber-300 bg-alerte-fond p-3 text-sm">
         En tant qu'admin, vous devez activer la double authentification pour accéder à l'administration.
     </p>
 @endif
 
 <section class="{{ $carte }}" aria-labelledby="infos">
     <h2 id="infos" class="text-lg font-extrabold">Mes informations</h2>
-    @foreach ($errors->updateProfileInformation->all() as $erreur)<p role="alert" class="text-sm text-red-900">{{ $erreur }}</p>@endforeach
+    @foreach ($errors->updateProfileInformation->all() as $erreur)<p role="alert" class="text-sm text-erreur">{{ $erreur }}</p>@endforeach
     @if (session('status') === 'profile-information-updated')<p role="status" class="text-sm">Informations enregistrées.</p>@endif
     <form method="POST" action="{{ route('user-profile-information.update') }}" class="grid gap-4 sm:grid-cols-2">
         @csrf @method('PUT')
@@ -35,7 +35,7 @@
 
 <section class="{{ $carte }}" aria-labelledby="mdp">
     <h2 id="mdp" class="text-lg font-extrabold">Mot de passe</h2>
-    @foreach ($errors->updatePassword->all() as $erreur)<p role="alert" class="text-sm text-red-900">{{ $erreur }}</p>@endforeach
+    @foreach ($errors->updatePassword->all() as $erreur)<p role="alert" class="text-sm text-erreur">{{ $erreur }}</p>@endforeach
     @if (session('status') === 'password-updated')<p role="status" class="text-sm">Mot de passe modifié. Vos autres sessions ont été fermées.</p>@endif
     <form method="POST" action="{{ route('user-password.update') }}" class="flex flex-col gap-4">
         @csrf @method('PUT')
@@ -71,7 +71,7 @@
     @elseif ($user->two_factor_secret)
         <p class="text-sm">Scannez ce QR code avec votre application d'authentification, puis saisissez le code affiché.</p>
         <img src="data:image/svg+xml;base64,{{ base64_encode($user->twoFactorQrCodeSvg()) }}" alt="QR code à scanner avec votre application d'authentification" class="w-48">
-        @foreach ($errors->confirmTwoFactorAuthentication->all() as $erreur)<p role="alert" class="text-sm text-red-900">{{ $erreur }}</p>@endforeach
+        @foreach ($errors->confirmTwoFactorAuthentication->all() as $erreur)<p role="alert" class="text-sm text-erreur">{{ $erreur }}</p>@endforeach
         <form method="POST" action="{{ route('two-factor.confirm') }}" class="flex items-end gap-3">
             @csrf
             <label class="flex flex-col gap-1 text-sm font-bold">Code à 6 chiffres
@@ -89,7 +89,7 @@
 
 <section class="{{ $carte }}" aria-labelledby="google">
     <h2 id="google" class="text-lg font-extrabold">Compte Google</h2>
-    @error('google')<p role="alert" class="text-sm text-red-900">{{ $message }}</p>@enderror
+    @error('google')<p role="alert" class="text-sm text-erreur">{{ $message }}</p>@enderror
     @if ($user->google_id)
         <p class="text-sm">Un compte Google est lié : vous pouvez l'utiliser pour vous connecter.</p>
         <form method="POST" action="{{ route('profil.google.delier') }}">@csrf @method('DELETE')

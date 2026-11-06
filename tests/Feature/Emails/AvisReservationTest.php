@@ -97,54 +97,9 @@ it('US-501-N3 ne contient ni l\'adresse des autres participants, ni lien utilisa
     }
 });
 
-it('US-502-P1 prévient individuellement A quand B se joint, modifie puis annule', function () {
-    poster($this->alice, ['2026-11-14-N']);
-    poster($this->bruno, ['2026-11-14-N']);
-    $r = Reservation::where('user_id', $this->bruno->id)->sole();
-    $this->actingAs($this->bruno)->put("/reservations/{$r->id}", [
-        'debut' => '2026-11-14', 'fin' => '2026-11-14', 'creneaux' => ['2026-11-14-N'], 'mode' => 'ouverte', 'nombre_personnes' => 5,
-    ]);
-    $this->actingAs($this->bruno)->delete("/reservations/{$r->id}");
-
-    $mouvements = envoyes('reservation.mouvement', 'alice@example.test');
-    expect($mouvements)->toHaveCount(3)
-        ->and($mouvements->map(fn ($m) => $m->donnees['action'])->values()->all())->toBe(['joint', 'modifié', 'annulé'])
-        ->and($mouvements->every(fn ($m) => count($m->to) === 1 && $m->bcc === []))->toBeTrue();
-});
-
-it('US-502-N1 ne prévient pas individuellement un membre sans réservation sur ces créneaux', function () {
-    $carla = User::factory()->create(['email' => 'carla@example.test']);
-    poster($carla, ['2026-11-20-N']);
-    poster($this->alice, ['2026-11-14-N']);
-    poster($this->bruno, ['2026-11-14-N']);
-
-    expect(envoyes('reservation.mouvement', 'carla@example.test'))->toHaveCount(0)
-        ->and(envoyes('reservation.mouvement', 'alice@example.test'))->toHaveCount(1);
-});
-
-it('US-502-N2 ne laisse aucune préférence forgée désactiver le message individuel', function () {
-    poster($this->alice, ['2026-11-14-N']);
-    $this->actingAs($this->alice)->put('/profil/preferences', [
-        'recoit_emails_autres' => '0', 'recoit_annonces_attribution' => '0', 'recoit_emails_mes_creneaux' => '0',
-    ]);
-
-    poster($this->bruno, ['2026-11-14-N']);
-
-    expect(envoyes('reservation.mouvement', 'alice@example.test'))->toHaveCount(1);
-});
-
-it('US-502-N3 n\'envoie à l\'auteur que sa confirmation, sans doublon', function () {
-    poster($this->alice, ['2026-11-14-N']);
-    Mail::fake(); // seuls comptent les e-mails provoqués par l'action de Bruno
-    poster($this->bruno, ['2026-11-14-N']);
-
-    $pourBruno = envoyes(a: 'bruno@example.test');
-    expect($pourBruno->map->gabarit->all())->toBe(['reservation.confirmation']);
-});
+// US-502 (prévenir les autres inscrits) n'a plus d'objet : un créneau ne porte qu'une réservation (5 nov. 2026).
 
 it('US-503-P1 envoie une seule information en copie cachée aux membres qui la souhaitent, hors réservant et inscrits', function () {
-    poster($this->bruno, ['2026-11-14-N']);
-    Mail::fake();
     $curieux = User::factory()->create(['email' => 'curieux@example.test']);
 
     poster($this->alice, ['2026-11-14-N']);
@@ -154,7 +109,7 @@ it('US-503-P1 envoie une seule information en copie cachée aux membres qui la s
     $m = $info->sole();
     expect($m->hasBcc('curieux@example.test'))->toBeTrue()
         ->and($m->hasBcc('alice@example.test'))->toBeFalse()
-        ->and($m->hasBcc('bruno@example.test'))->toBeFalse();
+        ->and($m->hasBcc('bruno@example.test'))->toBeTrue();
 });
 
 it('US-503-P2 garde l\'information en file au-delà de 150 envois dans l\'heure, puis l\'envoie à la relance', function () {

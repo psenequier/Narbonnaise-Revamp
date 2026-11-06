@@ -1,4 +1,4 @@
-# Passation — état du projet au 28 octobre 2026
+# Passation — état du projet au 6 novembre 2026
 
 Note de reprise pour une nouvelle session (Claude Code ou autre). Les règles permanentes sont
 dans `CLAUDE.md` ; ce fichier dit où on en est. À mettre à jour à chaque étape importante.
@@ -22,6 +22,45 @@ dans `CLAUDE.md` ; ce fichier dit où on en est. À mettre à jour à chaque ét
 
 La PR #17 (`lot/bascule`, d'une autre session) a été fermée sans fusion : son contenu utile
 est dans #18, #19 et #20.
+
+## En cours : PR #26, branche `lot/nom-reservant-calendrier`
+
+Revue du site local avec Pascal les 5 et 6 novembre 2026. Les maquettes, le PRD, l'ADR 017 et les
+user stories à jour sont dans `contexte/` (privé). Changements :
+
+- **Vue mois** (maquette Main) : chaque créneau affiche le réservant (prénom et initiale), le
+  nombre de personnes et le début du commentaire ; infobulle au survol ; le numéro du jour ouvre
+  le détail. Flèches et « Aujourd'hui » à droite, à côté du choix Mois/Saison : elles ne bougent
+  plus avec la longueur du nom du mois. L'encart « jour » à droite de la grille est supprimé.
+- **Vue saison** (maquette Saison) : frise par mois, barres J/N par réservation.
+- **Vue par défaut** : saison entre l'ouverture et la fermeture de la station (paramètres
+  admin, sinon 1er décembre → 30 avril), mois le reste de l'année (US-202-P6, P7).
+- **Sélection par clics** et pop-up de réservation (`resources/js/calendrier.js`, script maison
+  plutôt qu'Alpine, formulaire classique plutôt que Livewire : écarts à l'ADR 017 signalés à
+  Pascal). Après « Réserver », on reste sur la vue ; en cas de refus, la pop-up se rouvre.
+- **Mes réservations dans la pop-up** (6 nov.) : un clic sur un créneau d'une de mes réservations
+  ouvre la pop-up en édition (type, personnes, commentaire, invités ; lien vers la page de
+  modification pour changer les dates). Bouton « Annuler la réservation », comme dans « Mes
+  réservations », dans la pop-up et sur l'écran de modification, sur la même ligne que les autres
+  boutons (confirmation visible sans défiler). Les créneaux des autres restent refusés.
+- **Écrans Réserver et Modifier** : chaque créneau affiche le réservant, le nombre et le début du
+  commentaire (sur ordinateur), avec la même infobulle que le calendrier.
+- **Un créneau, une réservation** (décision du 5 nov.) : un créneau déjà réservé, même ouvert, ne
+  se réserve plus, côté navigateur et serveur. « Me joindre » est retiré. Critères retirés :
+  US-204-P2, US-301-P2, US-304, US-305-N4, US-502 ; ajouté : US-301-N9. US-308-P1 est à réécrire
+  dans les specs (le test vérifie maintenant qu'une seule réservation est créée).
+- **Commentaire** visible de tous, 200 caractères au plus ; invités masqués aux autres membres.
+- **Charte n° 6 « Sorbet »** (6 nov., remplace « Après-ski ») : palette pastel (violet
+  électrique, menthe, nuit), Plus Jakarta Sans servie par le site, arrondis et ombres légères ;
+  branches pêche, lavande et citron avec ● ■ ▲ (texte nuit dessus) ; pas de trames ; texte des
+  cases du mois en 12,5 px (écart à la charte, 16 px minimum, voulu par Pascal). Logo « Chamrousse »
+  (la charte proposait un autre nom, écarté par Pascal), favicon cabine et bandeau animé (Réserver, Modifier, Mes réservations). Couleurs de
+  lignée servies par `/lignees.css` (la CSP interdit les styles en ligne), texte nuit ou blanc
+  selon la clarté. **En production, mettre dans `LIGNEES` de `partage/.env` les couleurs
+  `#FFB4A2`, `#B9B0FF` et `#FFE27A`.**
+
+La PR #27 (mise à jour Symfony 8.1, 11 avis de sécurité) est à fusionner avant la #26 : sans elle,
+le contrôle « dépendances » de la CI échoue sur toute branche.
 
 ## Critères d'acceptation
 
