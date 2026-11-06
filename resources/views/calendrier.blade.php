@@ -10,13 +10,14 @@
 <div class="flex flex-wrap gap-6">
 <section aria-label="Calendrier" class="flex min-w-0 flex-[999_1_640px] flex-col gap-4">
     <div class="flex flex-wrap items-center gap-3">
-        <h1 class="font-display text-[30px] font-bold tracking-tight first-letter:uppercase" data-mois="{{ $premier->format('Y-m') }}">{{ $nomMois }}</h1>
+        <h1 class="mr-auto font-display text-[30px] font-bold tracking-tight first-letter:uppercase" data-mois="{{ $premier->format('Y-m') }}">{{ $nomMois }}</h1>
+        {{-- À droite, à largeur fixe : les flèches ne bougent pas avec la longueur du nom du mois (clics rapides). --}}
         <div class="flex gap-1.5">
             <a href="{{ route('calendrier.mois', $precedent) }}" class="flex size-11 items-center justify-center rounded-full border border-bord-fort bg-white" aria-label="Mois précédent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a>
             <a href="{{ route('calendrier.mois', $suivant) }}" class="flex size-11 items-center justify-center rounded-full border border-bord-fort bg-white" aria-label="Mois suivant"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
             <a href="{{ route('calendrier.mois') }}" class="flex h-11 items-center rounded-full border border-bord-fort bg-white px-3.5 text-sm font-semibold">Aujourd'hui</a>
         </div>
-        <div role="group" aria-label="Vue" class="ml-auto flex rounded-full bg-segment p-[3px] text-sm">
+        <div role="group" aria-label="Vue" class="flex rounded-full bg-segment p-[3px] text-sm">
             <span aria-current="page" class="flex h-[38px] items-center rounded-full bg-white px-3.5 font-bold">Mois</span>
             <a href="{{ route('saison') }}" class="flex h-[38px] items-center rounded-full px-3.5 font-semibold text-texte-2">Saison déc.–avr.</a>
         </div>
