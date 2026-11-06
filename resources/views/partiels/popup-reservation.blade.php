@@ -38,10 +38,14 @@
         <label class="flex flex-col gap-1.5 text-sm font-bold">Invités extérieurs (facultatif)
             <input type="text" name="invites" value="{{ old('invites') }}" maxlength="500" placeholder="Noms des invités hors famille" class="rounded-[10px] border border-bord-fort px-3 py-2.5 text-sm font-medium">
         </label>
-        <a href="#" hidden data-lien-dates class="text-sm font-bold text-sapin underline">Changer les dates ou annuler la réservation</a>
+        <a href="#" hidden data-lien-dates class="text-sm font-bold text-sapin underline">Changer les dates</a>
         <div class="flex justify-end gap-2">
             <button type="button" data-fermer class="h-11 rounded-full border border-bord-fort bg-white px-[18px] text-sm font-bold">Annuler</button>
             <button type="submit" class="h-11 rounded-full bg-sapin px-[18px] text-sm font-bold text-white" data-valider>Réserver</button>
         </div>
     </form>
+    {{-- Édition d'une de mes réservations : annulation (formulaire séparé, l'adresse est posée par le script). --}}
+    <div hidden data-zone-annulation class="px-6 pb-6">
+        @include('partiels.bouton-annuler', ['action' => route('reservations.enregistrer'), 'retour' => '/'.ltrim(request()->path(), '/')])
+    </div>
 </dialog>

@@ -96,6 +96,12 @@ function demarrer() {
         form.querySelector('[data-titre]').textContent = edition ? 'Modifier ma réservation' : 'Nouvelle réservation';
         form.querySelector('[data-valider]').textContent = edition ? 'Enregistrer' : 'Réserver';
         lien.hidden = edition === null;
+        const zoneAnnulation = popup.querySelector('[data-zone-annulation]');
+        zoneAnnulation.hidden = edition === null;
+        zoneAnnulation.querySelector('details').open = false;
+        if (edition) {
+            zoneAnnulation.querySelector('[data-form-annulation]').setAttribute('action', edition.dataset.action);
+        }
         if (edition) {
             lien.href = edition.dataset.pageModifier;
             form.querySelector(`input[name=mode][value=${edition.dataset.mode === 'exclusive' ? 'exclusive' : 'ouverte'}]`).checked = true;

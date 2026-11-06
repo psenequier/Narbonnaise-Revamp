@@ -163,6 +163,17 @@ it('reste sur la vue après une modification faite depuis la pop-up', function (
     expect($r->fresh())->mode->toBe('exclusive')->nombre_personnes->toBe(4)->commentaire->toBe('Changé');
 });
 
+it('annule ma réservation depuis la pop-up et reste sur la vue ; le bouton figure aussi sur l\'écran de modification', function () {
+    $r = reserverPour($this->alice, ['2026-11-14-N']);
+
+    $this->actingAs($this->alice)->get('/calendrier/2026-11')->assertSee('data-zone-annulation', false)->assertSee('Annuler la réservation');
+    $this->actingAs($this->alice)->get("/reservations/{$r->id}/modifier")->assertOk()
+        ->assertSee('Annuler la réservation')->assertSee("Confirmer l'annulation", false);
+
+    $this->actingAs($this->alice)->delete("/reservations/{$r->id}", ['retour' => '/calendrier/2026-11'])->assertRedirect('/calendrier/2026-11');
+    expect($r->fresh()->annulee_le)->not->toBeNull();
+});
+
 it('rouvre la pop-up sur la même période avec la raison quand le serveur refuse', function () {
     $this->actingAs($this->alice)->from('/calendrier/2026-11')->post('/reservations', [
         'debut' => '2026-11-14', 'fin' => '2026-11-14', 'creneaux' => ['2026-11-14-N'], 'mode' => 'ouverte',

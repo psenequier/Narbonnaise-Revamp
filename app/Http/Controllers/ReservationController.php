@@ -158,6 +158,11 @@ final class ReservationController
         }
         $this->avis->apresAnnulation($reservation, $motif !== null ? $request->user() : null, $motif);
 
+        // Annulation faite depuis la pop-up du calendrier : on reste sur la vue.
+        if ($motif === null && $request->filled('retour')) {
+            return redirect(self::retourCalendrier((string) $request->input('retour')))->with('status', 'Réservation annulée.');
+        }
+
         return $this->retour($motif, $reservation, 'Réservation annulée.');
     }
 

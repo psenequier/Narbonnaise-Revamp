@@ -104,4 +104,7 @@
     <button type="submit" class="h-12 self-start rounded-lg bg-sapin px-6 font-bold text-white">{{ $modifiee ? 'Enregistrer les modifications' : 'Valider la réservation' }}</button>
 </form>
 @endif
+@if ($modifiee && ! $parAdmin)
+    @include('partiels.bouton-annuler', ['action' => route('reservations.annuler', $modifiee)])
+@endif
 @endsection
