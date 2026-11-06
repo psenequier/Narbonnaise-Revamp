@@ -3,7 +3,7 @@
 @php($champ = 'h-11 rounded-lg border border-bord bg-white px-3 font-normal')
 @section('contenu')
 @if ($errors->any())
-    <div role="alert" class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
+    <div role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
 @endif
 
 <section class="rounded-2xl border border-bord bg-white p-5" aria-labelledby="nouveau">

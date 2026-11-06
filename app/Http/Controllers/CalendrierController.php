@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Domain\Calendrier\AffichageCreneau;
 use App\Domain\Calendrier\Creneau;
 use App\Domain\Calendrier\EtatCreneau;
 use App\Domain\Calendrier\Occupation;
 use App\Domain\Calendrier\TypeCreneau;
+use App\Domain\Calendrier\SituationCreneau;
 use App\Domain\Parametres;
+use App\Models\Lignee;
 use DateTimeImmutable;
 use DateTimeZone;
 use Illuminate\Http\Request;
@@ -45,10 +48,29 @@ final class CalendrierController
             'suivant' => $premier->modify('+1 month')->format('Y-m'),
             'semaines' => $semaines,
             'situations' => $situations,
+            'affichages' => self::affichages($situations, $aujourdhui, (int) auth()->id()),
+            'lignees' => Lignee::query()->orderBy('nom')->get(['nom', 'couleur']),
+            'symboles' => self::symbolesLignees(),
             'aujourdhui' => $aujourdhui,
             'pasOuvert' => collect($situations)->contains(fn ($s) => $s->etat === EtatCreneau::PasOuvert
                 && $s->creneau->date->format('m') === $premier->format('m')),
         ]);
+    }
+
+    /**
+     * US-202-P6, P7 : pendant la saison (ouverture → fermeture de la station saisies par un admin,
+     * sinon 1er décembre → 30 avril), l'accueil montre la saison ; le reste de l'année, le mois.
+     */
+    public function accueil(Parametres $parametres): View
+    {
+        $aujourdhui = self::aujourdhui();
+        $a = (int) $aujourdhui->format('Y') - ((int) $aujourdhui->format('n') < 9 ? 1 : 0);
+        $saison = $a.'-'.($a + 1);
+        $ouverture = $parametres->facultatif("station.ouverture.{$saison}") ?: "{$a}-12-01";
+        $fermeture = $parametres->facultatif("station.fermeture.{$saison}") ?: ($a + 1).'-04-30';
+        $jour = $aujourdhui->format('Y-m-d');
+
+        return $jour >= $ouverture && $jour <= $fermeture ? $this->saison($parametres, $saison) : $this->mois();
     }
 
     public function saison(Parametres $parametres, ?string $saison = null): View
@@ -74,6 +96,9 @@ final class CalendrierController
             'saison' => $saison,
             'mois' => $mois,
             'situations' => $situations,
+            'affichages' => self::affichages($situations, self::aujourdhui(), (int) auth()->id()),
+            'lignees' => Lignee::query()->orderBy('nom')->get(['nom', 'couleur']),
+            'symboles' => self::symbolesLignees(),
             'ouverture' => $parametres->facultatif("station.ouverture.{$saison}"),
             'fermeture' => $parametres->facultatif("station.fermeture.{$saison}"),
             'precedente' => ($a1 - 1).'-'.$a1,
@@ -97,6 +122,28 @@ final class CalendrierController
             'moi' => (int) $request->user()?->id,
             'admin' => \Illuminate\Support\Facades\Gate::allows('admin'),
         ]);
+    }
+
+    /**
+     * @param  array<string, SituationCreneau>  $situations
+     * @return array<string, AffichageCreneau>
+     */
+    private static function affichages(array $situations, DateTimeImmutable $aujourdhui, int $moi): array
+    {
+        return array_map(fn (SituationCreneau $s) => new AffichageCreneau($s, $aujourdhui, $moi), $situations);
+    }
+
+    /**
+     * Symbole de chaque branche (charte : ● ■ ▲), qui double sa couleur.
+     *
+     * @return array<string, string>
+     */
+    private static function symbolesLignees(): array
+    {
+        $symboles = ['●', '■', '▲', '◆', '★'];
+        $noms = Lignee::query()->orderBy('id')->pluck('nom')->map(fn ($n) => (string) $n)->values()->all();
+
+        return array_combine($noms, array_map(fn (int $i) => $symboles[$i % count($symboles)], array_keys($noms)));
     }
 
     public static function paris(): DateTimeZone

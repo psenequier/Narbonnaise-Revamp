@@ -2,7 +2,7 @@
 @section('titre', 'Reprise de GRR')
 @section('contenu')
 @if ($errors->has('reprise'))
-    <p role="alert" class="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">{{ $errors->first('reprise') }}</p>
+    <p role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">{{ $errors->first('reprise') }}</p>
 @endif
 @if ($ouverte)
     <form method="POST" action="{{ route('admin.reprise.lancer') }}" class="flex flex-wrap items-center gap-3 rounded-2xl border border-bord bg-white p-5">
@@ -39,7 +39,7 @@
 @if ($controle === null)
     <p class="rounded-lg border border-bord bg-white p-4">Aucune reprise lancée.</p>
 @else
-<section class="rounded-2xl border p-5 {{ $controle['valide'] ? 'border-sapin bg-sapin-clair' : 'border-red-300 bg-red-50' }}" data-controle="{{ $controle['valide'] ? 'valide' : 'non-valide' }}">
+<section class="rounded-2xl border p-5 {{ $controle['valide'] ? 'border-sapin bg-sapin-clair' : 'border-erreur bg-erreur-fond' }}" data-controle="{{ $controle['valide'] ? 'valide' : 'non-valide' }}">
     <h2 class="text-lg font-extrabold">{{ $controle['valide'] ? 'Reprise validée' : 'Reprise non validée' }}</h2>
     <p class="text-sm">Comptes GRR : {{ $controle['comptes']['grr'] }} = {{ $controle['comptes']['repris'] }} repris + {{ $controle['comptes']['anomalies'] }} en anomalie</p>
     <table class="mt-3 w-full text-sm">
@@ -76,7 +76,7 @@
 <section class="rounded-2xl border border-bord bg-white p-5">
     <h2 class="mb-2 text-lg font-extrabold">Anciennes attributions à valider</h2>
     @if ($errors->any())
-        <div role="alert" class="mb-2 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
+        <div role="alert" class="mb-2 rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
     @endif
     @forelse ($propositions as $p)
         @php($cles = json_decode($p->creneaux, true))

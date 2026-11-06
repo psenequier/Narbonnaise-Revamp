@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\Calendrier;
 
 /**
- * État affiché d'un créneau. Chaque état a son libellé ET son motif : la
- * couleur seule ne distingue jamais deux états (US-201-N3, accessibilité).
+ * État affiché d'un créneau. Chaque état a son libellé, toujours écrit dans la case :
+ * la couleur seule ne distingue jamais deux états (US-201-N3). Les trames ont été retirées (5 nov. 2026).
  */
 enum EtatCreneau: string
 {
@@ -31,23 +31,9 @@ enum EtatCreneau: string
         };
     }
 
-    /** Motif CSS (hachures, points…) qui double la couleur. */
-    public function motif(): string
-    {
-        return match ($this) {
-            self::Libre => 'motif-uni',
-            self::Ouverte => 'motif-points',
-            self::Exclusive => 'motif-plein',
-            self::Attribue => 'motif-rayures',
-            self::Attente => 'motif-tirets',
-            self::Ferme => 'motif-croix',
-            self::PasOuvert => 'motif-vide',
-        };
-    }
-
     /** On peut y poser une réservation, sous réserve des autres règles. */
     public function reservable(): bool
     {
-        return $this === self::Libre || $this === self::Ouverte;
+        return $this === self::Libre; // un créneau déjà réservé, même ouvert, ne se réserve plus
     }
 }

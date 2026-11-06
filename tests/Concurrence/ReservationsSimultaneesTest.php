@@ -60,13 +60,14 @@ function modesActifs(string $date, string $type): array
         ->pluck('r.mode')->sort()->values()->all();
 }
 
-it('US-308-P1 crée les deux réservations ouvertes envoyées en parallèle', function () {
+it('US-308-P1 ne crée qu\'une des deux réservations ouvertes envoyées en parallèle (un créneau, une réservation)', function () {
     [$a, $b] = User::factory()->count(2)->create()->all();
 
     $resultats = enParallele([[$a, 'ouverte', ['2026-11-14-N']], [$b, 'ouverte', ['2026-11-14-N']]]);
 
-    expect($resultats)->toBe(['ok', 'ok'])
-        ->and(modesActifs('2026-11-14', 'N'))->toBe(['ouverte', 'ouverte']);
+    sort($resultats);
+    expect($resultats)->toBe(['ok', 'refus'])
+        ->and(modesActifs('2026-11-14', 'N'))->toBe(['ouverte']);
 });
 
 it('US-308-N1 ne crée qu\'une des deux réservations exclusives envoyées en parallèle', function () {
