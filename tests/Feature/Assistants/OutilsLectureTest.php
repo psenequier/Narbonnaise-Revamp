@@ -36,6 +36,7 @@ it('US-1003-P1 renvoie les mêmes chiffres que la page Statistiques', function (
 it('US-1003-P1 vue « depuis le début », et chiffres par lignée pour le seul compte désigné, comme sur la page', function () {
     reserverPour($this->bruno, ['2026-11-14-N'], 'ouverte', ['nombre_personnes' => 2]);
     $this->travelTo('2026-11-20 10:00:00');
+    $this->jeton = connecterAssistant($this->alice)['access_token'];
 
     $tout = outilMcp($this->jeton, 'statistiques', ['vue' => 'tout'])['structuredContent'];
     expect($tout)->toMatchArray(['vue' => 'tout', 'du' => '2026-11-14', 'au' => '2026-11-20'])
