@@ -45,6 +45,30 @@ final class PeriodesScolaires
     }
 
     /**
+     * US-408-P3 : nom de l'année proposée à la saisie à la main, jamais saisi : l'année qui suit
+     * la dernière ouverte parmi l'année en cours et les deux suivantes, sinon l'année en cours.
+     * Null quand les trois sont déjà ouvertes (US-408-N4 : rien au-delà).
+     */
+    public static function anneeASaisir(DateTimeImmutable $aujourdhui): ?string
+    {
+        $a = (int) $aujourdhui->format('Y') - ((int) $aujourdhui->format('n') < 9 ? 1 : 0);
+        $fenetre = [];
+        for ($i = $a; $i <= $a + 2; $i++) {
+            $fenetre[$i] = $i.'-'.($i + 1);
+        }
+        $ouvertes = AnneeScolaire::query()->where('ouverte', true)->whereIn('libelle', array_values($fenetre))->pluck('libelle')->all();
+        $derniere = null;
+        foreach ($fenetre as $debut => $libelle) {
+            if (in_array($libelle, $ouvertes, true)) {
+                $derniere = $debut;
+            }
+        }
+        $suivante = $derniere === null ? $a : $derniere + 1;
+
+        return $fenetre[$suivante] ?? null;
+    }
+
+    /**
      * US-401 : tâche mensuelle. Une année en échec n'empêche pas l'autre ;
      * renvoie les messages d'échec (vide si tout va bien).
      *
@@ -113,6 +137,9 @@ final class PeriodesScolaires
         }
 
         $annee = AnneeScolaire::query()->firstOrCreate(['libelle' => $libelle], ['debut' => $debutAnnee, 'fin' => $finAnnee]);
+        if ($annee->wasRecentlyCreated) {
+            $annee->forceFill(['creee_a_la_main' => true])->save(); // US-409 : seule une telle année se supprime
+        }
         foreach (self::NOMS as $nom) {
             [$debut, $fin] = $dates[$nom];
             /** @var PeriodeVacances|null $connue */
