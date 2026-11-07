@@ -57,6 +57,7 @@ final class Statistiques
             ->where('etat', '!=', 'libre')
             ->get(['date', 'type', 'etat', 'personnes']);
 
+        /** @var array<string, array{mois: string, ouverte: int, exclusive: int, attribuee: int, total: int, jours: int, libres: int}> $mois */
         $mois = [];
         for ($m = $debut->modify('first day of this month'); $m <= $fin; $m = $m->modify('+1 month')) {
             // Nuits du mois comprises dans la période (27 pour décembre dans une saison ouverte le 5).
@@ -74,14 +75,16 @@ final class Statistiques
 
                 continue;
             }
-            $etat = (string) $l->etat;
+            $etat = match ((string) $l->etat) {
+                'exclusive' => 'exclusive', 'attribuee' => 'attribuee', default => 'ouverte',
+            };
             $nuits++;
             $personnes += (int) $l->personnes;
-            $parType[$etat] = ($parType[$etat] ?? 0) + 1;
+            $parType[$etat]++;
             $cle = substr($date, 0, 7);
             if (isset($mois[$cle])) {
-                $mois[$cle][$etat]++;
-                $mois[$cle]['total']++;
+                $mois[$cle][$etat] += 1;
+                $mois[$cle]['total'] += 1;
             }
             if ((new DateTimeImmutable($date))->format('N') === '6') {
                 $samedisOccupes++;
@@ -89,7 +92,8 @@ final class Statistiques
         }
 
         foreach ($mois as $cle => $m) {
-            $mois[$cle]['libres'] = max(0, $m['jours'] - $m['total']); // US-702-P4
+            $m['libres'] = max(0, $m['jours'] - $m['total']); // US-702-P4
+            $mois[$cle] = $m;
         }
         $jours = (int) $debut->diff($fin)->days + 1;
         $samedis = 0;
