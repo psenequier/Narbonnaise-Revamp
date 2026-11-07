@@ -7,6 +7,11 @@
     $deg = fn (?float $v) => $v === null ? '–' : str_replace('-', '−', (string) round($v)).'°';
     $coord = fn (string $v) => str_replace('.', ',', $v);
     $lien = 'flex h-11 items-center rounded-[10px] border-[1.5px] border-sapin px-4 text-sm font-bold text-sapin no-underline';
+    // Échelle européenne du risque d'avalanche, gardée malgré la charte (décision du 7 nov. 2026).
+    $echelle = [1 => ['#CCFF66', 'bg-[#CCFF66] text-encre'], 2 => ['#FFFF00', 'bg-[#FFFF00] text-encre'], 3 => ['#FF9900', 'bg-[#FF9900] text-encre'], 4 => ['#FF0000', 'bg-[#FF0000] text-white'], 5 => ['#23302A', 'bg-encre text-white']];
+    $noms = \App\Domain\Meteo\BulletinAvalanche::NOMS;
+    $massif = $bra !== null && $bra['massif'] !== '' ? $bra['massif'] : 'Belledonne';
+    $heure = fn (string $iso) => \Carbon\Carbon::parse($iso)->timezone('Europe/Paris')->format('d/m à H\\hi');
 @endphp
 @section('contenu')
 <h1 class="sr-only">Météo et neige au Recoin</h1>
@@ -74,13 +79,6 @@
 @endif
 
 {{-- US-708, US-709 : bulletin d'avalanche de Météo-France, massif réglable (Belledonne). --}}
-@php
-    // Échelle européenne du risque d'avalanche, gardée malgré la charte (décision du 7 nov. 2026).
-    $echelle = [1 => ['#CCFF66', 'bg-[#CCFF66] text-encre'], 2 => ['#FFFF00', 'bg-[#FFFF00] text-encre'], 3 => ['#FF9900', 'bg-[#FF9900] text-encre'], 4 => ['#FF0000', 'bg-[#FF0000] text-white'], 5 => ['#23302A', 'bg-encre text-white']];
-    $noms = \App\Domain\Meteo\BulletinAvalanche::NOMS;
-    $massif = $bra !== null && $bra['massif'] !== '' ? $bra['massif'] : 'Belledonne';
-    $heure = fn (string $iso) => \Carbon\Carbon::parse($iso)->timezone('Europe/Paris')->format('d/m à H\\hi');
-@endphp
 <div class="flex flex-wrap gap-5">
     <section class="flex flex-[1_1_380px] flex-col gap-3.5 rounded-2xl border border-bord bg-white p-6" aria-labelledby="avalanche" data-avalanche>
         <div class="flex flex-wrap items-baseline justify-between gap-2.5">

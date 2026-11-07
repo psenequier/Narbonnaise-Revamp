@@ -85,20 +85,18 @@ it('US-708-P4 lit le bulletin côté serveur au plus une fois par heure, sans ja
     expect($appels())->toBe(2);
 });
 
-it('US-708-N1 affiche « Pas de bulletin d\'avalanche en ce moment » sans clé, hors saison ou bulletin échu', function (callable $preparer) {
-    $preparer();
+it('US-708-N1 affiche « Pas de bulletin d\'avalanche en ce moment » sans clé, hors saison ou bulletin échu', function (string $cas) {
+    match ($cas) {
+        'sans clé' => config(['services.meteofrance.cle' => null]),
+        'hors saison' => null,
+        'échu' => null,
+    };
+    simulerBra($cas === 'échu' ? braXml([], echeance: '2026-12-17T16:00:00') : ($cas === 'hors saison' ? '' : null), $cas === 'hors saison' ? 404 : 200);
 
     $this->actingAs($this->membre)->get('/meteo')->assertOk()
         ->assertSee('Pas de bulletin d\'avalanche en ce moment')
         ->assertSee('href="https://meteofrance.com/meteo-montagne/alpes-du-nord/risques-avalanche"', false);
-})->with([
-    'sans clé' => fn () => function () {
-        config(['services.meteofrance.cle' => null]);
-        Http::fake(['api.open-meteo.com/*' => Http::response('', 503), 'mto38.free.fr/*' => Http::response('', 503)]);
-    },
-    'hors saison (404)' => fn () => fn () => simulerBra('', 404),
-    'bulletin échu depuis plus de 24 h' => fn () => fn () => simulerBra(braXml([], echeance: '2026-12-17T16:00:00')),
-]);
+})->with(['sans clé', 'hors saison', 'échu']);
 
 it('US-708-N1 n\'appelle pas Météo-France sans clé', function () {
     config(['services.meteofrance.cle' => '']);
