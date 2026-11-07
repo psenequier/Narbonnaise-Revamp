@@ -5,6 +5,7 @@
 @push('tete')<link rel="stylesheet" href="{{ route('lignees.css') }}">@endpush
 @php($lettres = ['L', 'M', 'M', 'J', 'V', 'S', 'D'])
 @section('contenu')
+<div hidden data-vue-saison></div>
 <div class="flex flex-wrap items-center gap-3">
     <h1 class="mr-auto font-display text-[30px] font-bold tracking-tight">Saison {{ $saison }}</h1>
     <div class="flex gap-1.5">

@@ -53,12 +53,26 @@ function demarrerInfobulle() {
     });
     document.addEventListener('focusout', cacher);
     addEventListener('scroll', cacher, { passive: true });
+    // Écran tactile : toucher ailleurs ferme la bulle.
+    document.addEventListener('touchstart', (e) => {
+        if (!e.target.closest?.('[data-infobulle]')) {
+            cacher();
+        }
+    }, { passive: true });
+
+    return { montrer, cacher };
 }
 
 function demarrer() {
-    demarrerInfobulle();
+    const infobulle = demarrerInfobulle();
+    // Pas de vue saison sur téléphone (6 nov.) : on bascule sur la vue mois.
+    if (document.querySelector('[data-vue-saison]') && matchMedia('(max-width: 599px)').matches) {
+        location.replace('/calendrier');
+        return;
+    }
     const popup = document.getElementById('popup-reservation');
-    const creneaux = () => Array.from(document.querySelectorAll('[data-rang]'));
+    // Seuls les créneaux affichés comptent : la grille (ordinateur) et la liste (téléphone) coexistent dans la page.
+    const creneaux = () => Array.from(document.querySelectorAll('[data-rang]')).filter((e) => e.offsetParent !== null);
     if (!popup || creneaux().length === 0) {
         return;
     }
@@ -81,6 +95,7 @@ function demarrer() {
     const fermerBarre = () => {
         barre?.remove();
         barre = null;
+        document.body.classList.remove('avec-barre');
     };
     const toutEffacer = () => {
         debut = null;
@@ -99,19 +114,21 @@ function demarrer() {
         barre.className = 'barre-selection';
         barre.setAttribute('role', 'status');
         const texte = document.createElement('span');
-        texte.textContent = `1 créneau : ${el.dataset.label} · cliquez sur un autre créneau pour choisir une période`;
+        const court = matchMedia('(max-width: 639px)').matches;
+        texte.textContent = court ? `${el.dataset.label.replace(' (journée)', ' J').replace(' (nuit)', ' N')} → touchez la fin` : `1 créneau : ${el.dataset.label} · cliquez sur un autre créneau pour choisir une période`;
         const reserver = document.createElement('button');
         reserver.type = 'button';
-        reserver.className = 'h-[38px] rounded-lg bg-white px-3.5 font-bold text-encre';
-        reserver.textContent = 'Réserver ce créneau';
+        reserver.className = 'bg-white text-encre';
+        reserver.textContent = court ? 'Réserver' : 'Réserver ce créneau';
         reserver.onclick = () => ouvrirPopup([el]);
         const annuler = document.createElement('button');
         annuler.type = 'button';
-        annuler.className = 'h-[38px] rounded-lg px-3.5 font-bold text-bord';
+        annuler.className = 'text-bord';
         annuler.textContent = 'Annuler';
         annuler.onclick = toutEffacer;
         barre.append(texte, reserver, annuler);
         document.body.appendChild(barre);
+        document.body.classList.add('avec-barre');
     };
 
     const form = popup.querySelector('form');
@@ -192,7 +209,12 @@ function demarrer() {
             return;
         }
         if (el.dataset.dispo === 'non') {
-            message(RAISONS[el.dataset.etat] ?? 'Ce créneau ne peut plus être réservé (date passée).');
+            // Une réservation d'un autre membre : on montre son détail (utile au toucher, sans survol).
+            if (el.dataset.qui) {
+                infobulle.montrer(el);
+            } else {
+                message(RAISONS[el.dataset.etat] ?? 'Ce créneau ne peut plus être réservé (date passée).');
+            }
             return;
         }
         const k = rang(el);
