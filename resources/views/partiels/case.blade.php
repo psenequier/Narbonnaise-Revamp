@@ -2,7 +2,7 @@
      Libellé écrit, jamais la couleur seule (US-201-N3) ; tout le détail dans l'infobulle. --}}
 @php($s = $a->situation)
 @php($etat = $s->etat)
-<div class="case case-{{ $etat->value }} {{ $a->classeLignee() }} {{ $a->dispo === 'non' && $etat->reservable() ? 'case-passe' : '' }}"
+<div class="case case-{{ $etat->value }} {{ $a->dispo === 'non' && $etat->reservable() ? 'case-passe' : '' }}"
      data-etat="{{ $etat->value }}" data-rang="{{ $a->rang }}" data-cle="{{ $s->cle() }}" data-dispo="{{ $a->dispo }}"
      data-label="{{ $a->libelleDate }}" data-qui="{{ $a->qui }}" data-infobulle="{{ $a->infobulleTexte() }}"
      @include('partiels.attributs-mienne')

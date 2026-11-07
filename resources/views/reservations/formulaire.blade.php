@@ -47,7 +47,7 @@
                                @checked(in_array($cle, $coches, true)) @disabled(! $disponibles[$cle])>
                         {{-- Réservant, nombre et début du commentaire (sur ordinateur), tout le détail au survol. --}}
                         @php($a = new \App\Domain\Calendrier\AffichageCreneau($situations[$cle], \App\Http\Controllers\CalendrierController::aujourdhui(), (int) auth()->id()))
-                        <span class="case case-{{ $a->situation->etat->value }} {{ $a->classeLignee() }} min-w-0 flex-1 cursor-default" data-etat="{{ $a->situation->etat->value }}" data-infobulle="{{ $a->infobulleTexte() }}">
+                        <span class="case case-{{ $a->situation->etat->value }} min-w-0 flex-1 cursor-default" data-etat="{{ $a->situation->etat->value }}" data-infobulle="{{ $a->infobulleTexte() }}">
                             <span class="sr-only">{{ $a->situation->creneau->type->libelle() }} : {{ $a->situation->etat->libelle() }}{{ $a->quiComplet !== '' ? ', '.$a->quiComplet : '' }}</span>
                             <span class="flex min-w-0 items-center gap-1" aria-hidden="true">
                                 <span class="font-bold opacity-70">{{ $t }}</span>

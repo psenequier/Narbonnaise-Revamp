@@ -44,7 +44,7 @@
                     <span class="text-sm font-bold">{{ ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'][(int) $jour->format('N') - 1] }} {{ $jour->format('j') }}</span>
                     @foreach (['J', 'N'] as $t)
                         @php($a = $affichages[$jour->format('Y-m-d').'-'.$t])
-                        <span class="case case-{{ $a->situation->etat->value }} {{ $a->classeLignee() }} min-h-9 text-xs font-bold"><span class="truncate">{{ $t }} · {{ $a->libelle() !== '' ? $a->libelle() : 'Libre' }}{{ $a->personnes !== null ? ' · '.$a->personnes : '' }}</span></span>
+                        <span class="case case-{{ $a->situation->etat->value }} min-h-9 text-xs font-bold"><span class="truncate">{{ $t }} · {{ $a->libelle() !== '' ? $a->libelle() : 'Libre' }}{{ $a->personnes !== null ? ' · '.$a->personnes : '' }}</span></span>
                     @endforeach
                 </a>
             @endforeach
@@ -71,7 +71,7 @@
                     @foreach (['J' => 3, 'N' => 4] as $type => $rangee)
                         @php($ligne = array_map(fn ($jour) => $affichages[$jour->format('Y-m-d').'-'.$type], $jours))
                         @foreach (\App\Domain\Calendrier\AffichageCreneau::barres($ligne) as $b)
-                            <span aria-hidden="true" class="barre barre-{{ $b['etat'] }} {{ $b['classe'] }} row-start-{{ $rangee }} col-start-{{ $b['debut'] }} col-span-{{ $b['longueur'] }} {{ $b['longueur'] === 1 ? 'items-center px-0 text-center' : '' }}">
+                            <span aria-hidden="true" class="barre barre-{{ $b['etat'] }} row-start-{{ $rangee }} col-start-{{ $b['debut'] }} col-span-{{ $b['longueur'] }} {{ $b['longueur'] === 1 ? 'items-center px-0 text-center' : '' }}">
                                 @php($symbole = $b['lignee'] !== null ? ($symboles[$b['lignee']] ?? '') : '')
                                 @if ($b['l1'] !== '' || $symbole !== '')<span class="truncate text-[13px] font-bold">{{ trim($symbole.' '.$b['l1']) }}</span>@endif
                                 @if ($b['l2'] !== '')<span class="truncate text-[12px] font-normal {{ $b['longueur'] === 1 ? '' : 'italic' }} opacity-90">{{ $b['l2'] }}</span>@endif

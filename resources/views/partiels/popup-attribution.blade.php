@@ -16,7 +16,7 @@
             @foreach ($lignees as $l)
                 <label class="flex cursor-pointer items-center gap-2 rounded-[10px] border border-bord-fort p-2.5 text-sm font-semibold">
                     <input type="radio" name="lignee_id" value="{{ $l->id }}" required @checked($loop->first)>
-                    <span class="case case-attribue {{ \App\Domain\Calendrier\AffichageCreneau::classeCouleur((string) $l->couleur) }} min-h-0 w-8 items-center px-0 text-center" aria-hidden="true">{{ $symboles[$l->nom] ?? '' }}</span>
+                    <span class="case case-attribue min-h-0 w-8 items-center px-0 text-center" aria-hidden="true">{{ $symboles[$l->nom] ?? '' }}</span>
                     {{ $l->nom }}
                 </label>
             @endforeach

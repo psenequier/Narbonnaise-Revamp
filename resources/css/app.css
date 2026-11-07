@@ -20,7 +20,7 @@
     --color-principale-clair: #E6EFE8;
     --color-accent: #A8D3E6;            /* ciel : réservation ouverte (texte lichen dessus) */
     --color-prairie: #8BBF7E; --color-genepi: #F2D06B; --color-rhododendron: #F2B5C4;
-    --color-texte: #23302A;             /* lichen ; aussi fond des réservations exclusives */
+    --color-texte: #23302A;             /* lichen ; aussi fond des créneaux attribués */
     --color-fond: #F3F7F0;
     --color-surface: #FFFFFF;
     --color-cabine: #E0461F;            /* illustration seulement */
@@ -66,8 +66,8 @@
     .creneau { @apply relative flex min-h-11 items-center gap-1 rounded-md border px-2 text-xs font-bold; }
     .creneau-libre { @apply border-bord bg-white text-encre; }
     .creneau-ouverte { @apply border-ouverte-bord bg-ouverte text-ouverte-texte; }
-    .creneau-exclusive { @apply border-encre bg-encre text-white; }
-    .creneau-attribue { @apply border-alerte bg-alerte-fond text-alerte; }
+    .creneau-exclusive { @apply border-genepi bg-genepi text-encre; }
+    .creneau-attribue { @apply border-encre bg-encre text-white; }
     .creneau-attente { @apply border-gris-300 border-dashed bg-white text-alerte; }
     .creneau-ferme { @apply border-gris bg-fond text-gris line-through; }
     .creneau-pas-ouvert { @apply border-bord border-dotted bg-fond text-gris; }
@@ -75,16 +75,18 @@
 }
 
 /*
- * Vues mois et saison (maquettes Main et Saison). Les couleurs de lignée viennent
- * de /lignees.css (classes « lc-xxxxxx ») : aucun style en ligne (politique de sécurité).
+ * Vues mois et saison (maquettes Main et Saison). Une couleur par état : un créneau
+ * attribué a la même couleur quelle que soit la lignée, nommée dans la case. Couleurs par
+ * criticité croissante (décision du 7 nov. 2026) : ouverte ciel, exclusive génépi, attribuée lichen.
+ * Les couleurs de lignée (/lignees.css) ne sont plus utilisées dans le calendrier ni dans la pop-up d'attribution.
  */
 @layer components {
     /* Écart assumé à la charte (16 px minimum) : les créneaux du mois restent en 12,5 px pour lire le nom et le commentaire (demande de Pascal, 5 nov.). */
     .case { @apply relative flex min-h-9 cursor-pointer flex-col justify-center gap-px overflow-hidden rounded-md border px-1.5 py-1 text-[12.5px] leading-tight font-medium tracking-tight whitespace-nowrap; }
     .case-libre, .barre-libre { @apply border-gris-200 bg-white text-gris-clair; }
     .case-ouverte { @apply border-ouverte-bord bg-ouverte text-ouverte-texte; }
-    .case-exclusive, .barre-exclusive { @apply cursor-not-allowed border-encre bg-encre text-white; }
-    .case-attribue, .barre-attribue { @apply cursor-not-allowed border-alerte bg-alerte-fond text-alerte; }
+    .case-exclusive, .barre-exclusive { @apply cursor-not-allowed border-genepi bg-genepi text-encre; }
+    .case-attribue, .barre-attribue { @apply cursor-not-allowed border-encre bg-encre text-white; }
     .case-attente, .barre-attente { @apply cursor-not-allowed border-gris-200 bg-gris-100 text-gris-600; }
     .case-ferme, .barre-ferme { @apply cursor-not-allowed border-gris bg-fond text-gris line-through; }
     .case-pas-ouvert, .barre-pas-ouvert { @apply cursor-not-allowed border-dotted border-bord bg-fond text-gris; }
