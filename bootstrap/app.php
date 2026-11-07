@@ -18,10 +18,16 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         // US-602-P1 : un compte désactivé est déconnecté à la requête suivante.
         $middleware->appendToGroup('web', \App\Http\Middleware\CompteActif::class);
+        // US-910-P2 : les visites vérifient aussi que le planificateur tourne (après la réponse).
+        $middleware->append(\App\Http\Middleware\SurveillancePlanificateur::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // A10 (OWASP 2025) : aucune trace technique n'est montrée aux membres.
         $exceptions->dontFlash(['password', 'password_confirmation', 'current_password']);
+        // US-910-P1 : toute exception signalée (pas les 404, refus ou erreurs de saisie) prévient les admins.
+        $exceptions->report(function (Throwable $e): void {
+            app(\App\Domain\Surveillance\AlertesPanne::class)->exception($e);
+        });
     })
     ->create();
 

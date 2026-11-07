@@ -62,6 +62,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/plages/{plage}', [VacancesController::class, 'modifier'])->name('plages.modifier');
         Route::delete('/plages/{plage}', [VacancesController::class, 'retirer'])->name('plages.retirer');
         Route::put('/periodes/{periode}', [VacancesController::class, 'corriger'])->name('periodes.corriger');
+        Route::post('/vacances/relire', [VacancesController::class, 'relire'])->middleware('throttle:5,10')->name('vacances.relire');
+        Route::post('/vacances/saisir', [VacancesController::class, 'saisir'])->name('vacances.saisir');
         Route::post('/conflits/{reservation}', [VacancesController::class, 'arbitrer'])->name('conflits.arbitrer');
 
         Route::get('/utilisateurs', [UtilisateursController::class, 'index'])->name('utilisateurs');

@@ -23,6 +23,8 @@ final class PeriodesScolaires
 {
     private const NOMS = ['noel', 'hiver'];
 
+    public const CONSULTATION = 'vacances.consultation';
+
     public function __construct(
         private readonly SourceCalendrierScolaire $source,
         private readonly CalculPeriodes $calcul,
@@ -61,8 +63,71 @@ final class PeriodesScolaires
         if ($echecs !== []) {
             $this->annonces->alerterAdmins('admin.source_vacances', 'Le calendrier scolaire officiel n\'a pas pu être lu. Rien n\'a été modifié.', $echecs);
         }
+        // Affichée sur l'écran Vacances : date et résultat de la dernière lecture.
+        Journal::ecrire(self::CONSULTATION, null, ['echecs' => $echecs]);
 
         return $echecs;
+    }
+
+    /** @return array{le: \Illuminate\Support\Carbon, echecs: list<string>}|null */
+    public static function derniereConsultation(): ?array
+    {
+        /** @var Journal|null $ligne */
+        $ligne = Journal::query()->where('action', self::CONSULTATION)->orderByDesc('id')->first();
+        if ($ligne === null) {
+            return null;
+        }
+        /** @var array{echecs?: list<string>} $details */
+        $details = $ligne->details ?? [];
+
+        return ['le' => $ligne->cree_le, 'echecs' => $details['echecs'] ?? []];
+    }
+
+    /**
+     * Saisie à la main des vacances d'une année (source officielle muette ou en retard) :
+     * les deux périodes sont enregistrées comme corrigées à la main (US-408), puis l'année
+     * s'ouvre (US-402) si elle ne l'est pas déjà. Renvoie vrai si l'année vient d'ouvrir.
+     *
+     * @param  array{noel: array{0: string, 1: string}, hiver: array{0: string, 1: string}}  $dates  première nuit, dernier jour
+     */
+    public function saisirAnnee(string $libelle, array $dates, User $admin): bool
+    {
+        if (preg_match('/^(\d{4})-(\d{4})$/', $libelle, $m) !== 1 || (int) $m[2] !== (int) $m[1] + 1) {
+            throw new RefusVacances('Écrivez l\'année scolaire sous la forme 2027-2028.');
+        }
+        $debutAnnee = "{$m[1]}-09-01";
+        $finAnnee = "{$m[2]}-08-31";
+        foreach (self::NOMS as $nom) {
+            [$debut, $fin] = $dates[$nom];
+            $libellePeriode = $nom === 'noel' ? 'Noël' : 'Février';
+            if (DateTimeImmutable::createFromFormat('!Y-m-d', $debut) === false || DateTimeImmutable::createFromFormat('!Y-m-d', $fin) === false) {
+                throw new RefusVacances("{$libellePeriode} : dates illisibles.");
+            }
+            if ($fin <= $debut) {
+                throw new RefusVacances("{$libellePeriode} : la date de fin doit être postérieure à la date de début.");
+            }
+            if ($debut < $debutAnnee || $fin > $finAnnee) {
+                throw new RefusVacances("{$libellePeriode} : les dates doivent être dans l'année scolaire {$libelle} (du 1er septembre au 31 août).");
+            }
+        }
+
+        $annee = AnneeScolaire::query()->firstOrCreate(['libelle' => $libelle], ['debut' => $debutAnnee, 'fin' => $finAnnee]);
+        foreach (self::NOMS as $nom) {
+            [$debut, $fin] = $dates[$nom];
+            /** @var PeriodeVacances|null $connue */
+            $connue = $annee->periodes()->where('nom', $nom)->first();
+            if ($connue !== null) {
+                $this->corriger($connue, $debut, $fin, $admin);
+
+                continue;
+            }
+            /** @var PeriodeVacances $creee */
+            $creee = $annee->periodes()->create(['nom' => $nom, 'premiere_nuit' => $debut, 'dernier_jour' => $fin, 'source_empreinte' => '']);
+            $creee->forceFill(['manuelle' => true, 'corrigee_par' => $admin->id])->save();
+            Journal::ecrire('periode.saisie', $creee, ['apres' => self::dates($creee)]);
+        }
+
+        return $this->ouvrirSiPossible($annee->refresh(), $admin);
     }
 
     public function synchroniserAnnee(string $libelle): void

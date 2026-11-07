@@ -26,6 +26,10 @@ return [
     // Bascule (US-805) : sauvegarde complète et export GRR, chiffrés en AES-256 avec ce mot de passe
     // (le même que les sauvegardes quotidiennes). Vide ou trop court : la bascule s'arrête.
     'export_mot_de_passe' => env('BACKUP_ARCHIVE_PASSWORD', ''),
+    // US-910 : e-mail aux admins à chaque panne (exception, planificateur arrêté, sauvegarde en échec).
+    // Coupé dans les tests (phpunit.xml) ; un test le rallume pour vérifier l'alerte.
+    'alertes_panne' => (bool) env('ALERTES_PANNE', true),
+
     // Dossier des archives, hors du dossier publié ; vide = storage/app/exports.
     'dossier_exports' => env('EXPORTS_DOSSIER', ''),
 ];

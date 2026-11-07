@@ -20,7 +20,7 @@
         @elseif ($etat === \App\Domain\Calendrier\EtatCreneau::Attente)
             <p class="text-sm">Vacances scolaires : en attente d'attribution par les admins.</p>
         @elseif ($etat === \App\Domain\Calendrier\EtatCreneau::PasOuvert)
-            <p class="text-sm">Pas encore ouvert : l'année scolaire s'ouvre quand les vacances de Noël et de février sont attribuées.</p>
+            <p class="text-sm">Pas encore ouvert : l'année scolaire s'ouvre dès que les dates de ses vacances de Noël et de février sont connues.</p>
         @elseif ($etat === \App\Domain\Calendrier\EtatCreneau::Ferme)
             <p class="text-sm">L'appartement est fermé ce jour-là.</p>
         @elseif ($situation->reservations === [])

@@ -31,8 +31,8 @@
 
     @if ($pasOuvert)
         <p role="note" class="rounded-lg border border-bord bg-white p-3 text-sm">
-            <strong>Pas encore ouvert :</strong> une année scolaire s'ouvre à la réservation quand les admins ont attribué
-            les vacances de Noël et de février. En attendant, ces dates ne peuvent pas être réservées.
+            <strong>Pas encore ouvert :</strong> une année scolaire s'ouvre à la réservation dès que les dates
+            de ses vacances de Noël et de février sont connues. En attendant, ces dates ne peuvent pas être réservées.
         </p>
     @endif
 

@@ -34,6 +34,15 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
+        // US-909-N3 : une sauvegarde, son nettoyage ou son contrôle en échec prévient les admins.
+        $alertes = fn () => app(\App\Domain\Surveillance\AlertesPanne::class);
+        \Illuminate\Support\Facades\Event::listen(\Spatie\Backup\Events\BackupHasFailed::class,
+            fn (\Spatie\Backup\Events\BackupHasFailed $e) => $alertes()->sauvegarde('la sauvegarde de la nuit a échoué', $e->exception->getMessage()));
+        \Illuminate\Support\Facades\Event::listen(\Spatie\Backup\Events\CleanupHasFailed::class,
+            fn (\Spatie\Backup\Events\CleanupHasFailed $e) => $alertes()->sauvegarde('le nettoyage des anciennes sauvegardes a échoué', $e->exception->getMessage()));
+        \Illuminate\Support\Facades\Event::listen(\Spatie\Backup\Events\UnhealthyBackupWasFound::class,
+            fn (\Spatie\Backup\Events\UnhealthyBackupWasFound $e) => $alertes()->sauvegarde('la dernière sauvegarde est absente ou trop ancienne', $e->failureMessages->pluck('message')->implode(' ; ')));
+
         // 12 caractères, complexité, et refus des mots de passe divulgués (HIBP, k-anonymat).
         Password::defaults(fn () => Password::min(12)->mixedCase()->numbers()->symbols()->uncompromised());
     }
