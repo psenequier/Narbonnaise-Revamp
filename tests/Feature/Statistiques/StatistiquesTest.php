@@ -211,7 +211,7 @@ it('US-703-P2 « Depuis le début » compte de la première occupation à aujour
         ->assertSee('week-ends depuis le début')
         ->assertSee('Nuits occupées par année')
         ->assertSeeInOrder(['<tr data-mois="2024"><th scope="row">2024</th><td>3</td>', '<tr data-mois="2025">', '<tr data-mois="2026"><th scope="row">2026</th><td>2</td>', '<tr data-mois="2027">'], false)
-        ->assertSee('aria-current="page" class="flex min-h-11 items-center whitespace-nowrap rounded-lg px-2.5 sm:px-3.5 bg-white font-bold">Depuis le début', false)
+        ->assertSeeInOrder(['Année civile</a>', 'aria-current="page"', 'bg-white font-bold">Depuis le début</a>'], false)
         ->assertDontSee('name="saison"', false);
 
     expect(Statistiques::parAnnee(stats()->periode(new DateTimeImmutable('2024-12-20'), new DateTimeImmutable('2027-04-20'))['mois']))
