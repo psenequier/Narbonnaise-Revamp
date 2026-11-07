@@ -28,7 +28,7 @@ final class AttributionsReprises
      *
      * @throws RefusVacances si la plage chevauche une autre attribution
      */
-    public function valider(object $proposition, int $lignee, User $par, bool $annoncer = true): bool
+    public function valider(\stdClass $proposition, int $lignee, User $par, bool $annoncer = true): bool
     {
         $cles = self::cles($proposition);
         $periode = self::periode($cles[0]);
@@ -82,7 +82,7 @@ final class AttributionsReprises
     }
 
     /** @return list<string> clés triées (« 2026-12-19-N », …) */
-    private static function cles(object $proposition): array
+    private static function cles(\stdClass $proposition): array
     {
         /** @var list<string> $cles */
         $cles = json_decode((string) $proposition->creneaux, true, flags: JSON_THROW_ON_ERROR);
