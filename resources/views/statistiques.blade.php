@@ -20,7 +20,7 @@
 <div class="flex flex-wrap items-center gap-3" data-statistiques>
     <div class="mr-auto flex flex-col gap-1">
         <h1 class="text-2xl font-extrabold">Occupation de l'appartement</h1>
-        <p class="text-sm text-gris">{{ $parLignee === null ? 'Chiffres pour l\'appartement uniquement, jamais par famille ni par personne.' : 'Chiffres pour l\'appartement, et par lignée pour vous seul ; jamais par personne.' }}</p>
+        <p class="text-sm text-gris">{{ $parLignee === null ? 'Chiffres pour l\'appartement uniquement, jamais par famille ni par personne.' : 'Chiffres pour l\'appartement, et par lignée et par membre pour vous seul.' }}</p>
         <p class="text-sm font-bold text-sapin" data-periode>
             @if ($vue === 'tout')
                 Depuis le début · du {{ $date($bornes['debut']) }} (première réservation reprise) à aujourd'hui
@@ -159,6 +159,54 @@
             </div>
         @endforeach
         <p class="text-xs text-gris">Les membres sans lignée sont comptés dans « Sans lignée » : leur lignée se choisit sur leur fiche, dans Admin → Utilisateurs.</p>
+    </section>
+@endif
+
+@if ($parMembre !== null)
+    {{-- US-712 (ADR 019) : mêmes comptes que l'encadré par lignée ; jamais l'adresse e-mail. --}}
+    @php($maxMembre = max(1, ...array_column($parMembre, 'total')))
+    @php($symboles = [['●', 'text-[#5E9E52]'], ['■', 'text-[#D9879C]'], ['▲', 'text-[#C9A227]']])
+    <section class="flex flex-col gap-3.5 rounded-2xl border-2 border-sapin bg-white p-5" aria-labelledby="par-membre" data-par-membre>
+        <div class="flex flex-wrap items-center justify-between gap-2.5">
+            <h2 id="par-membre" class="text-lg font-extrabold">Par membre</h2>
+            <span class="rounded-full bg-sapin-clair px-2.5 py-1 text-xs font-bold text-sapin">🔒 Visible par vous seul</span>
+        </div>
+        <p class="text-sm text-gris">Même période. Nuits réservées par chaque membre, ouvertes et exclusives ; les vacances attribuées ne comptent que pour la lignée, plus haut. Du plus grand nombre de nuits au plus petit.</p>
+        @if ($parMembre === [])
+            <p class="text-sm text-gris">Aucune réservation sur la période.</p>
+        @else
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[640px] border-collapse text-sm">
+                    <thead><tr class="text-xs text-gris">
+                        <th scope="col" class="px-2 py-1.5 text-left">Membre</th><th scope="col" class="px-2 py-1.5 text-left">Lignée</th><th scope="col" class="px-2 py-1.5"><span class="sr-only">Répartition</span></th>
+                        <th scope="col" class="px-2 py-1.5 text-right">Nuits</th><th scope="col" class="px-2 py-1.5 text-right">Ouv. · Excl.</th><th scope="col" class="px-2 py-1.5 text-right">Nuitées-pers.</th><th scope="col" class="px-2 py-1.5 text-right">Réservations</th>
+                    </tr></thead>
+                    <tbody>
+                        @foreach ($parMembre as $m)
+                            @php($symbole = $m['rang'] >= 0 ? $symboles[$m['rang'] % 3] : ['○', 'text-gris'])
+                            <tr class="border-t border-bord" data-membre>
+                                <th scope="row" class="whitespace-nowrap px-2 py-2.5 text-left font-bold">{{ $m['nom'] }}</th>
+                                <td class="whitespace-nowrap px-2 py-2.5">@if ($m['lignee'] !== null)<span aria-hidden="true" class="{{ $symbole[1] }}">{{ $symbole[0] }}</span> {{ $m['lignee'] }}@else<span class="text-gris">Sans lignée</span>@endif</td>
+                                <td class="min-w-[140px] px-2 py-2.5">
+                                    <svg viewBox="0 0 100 12" preserveAspectRatio="none" class="h-3 w-full" aria-hidden="true">
+                                        <rect width="100" height="12" rx="4" fill="#E6EFE8"/>
+                                        @php($wo = round($m['ouverte'] / $maxMembre * 100, 2))
+                                        @php($we = round($m['exclusive'] / $maxMembre * 100, 2))
+                                        @if ($wo > 0)<rect width="{{ $wo }}" height="12" fill="{{ $couleurs['ouverte'] }}"/>@endif
+                                        @if ($we > 0)<rect x="{{ $wo }}" width="{{ $we }}" height="12" fill="{{ $couleurs['exclusive'] }}"/>@endif
+                                    </svg>
+                                </td>
+                                <td class="px-2 py-2.5 text-right font-extrabold">{{ $m['total'] }}</td>
+                                <td class="px-2 py-2.5 text-right">{{ $m['ouverte'] }} · {{ $m['exclusive'] }}</td>
+                                <td class="px-2 py-2.5 text-right">{{ $m['personnes'] }}</td>
+                                <td class="px-2 py-2.5 text-right">{{ $m['reservations'] }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+        <p class="text-xs text-gris">Comptes supprimés : prénom seul.</p>
     </section>
 @endif
 @endsection

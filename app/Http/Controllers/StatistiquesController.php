@@ -66,6 +66,7 @@ final class StatistiquesController
             'saisons' => $saisons,
             // US-711-N1 (ADR 019) : calculé et envoyé à la vue pour les seuls comptes désignés.
             'parLignee' => Gate::allows('statistiques-lignees') ? $parLignee->periode($bornes['debut'], $bornes['fin']) : null,
+            'parMembre' => Gate::allows('statistiques-lignees') ? $parLignee->parMembre($bornes['debut'], $bornes['fin']) : null,
         ]);
     }
 }

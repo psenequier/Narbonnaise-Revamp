@@ -8,7 +8,7 @@ use DateTimeImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Occupation par lignée (US-711, ADR 019), pour les seuls comptes désignés : la vérification
+ * Occupation par lignée (US-711) et par membre (US-712), ADR 019, pour les seuls comptes désignés : la vérification
  * d'accès est faite par l'appelant (porte « statistiques-lignees »). Volontairement hors du
  * module Statistiques, qui ne lit que v_occupation (ADR 012).
  *
@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\DB;
  *
  * @phpstan-type Ligne array{nom: string, rang: int, ouverte: int, exclusive: int, attribuee: int, total: int, personnes: int, reservations: int}
  * @psalm-type Ligne = array{nom: string, rang: int, ouverte: int, exclusive: int, attribuee: int, total: int, personnes: int, reservations: int}
+ * @phpstan-type Membre array{nom: string, lignee: string|null, rang: int, ouverte: int, exclusive: int, total: int, personnes: int, reservations: int}
+ * @psalm-type Membre = array{nom: string, lignee: string|null, rang: int, ouverte: int, exclusive: int, total: int, personnes: int, reservations: int}
  */
 final class OccupationParLignee
 {
@@ -99,6 +101,67 @@ final class OccupationParLignee
                 $resultat[] = $l;
             }
         }
+
+        return $resultat;
+    }
+
+    /**
+     * US-712 : nuits réservées par membre (ouvertes, exclusives), hors vacances attribuées.
+     * Affiché « Prénom N. » ; un compte supprimé n'a plus de nom (prénom seul). Jamais l'e-mail.
+     *
+     * @return list<Membre> du plus grand nombre de nuits au plus petit
+     */
+    public function parMembre(DateTimeImmutable $debut, DateTimeImmutable $fin): array
+    {
+        $bornes = [$debut->format('Y-m-d'), $fin->format('Y-m-d')];
+        $rangs = [];
+        $rang = 0;
+        $noms = [];
+        foreach (DB::table('lignees')->orderBy('id')->get(['id', 'nom']) as $l) {
+            $rangs[(int) $l->id] = $rang++;
+            $noms[(int) $l->id] = (string) $l->nom;
+        }
+        $lignes = DB::table('reservation_creneau as rc')
+            ->join('reservations as r', 'r.id', '=', 'rc.reservation_id')
+            ->join('creneaux as c', 'c.id', '=', 'rc.creneau_id')
+            ->join('users as u', 'u.id', '=', 'r.user_id')
+            ->leftJoin('attributions as a', 'a.creneau_id', '=', 'c.id')
+            ->whereNull('r.annulee_le')->whereNull('a.id')
+            ->where('c.type', 'N')->whereBetween('c.date', $bornes)
+            ->get(['u.id as membre', 'u.prenom', 'u.nom', 'u.lignee_id', 'r.id as reservation', 'r.mode', 'r.nombre_personnes', 'c.id as creneau']);
+
+        /** @var array<int, array{fiche: Membre, creneaux: array<int, string>, reservations: array<int, true>}> $membres */
+        $membres = [];
+        foreach ($lignes as $l) {
+            $id = (int) $l->membre;
+            if (! isset($membres[$id])) {
+                $nom = trim((string) $l->prenom.' '.mb_substr(trim((string) $l->nom), 0, 1));
+                $ligneeId = $l->lignee_id === null ? null : (int) $l->lignee_id;
+                $membres[$id] = ['fiche' => [
+                    'nom' => mb_strlen($nom) > mb_strlen(trim((string) $l->prenom)) ? $nom.'.' : $nom,
+                    'lignee' => $ligneeId !== null ? ($noms[$ligneeId] ?? null) : null,
+                    'rang' => $ligneeId !== null ? ($rangs[$ligneeId] ?? -1) : -1,
+                    'ouverte' => 0, 'exclusive' => 0, 'total' => 0, 'personnes' => 0, 'reservations' => 0,
+                ], 'creneaux' => [], 'reservations' => []];
+            }
+            $membres[$id]['fiche']['personnes'] += (int) $l->nombre_personnes;
+            $membres[$id]['reservations'][(int) $l->reservation] = true;
+            if (($membres[$id]['creneaux'][(int) $l->creneau] ?? null) !== 'exclusive') {
+                $membres[$id]['creneaux'][(int) $l->creneau] = $l->mode === 'exclusive' ? 'exclusive' : 'ouverte';
+            }
+        }
+
+        $resultat = [];
+        foreach ($membres as $m) {
+            $compte = array_count_values($m['creneaux']);
+            $fiche = $m['fiche'];
+            $fiche['ouverte'] = $compte['ouverte'] ?? 0;
+            $fiche['exclusive'] = $compte['exclusive'] ?? 0;
+            $fiche['total'] = $fiche['ouverte'] + $fiche['exclusive'];
+            $fiche['reservations'] = count($m['reservations']);
+            $resultat[] = $fiche;
+        }
+        usort($resultat, fn (array $a, array $b) => [$b['total'], $a['nom']] <=> [$a['total'], $b['nom']]);
 
         return $resultat;
     }

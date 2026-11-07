@@ -279,7 +279,7 @@ it('US-711-N1 aucun autre compte, admin compris, ne voit l\'encadré ni un nom d
     expect($page)->not->toContain('data-par-lignee')->not->toContain('Lignée fictive')->not->toContain('Sans lignée');
 })->with(['membre', 'admin', 'réglage vide', 'compte désactivé']);
 
-it('US-711-N2 une réservation annulée ne compte pas, et aucun nom de membre n\'apparaît', function () {
+it('US-711-N2 une réservation annulée ne compte pas, et aucune adresse de membre n\'apparaît', function () {
     $this->membre->forceFill(['lignee_id' => $this->lignee->id])->save();
     occuper($this->membre, '2026-12-18', 3);
     occuper($this->membre, '2027-01-08', 5, annulee: true);
@@ -287,5 +287,37 @@ it('US-711-N2 une réservation annulée ne compte pas, et aucun nom de membre n\
     $page = $this->actingAs(compteDesigne())->get('/statistiques?saison=2026-2027')->assertOk()
         ->assertSeeInOrder(['Lignée fictive', '3 n.', '0 exclusives, 0 attribuées · 12 nuitées-personnes · 1 réservation'])
         ->getContent();
-    expect(substr((string) $page, (int) strpos((string) $page, '<main')))->not->toContain('Zoé')->not->toContain('Témoin')->not->toContain('zoe@example.test');
+    // Le prénom et l'initiale apparaissent dans « Par membre » (US-712), jamais le nom complet ni l'e-mail.
+    expect(substr((string) $page, (int) strpos((string) $page, '<main')))->not->toContain('Témoin')->not->toContain('zoe@example.test');
+});
+
+it('US-712-P1 liste au compte désigné les nuits réservées de chaque membre, du plus au moins', function () {
+    $this->membre->forceFill(['lignee_id' => $this->lignee->id])->save();
+    $autre = User::factory()->create(['prenom' => 'Hugo', 'nom' => 'Martin']);
+    $supprime = User::factory()->create(['prenom' => 'Léa', 'nom' => '', 'supprime_le' => now(), 'actif' => false]);
+    occuper($this->membre, '2026-12-18', 2, 'exclusive', personnes: 3);
+    occuper($autre, '2027-01-08', 4, personnes: 2);
+    occuper($autre, '2027-01-20', 1, personnes: 5);
+    occuper($supprime, '2027-03-01', 1, personnes: 1);
+    attribuerNuits($this->lignee, $this->admin, '2027-02-12', 4); // ne compte que pour la lignée
+
+    $this->actingAs(compteDesigne())->get('/statistiques?saison=2026-2027')->assertOk()
+        ->assertSee('Par membre')
+        ->assertSeeInOrder([
+            '>Hugo M.</th>', 'Sans lignée', '>5</td>', '>5 · 0</td>', '>13</td>', '>2</td>',
+            '>Zoé T.</th>', 'Lignée fictive', '>2</td>', '>0 · 2</td>', '>6</td>', '>1</td>',
+            '>Léa</th>', '>1</td>',
+        ], false);
+});
+
+it('US-712-N1 aucun autre compte ne voit l\'encadré par membre ; ni e-mail ni réservation annulée', function () {
+    occuper($this->membre, '2026-12-18', 3);
+    occuper($this->membre, '2027-01-08', 5, annulee: true);
+
+    $page = (string) $this->actingAs($this->admin)->get('/statistiques?saison=2026-2027')->getContent();
+    expect($page)->not->toContain('data-par-membre')->not->toContain('Zoé T.');
+
+    $page = (string) $this->actingAs(compteDesigne())->get('/statistiques?saison=2026-2027')
+        ->assertSeeInOrder(['>Zoé T.</th>', '>3</td>', '>3 · 0</td>', '>12</td>', '>1</td>'], false)->getContent();
+    expect($page)->not->toContain('zoe@example.test');
 });
