@@ -24,7 +24,6 @@ final class MeteoController
             'longitude' => $parametres->lire('station.longitude'),
             'altitude' => $parametres->lire('station.altitude'),
             'lienPistes' => $parametres->lire('station.bulletin_neige'),
-            'lienWebcams' => $parametres->lire('station.webcams'),
         ]);
     }
 }

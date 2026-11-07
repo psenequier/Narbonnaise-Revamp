@@ -75,7 +75,7 @@
         </div>
         {{-- SVG : la CSP interdit les styles en ligne ; chaque barre porte sa valeur écrite (US-702-P2). --}}
         <div class="overflow-x-auto">
-            <svg role="img" aria-labelledby="par-mois" viewBox="0 0 {{ $n * $pas }} {{ $hauteur + 50 }}" width="{{ $n * $pas }}" height="{{ $hauteur + 50 }}" class="mx-auto max-w-full" data-graphique>
+            <svg role="img" aria-labelledby="par-mois" viewBox="0 0 {{ $n * $pas }} {{ $hauteur + 50 }}" width="{{ $n * $pas }}" height="{{ $hauteur + 50 }}" class="mx-auto max-w-none" data-graphique>
                 @foreach ($p['mois'] as $i => $m)
                     @php($x = $i * $pas + $pas * 0.15)
                     @php($l = $pas * 0.7)

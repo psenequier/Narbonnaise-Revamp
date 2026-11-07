@@ -53,6 +53,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profil/google', [GoogleController::class, 'delier'])->name('profil.google.delier');
     Route::get('/statistiques', \App\Http\Controllers\StatistiquesController::class)->name('statistiques');
     Route::get('/meteo', \App\Http\Controllers\MeteoController::class)->name('meteo');
+    Route::get('/webcams', [\App\Http\Controllers\WebcamsController::class, 'index'])->name('webcams');
+    Route::get('/webcams/{cle}/image', [\App\Http\Controllers\WebcamsController::class, 'image'])->where('cle', '[a-z-]+')->name('webcams.image');
 
     Route::middleware('can:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::view('/', 'admin.accueil')->name('accueil');
