@@ -19,9 +19,9 @@ final class SurveillancePlanificateur
 {
     public function __construct(private readonly AlertesPanne $alertes) {}
 
+    /** @param Closure(Request): Response $next */
     public function handle(Request $request, Closure $next): Response
     {
-        /** @var Response */
         return $next($request);
     }
 

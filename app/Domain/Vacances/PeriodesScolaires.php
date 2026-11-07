@@ -80,7 +80,8 @@ final class PeriodesScolaires
         /** @var array{echecs?: list<string>} $details */
         $details = $ligne->details ?? [];
 
-        return ['le' => $ligne->cree_le, 'echecs' => $details['echecs'] ?? []];
+        // Relu brut : la date est enregistrée en UTC.
+        return ['le' => \Illuminate\Support\Carbon::parse((string) $ligne->getRawOriginal('cree_le'), 'UTC'), 'echecs' => $details['echecs'] ?? []];
     }
 
     /**
