@@ -53,17 +53,6 @@
         'dansVue' => fn ($jour) => $jour->format('Y-m-d') >= $periode->premiere_nuit->format('Y-m-d') && $jour->format('Y-m-d') <= $periode->dernier_jour->format('Y-m-d'),
     ])
 
-    <h3 class="font-bold">Plages attribuées</h3>
-    @forelse ($periode->plages->sortBy(fn ($p) => $p->debut->format('Y-m-d').$p->debut_type) as $plage)
-        <p class="flex flex-wrap items-center gap-2 text-sm" data-plage="{{ $plage->id }}">
-            <span class="case case-attribue {{ \App\Domain\Calendrier\AffichageCreneau::classeCouleur((string) $plage->lignee->couleur) }} min-h-0 w-8 items-center px-0 text-center" aria-hidden="true">{{ $symboles[$plage->lignee->nom] ?? '' }}</span>
-            <strong>{{ $plage->lignee->nom }}</strong>
-            du {{ $plage->debut->format('d/m/Y') }} ({{ $plage->debut_type === 'N' ? 'nuit' : 'journée' }})
-            au {{ $plage->fin->format('d/m/Y') }} ({{ $plage->fin_type === 'N' ? 'nuit' : 'journée' }})
-        </p>
-    @empty
-        <p class="text-sm text-gris">Aucune plage : tous les créneaux sont en attente d'attribution.</p>
-    @endforelse
 
     <details>
         <summary class="cursor-pointer text-sm underline">Corriger les dates à la main</summary>
