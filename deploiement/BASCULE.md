@@ -79,6 +79,12 @@ Pour un envoi réel (annonce J-7, « Jour J », bascule) :
 4. pour l'annonce J-7 : une fois partie (table `emails_sortants`, `envoye_le` rempli), remettre
    `MAIL_REDIRIGER_VERS` jusqu'au message « Jour J ».
 
+Texte de l'annonce : relu sur l'écran Reprise (« Texte de l'annonce ») avant l'envoi. Elle part
+quand l'admin clique, à la date qu'il choisit (7 jours avant de préférence). Ses chiffres (date
+de la première réservation GRR, réservations, créneaux, nuits, membres) sont calculés depuis la
+dernière reprise : lancer la reprise juste avant. Date de la mise à jour majeure de GRR, facultative :
+`GRR_MISE_A_JOUR_MAJEURE=` dans `partage/.env` (et dans `.env` en local).
+
 ## Retour arrière (2 minutes)
 
 OVH → Multisite : dossier racine `www`. GRR est servi de nouveau, intact (le nouveau site

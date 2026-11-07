@@ -19,6 +19,10 @@ return [
     // À passer à « fermee » après la bascule : un nouvel import écraserait les noms et rôles modifiés depuis.
     'grr_reprise' => env('GRR_REPRISE', 'ouverte'),
 
+    // Annonce de la bascule (US-806) : date de la mise à jour majeure de GRR, en clair
+    // (« 2019 », « mars 2019 »). Vide : l'annonce la mentionne sans date.
+    'grr_mise_a_jour_majeure' => env('GRR_MISE_A_JOUR_MAJEURE', ''),
+
     // Bascule (US-805) : sauvegarde complète et export GRR, chiffrés en AES-256 avec ce mot de passe
     // (le même que les sauvegardes quotidiennes). Vide ou trop court : la bascule s'arrête.
     'export_mot_de_passe' => env('BACKUP_ARCHIVE_PASSWORD', ''),

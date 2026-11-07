@@ -9,7 +9,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Illuminate\Console\Command;
 
-/** US-806 : annonce (au moins 7 jours avant), puis mise en service le jour J. */
+/** US-806 : annonce (quand l'admin le décide), puis mise en service le jour J. */
 final class AnnoncerBascule extends Command
 {
     protected $signature = 'bascule:annoncer

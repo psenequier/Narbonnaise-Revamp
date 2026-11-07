@@ -41,7 +41,12 @@ final class MessageSite extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: self::SUJETS[$this->gabarit] ?? 'Appartement de Chamrousse');
+        return new Envelope(subject: self::sujet($this->gabarit));
+    }
+
+    public static function sujet(string $gabarit): string
+    {
+        return self::SUJETS[$gabarit] ?? 'Appartement de Chamrousse';
     }
 
     public function content(): Content
