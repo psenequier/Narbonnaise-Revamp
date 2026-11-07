@@ -75,16 +75,15 @@ final class MigrationDeploiementController
                 'propositions' => $import['propositions'] ?? 0,
                 'rejets' => is_array($import['rejets'] ?? null) ? count($import['rejets']) : 0,
                 'archives' => $archives,
-                'annees_ouvertes' => $this->ouvrirAnnees(),
             ];
         }
 
-        return response()->json(['migre' => true, 'sortie' => null, 'reprise' => $reprise]);
+        return response()->json(['migre' => true, 'sortie' => null, 'reprise' => $reprise, 'annees_ouvertes' => $this->ouvrirAnnees()]);
     }
 
     /**
-     * Ouvre l'année scolaire en cours (et la suivante si publiée) dès la nuit de reprise,
-     * sans attendre la tâche du 1er du mois. L'e-mail « année ouverte » part par la boîte
+     * À chaque déploiement (et dès la nuit de reprise) : relit le calendrier scolaire officiel et
+     * ouvre l'année en cours (et la suivante si publiée), sans attendre la tâche du 1er du mois. L'e-mail « année ouverte » part par la boîte
      * d'envoi : redirigé vers un seul admin tant que MAIL_REDIRIGER_VERS est renseigné.
      * Une source injoignable n'arrête pas la bascule (la tâche mensuelle réessaiera).
      *

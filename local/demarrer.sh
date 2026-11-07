@@ -27,6 +27,9 @@ else
   php artisan migrate --force
 fi
 
+# Comme à chaque déploiement : calendrier scolaire officiel relu, année en cours ouverte si besoin.
+php artisan vacances:verifier || echo "⚠ Calendrier scolaire officiel injoignable : l'année sera ouverte au prochain démarrage."
+
 # Envoi de la boîte d'envoi toutes les minutes, vers Mailpit.
 ( while true; do php artisan emails:envoyer --max=150 > /dev/null 2>&1 || true; sleep 60; done ) &
 

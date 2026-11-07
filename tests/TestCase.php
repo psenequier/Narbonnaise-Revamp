@@ -12,6 +12,8 @@ abstract class TestCase extends BaseTestCase
 
         // Aucune requête réseau réelle en test : toute source externe est simulée.
         \Illuminate\Support\Facades\Http::preventStrayRequests();
+        // Ni résolution DNS réelle : les sources passent le filtre anti-SSRF avec une adresse publique fictive.
+        $this->app->instance(\App\Domain\Sources\UrlSourceSure::class, new \App\Domain\Sources\UrlSourceSure(fn () => ['185.75.143.24']));
 
         // Les styles ne sont compilés que dans le job « interface ».
         $this->withoutVite();
