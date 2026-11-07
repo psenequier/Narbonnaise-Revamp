@@ -30,6 +30,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property bool $recoit_annonces_attribution
  * @property \Illuminate\Support\Carbon|null $suppression_demandee_le
  * @property \Illuminate\Support\Carbon|null $supprime_le
+ * @property int|null $lignee_id
  */
 class User extends Authenticatable
 {
@@ -54,6 +55,7 @@ class User extends Authenticatable
             'invitation_expire_le' => 'datetime',
             'suppression_demandee_le' => 'datetime',
             'supprime_le' => 'datetime',
+            'lignee_id' => 'integer',
         ];
     }
 

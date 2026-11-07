@@ -155,6 +155,34 @@ final class Statistiques
         return $saisons;
     }
 
+    /** Première nuit (ou journée) occupée connue, reprise comprise ; null sans aucune occupation. */
+    public function premiereOccupation(): ?DateTimeImmutable
+    {
+        $premiere = DB::table('v_occupation')->where('etat', '!=', 'libre')->min('date');
+
+        return $premiere === null ? null : new DateTimeImmutable(substr((string) $premiere, 0, 10));
+    }
+
+    /**
+     * US-703-P2 : les mois d'une période regroupés par année civile (vue « Depuis le début »).
+     *
+     * @param  list<array{mois: string, ouverte: int, exclusive: int, attribuee: int, total: int, jours: int, libres: int}>  $mois
+     * @return list<array{mois: string, ouverte: int, exclusive: int, attribuee: int, total: int, jours: int, libres: int}>
+     */
+    public static function parAnnee(array $mois): array
+    {
+        $annees = [];
+        foreach ($mois as $m) {
+            $a = substr($m['mois'], 0, 4);
+            $annees[$a] ??= ['mois' => $a, 'ouverte' => 0, 'exclusive' => 0, 'attribuee' => 0, 'total' => 0, 'jours' => 0, 'libres' => 0];
+            foreach (['ouverte', 'exclusive', 'attribuee', 'total', 'jours', 'libres'] as $c) {
+                $annees[$a][$c] += $m[$c];
+            }
+        }
+
+        return array_values($annees);
+    }
+
     /** Une saison d'hiver « 2026-2027 » commence en septembre 2026 : de septembre à août. */
     public static function anneeDeSaison(DateTimeImmutable $jour): int
     {

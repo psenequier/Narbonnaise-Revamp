@@ -106,6 +106,5 @@
 </section>
 @endforeach
 
-@include('admin._cumul')
 @include('partiels.popup-attribution')
 @endsection

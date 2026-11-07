@@ -77,6 +77,21 @@ final class GestionComptes
         });
     }
 
+    /** US-711-P2 : lignée facultative du membre, journalisée. */
+    public function changerLignee(User $membre, ?int $ligneeId): void
+    {
+        self::refuserSiSupprime($membre);
+        if ($ligneeId !== null && ! DB::table('lignees')->where('id', $ligneeId)->exists()) {
+            throw new CompteRefuse('Lignée inconnue.');
+        }
+        if ($ligneeId === $membre->lignee_id) {
+            return;
+        }
+        $avant = $membre->lignee_id;
+        $membre->forceFill(['lignee_id' => $ligneeId])->save();
+        Journal::ecrire('compte.lignee', $membre, ['avant' => ['lignee_id' => $avant], 'apres' => ['lignee_id' => $ligneeId]]);
+    }
+
     /** US-603 : lien valable 1 heure ; ni le lien ni le jeton ne sont renvoyés ni journalisés. */
     public function envoyerLienReinitialisation(User $membre): void
     {

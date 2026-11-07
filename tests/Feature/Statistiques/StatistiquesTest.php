@@ -199,3 +199,132 @@ it('US-703-N2 n\'affiche aucune saison antérieure à la première réservation 
 it('ouvre les statistiques depuis le menu', function () {
     $this->actingAs($this->membre)->get('/')->assertSee('href="'.route('statistiques').'"', false)->assertSee('href="'.route('meteo').'"', false);
 });
+
+it('US-703-P2 « Depuis le début » compte de la première occupation à aujourd\'hui, une barre par année', function () {
+    occuper($this->membre, '2024-12-20', 3, grr: true);
+    occuper($this->membre, '2026-12-18', 2);
+
+    // Du 20 déc. 2024 au 20 avr. 2027 : 12 + 365 + 365 + 110 nuits.
+    $this->actingAs($this->membre)->get('/statistiques?vue=tout')->assertOk()
+        ->assertSee('Depuis le début · du 20 décembre 2024 (première réservation reprise) à aujourd\'hui', false)
+        ->assertSeeInOrder(['Nuits occupées', '1 %', '5 nuits sur 852'])
+        ->assertSee('week-ends depuis le début')
+        ->assertSee('Nuits occupées par année')
+        ->assertSeeInOrder(['<tr data-mois="2024"><th scope="row">2024</th><td>3</td>', '<tr data-mois="2025">', '<tr data-mois="2026"><th scope="row">2026</th><td>2</td>', '<tr data-mois="2027">'], false)
+        ->assertSeeInOrder(['Année civile</a>', 'aria-current="page"', 'bg-white font-bold">Depuis le début</a>'], false)
+        ->assertDontSee('name="saison"', false);
+
+    expect(Statistiques::parAnnee(stats()->periode(new DateTimeImmutable('2024-12-20'), new DateTimeImmutable('2027-04-20'))['mois']))
+        ->sequence(
+            fn ($a) => $a->mois->toBe('2024')->jours->toBe(12)->total->toBe(3)->libres->toBe(9),
+            fn ($a) => $a->mois->toBe('2025')->jours->toBe(365)->total->toBe(0),
+            fn ($a) => $a->mois->toBe('2026')->jours->toBe(365)->total->toBe(2),
+            fn ($a) => $a->mois->toBe('2027')->jours->toBe(110)->total->toBe(0),
+        );
+});
+
+/** Compte désigné pour les statistiques par lignée (US-711), adresse fictive. */
+function compteDesigne(): User
+{
+    config(['chamrousse.statistiques_lignees' => ' autre@example.test, Pascal@Example.test ']);
+
+    return User::factory()->create(['prenom' => 'Pascal', 'email' => 'pascal@example.test']);
+}
+
+it('US-711-P1 montre au compte désigné les nuits, la part, les nuitées-personnes et les réservations par lignée', function () {
+    $seconde = Lignee::create(['nom' => 'Seconde lignée', 'couleur' => '#23302A']);
+    $this->membre->forceFill(['lignee_id' => $this->lignee->id])->save();
+    $sansLignee = User::factory()->create();
+    occuper($this->membre, '2026-12-18', 3, 'exclusive', personnes: 4);
+    occuper($sansLignee, '2027-01-08', 2, personnes: 2);
+    attribuerNuits($seconde, $this->admin, '2027-02-12', 4);
+
+    $this->actingAs(compteDesigne())->get('/statistiques?saison=2026-2027')->assertOk()
+        ->assertSee('Visible par vous seul')
+        ->assertSeeInOrder([
+            'Lignée fictive', '3 n.', '33 % des nuits occupées · 0 ouvertes, 3 exclusives, 0 attribuées · 12 nuitées-personnes · 1 réservation',
+            'Seconde lignée', '4 n.', '44 % des nuits occupées · 0 ouvertes, 0 exclusives, 4 attribuées · 0 nuitées-personnes · 0 réservation',
+            'Sans lignée', '2 n.', '22 % des nuits occupées · 2 ouvertes, 0 exclusives, 0 attribuées · 4 nuitées-personnes · 1 réservation',
+        ]);
+});
+
+it('US-711-P2 un admin choisit la lignée d\'un membre, ou aucune, et c\'est journalisé', function () {
+    $admin = adminAvec2fa();
+
+    $this->actingAs($admin)->get("/admin/utilisateurs/{$this->membre->id}")->assertOk()
+        ->assertSee('Lignée : aucune')->assertSee('Lignée : Lignée fictive');
+    $this->actingAs($admin)->put("/admin/utilisateurs/{$this->membre->id}/lignee", ['lignee' => $this->lignee->id])->assertSessionHasNoErrors();
+    expect($this->membre->fresh()->lignee_id)->toBe($this->lignee->id)
+        ->and(\App\Models\Journal::where('action', 'compte.lignee')->where('objet_id', $this->membre->id)->count())->toBe(1);
+
+    $this->actingAs($admin)->put("/admin/utilisateurs/{$this->membre->id}/lignee", ['lignee' => ''])->assertSessionHasNoErrors();
+    expect($this->membre->fresh()->lignee_id)->toBeNull();
+
+    $this->actingAs($admin)->put("/admin/utilisateurs/{$this->membre->id}/lignee", ['lignee' => 99999])->assertSessionHasErrors('lignee');
+    $this->actingAs($this->membre)->put("/admin/utilisateurs/{$this->membre->id}/lignee", ['lignee' => $this->lignee->id])->assertForbidden();
+});
+
+it('US-711-N1 aucun autre compte, admin compris, ne voit l\'encadré ni un nom de lignée', function (string $cas) {
+    $this->membre->forceFill(['lignee_id' => $this->lignee->id])->save();
+    occuper($this->membre, '2026-12-18', 3);
+    $designe = compteDesigne();
+    $compte = match ($cas) {
+        'membre' => User::factory()->create(),
+        'admin' => $this->admin,
+        'réglage vide' => tap($designe, fn () => config(['chamrousse.statistiques_lignees' => ''])),
+        'compte désactivé' => tap($designe, fn (User $u) => $u->forceFill(['actif' => false])->save()),
+    };
+
+    $page = (string) $this->actingAs($compte)->get('/statistiques?saison=2026-2027')->getContent();
+    expect($page)->not->toContain('data-par-lignee')->not->toContain('Lignée fictive')->not->toContain('Sans lignée');
+})->with(['membre', 'admin', 'réglage vide', 'compte désactivé']);
+
+it('US-711-N2 une réservation annulée ne compte pas, et aucune adresse de membre n\'apparaît', function () {
+    $this->membre->forceFill(['lignee_id' => $this->lignee->id])->save();
+    occuper($this->membre, '2026-12-18', 3);
+    occuper($this->membre, '2027-01-08', 5, annulee: true);
+
+    $page = $this->actingAs(compteDesigne())->get('/statistiques?saison=2026-2027')->assertOk()
+        ->assertSeeInOrder(['Lignée fictive', '3 n.', '0 exclusives, 0 attribuées · 12 nuitées-personnes · 1 réservation'])
+        ->getContent();
+    // Le prénom et l'initiale apparaissent dans « Par membre » (US-712), jamais le nom complet ni l'e-mail.
+    expect(substr((string) $page, (int) strpos((string) $page, '<main')))->not->toContain('Témoin')->not->toContain('zoe@example.test');
+});
+
+it('US-712-P1 liste au compte désigné les nuits réservées de chaque membre, du plus au moins', function () {
+    $this->membre->forceFill(['lignee_id' => $this->lignee->id])->save();
+    $autre = User::factory()->create(['prenom' => 'Hugo', 'nom' => 'Martin']);
+    $supprime = User::factory()->create(['prenom' => 'Léa', 'nom' => '', 'supprime_le' => now(), 'actif' => false]);
+    occuper($this->membre, '2026-12-18', 2, 'exclusive', personnes: 3);
+    occuper($autre, '2027-01-08', 4, personnes: 2);
+    occuper($autre, '2027-01-20', 1, personnes: 5);
+    occuper($supprime, '2027-03-01', 1, personnes: 1);
+    attribuerNuits($this->lignee, $this->admin, '2027-02-12', 4); // ne compte que pour la lignée
+
+    $this->actingAs(compteDesigne())->get('/statistiques?saison=2026-2027')->assertOk()
+        ->assertSee('Par membre')
+        ->assertSeeInOrder([
+            '>Hugo M.</th>', 'Sans lignée', '>5</td>', '>5 · 0</td>', '>13</td>', '>2</td>',
+            '>Zoé T.</th>', 'Lignée fictive', '>2</td>', '>0 · 2</td>', '>6</td>', '>1</td>',
+            '>Léa</th>', '>1</td>',
+        ], false);
+});
+
+it('US-712-N1 aucun autre compte ne voit l\'encadré par membre ; ni e-mail ni réservation annulée', function () {
+    occuper($this->membre, '2026-12-18', 3);
+    occuper($this->membre, '2027-01-08', 5, annulee: true);
+
+    $page = (string) $this->actingAs($this->admin)->get('/statistiques?saison=2026-2027')->getContent();
+    expect($page)->not->toContain('data-par-membre')->not->toContain('Zoé T.');
+
+    $page = (string) $this->actingAs(compteDesigne())->get('/statistiques?saison=2026-2027')
+        ->assertSeeInOrder(['>Zoé T.</th>', '>3</td>', '>3 · 0</td>', '>12</td>', '>1</td>'], false)->getContent();
+    expect($page)->not->toContain('zoe@example.test');
+});
+
+it('applique le choix de saison ou d\'année dès la sélection, sans bouton « Afficher »', function (string $url) {
+    $page = (string) $this->actingAs($this->membre)->get($url)->assertOk()->getContent();
+
+    expect($page)->toContain('data-envoi-auto')
+        ->and((string) preg_replace('#<noscript>.*?</noscript>#s', '', $page))->not->toContain('>Afficher</button>');
+})->with(['/statistiques', '/statistiques?vue=annee']);

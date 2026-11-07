@@ -24,6 +24,7 @@
                 <a href="{{ route('reservations.mes') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('reservations.*') }}">Mes réservations</a>
                 <a href="{{ route('statistiques') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('statistiques') }}">Statistiques</a>
                 <a href="{{ route('meteo') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('meteo') }}">Météo</a>
+                <a href="{{ route('webcams') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('webcams') }}">Webcams</a>
                 @can('admin')<a href="{{ route('admin.accueil') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('admin.*') }}">Admin</a>@endcan
             </nav>
             <div class="flex items-center gap-3 text-sm">

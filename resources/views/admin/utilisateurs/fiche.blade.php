@@ -41,6 +41,15 @@
             </select>
             <button class="{{ $bouton }}">Changer le rôle</button>
         </form>
+        {{-- US-711-P2 (ADR 019) : sert aux statistiques par lignée. --}}
+        <form method="POST" action="{{ route('admin.utilisateurs.lignee', $membre) }}" class="flex gap-2" data-lignee-membre>
+            @csrf @method('PUT')
+            <select name="lignee" class="h-11 rounded-lg border border-bord px-2" aria-label="Lignée">
+                <option value="" @selected($membre->lignee_id === null)>Lignée : aucune</option>
+                @foreach ($lignees as $l)<option value="{{ $l->id }}" @selected($membre->lignee_id === $l->id)>Lignée : {{ $l->nom }}</option>@endforeach
+            </select>
+            <button class="{{ $bouton }}">Changer la lignée</button>
+        </form>
     </div>
 </section>
 

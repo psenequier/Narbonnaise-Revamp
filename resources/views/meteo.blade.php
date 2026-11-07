@@ -53,7 +53,7 @@
             <p class="text-sm text-gris">Neige au sol : estimation du modèle météo, pas une mesure. Pour la hauteur mesurée, l'ouverture des pistes et des remontées, voir le site officiel de la station.</p>
             <div class="flex flex-wrap gap-2.5">
                 <a href="{{ $lienPistes }}" target="_blank" rel="noopener noreferrer" class="{{ $lien }}">Pistes et remontées ouvertes (site officiel) ↗</a>
-                <a href="{{ $lienWebcams }}" target="_blank" rel="noopener noreferrer" class="{{ $lien }}">Webcams ↗</a>
+                <a href="{{ route('webcams') }}" class="{{ $lien }}" data-lien-webcams>Webcams</a>
             </div>
         </section>
     </div>

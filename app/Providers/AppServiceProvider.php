@@ -26,6 +26,12 @@ class AppServiceProvider extends ServiceProvider
         // Espace admin : rôle admin et compte actif. La double authentification est facultative
         // (décision de Pascal du 7 nov. 2026 ; elle reste proposée dans le profil).
         Gate::define('admin', fn (User $user) => $user->actif && $user->estAdmin());
+        // US-711-N1 (ADR 019) : seuls les comptes listés dans la configuration du serveur.
+        Gate::define('statistiques-lignees', fn (User $user) => $user->actif && $user->supprime_le === null
+            && in_array(mb_strtolower($user->email), array_filter(array_map(
+                fn (string $a) => mb_strtolower(trim($a)),
+                explode(',', (string) config('chamrousse.statistiques_lignees')),
+            )), true));
 
         // US-604-P1 : chaque connexion (mot de passe, Google, double authentification) est tracée.
         \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Login::class, function (\Illuminate\Auth\Events\Login $e) {
