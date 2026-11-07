@@ -10,6 +10,14 @@ it('affiche la page de connexion avec les en-têtes de sécurité', function () 
         ->assertHeader('X-Content-Type-Options', 'nosniff');
 });
 
+it('montre les téléphériques en hiver du 1er octobre au 30 avril, en été le reste de l\'année', function () {
+    $this->travelTo(\Illuminate\Support\Carbon::parse('2026-11-07 10:00', 'Europe/Paris'));
+    $this->get('/login')->assertOk()->assertSee('images/connexion-hiver.svg')->assertDontSee('connexion-ete.svg');
+
+    $this->travelTo(\Illuminate\Support\Carbon::parse('2027-05-01 08:00', 'Europe/Paris'));
+    $this->get('/login')->assertOk()->assertSee('images/connexion-ete.svg')->assertDontSee('connexion-hiver.svg');
+});
+
 it('US-804-N1 redirige un visiteur non connecté vers la connexion', function () {
     $this->get('/')->assertRedirect('/login');
 });
