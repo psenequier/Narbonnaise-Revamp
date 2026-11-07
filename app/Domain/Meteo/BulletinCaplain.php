@@ -101,12 +101,17 @@ final class BulletinCaplain
         $premier = function (string $chemin) use ($xpath, $table): string {
             $noeuds = $xpath->query($chemin, $table);
 
-            return $noeuds === false ? '' : self::texte($noeuds->item(0)?->textContent ?? '');
+            $noeud = $noeuds === false ? null : $noeuds->item(0);
+
+            return $noeud instanceof DOMElement ? self::texte($noeud->textContent) : '';
         };
         $region = $premier('.//th');
         $emis = $premier('.//td/b/i');
 
+        /** @var list<array{titre: string, texte: string, donnees: list<string>}> $sections */
         $sections = [];
+        /** @var array{titre: string, texte: string, donnees: list<string>}|null $courante */
+        $courante = null;
         $divs = $xpath->query(".//td/div[@class='titre' or @class='blabla' or @class='donnees']", $table);
         foreach ($divs === false ? [] : $divs as $div) {
             if (! $div instanceof DOMElement) {
@@ -114,27 +119,39 @@ final class BulletinCaplain
             }
             $classe = $div->getAttribute('class');
             if ($classe === 'titre') {
+                if ($courante !== null) {
+                    $sections[] = $courante;
+                }
                 if (count($sections) >= self::MAX_SECTIONS) {
+                    $courante = null;
                     break;
                 }
-                $sections[] = ['titre' => self::titre($div->textContent), 'texte' => '', 'donnees' => []];
+                $courante = ['titre' => self::titre($div->textContent), 'texte' => '', 'donnees' => []];
 
                 continue;
             }
-            $i = array_key_last($sections);
-            if ($i === null) {
+            if ($courante === null) {
                 continue;
             }
             if ($classe === 'blabla') {
-                $sections[$i]['texte'] = self::texte($div->textContent);
+                $courante['texte'] = self::texte($div->textContent);
             } else {
                 // Les infobulles (« bassin grenoblois », « 1 noeud = … ») ne sont pas reprises.
                 foreach (iterator_to_array($div->getElementsByTagName('span')) as $infobulle) {
                     $infobulle->parentNode?->removeChild($infobulle);
                 }
-                $lignes = array_map(self::texte(...), preg_split('/\R/u', $div->textContent) ?: []);
-                $sections[$i]['donnees'] = array_values(array_filter($lignes, fn (string $l) => $l !== ''));
+                $donnees = [];
+                foreach (preg_split('/\R/u', $div->textContent) ?: [] as $ligne) {
+                    $ligne = self::texte($ligne);
+                    if ($ligne !== '') {
+                        $donnees[] = $ligne;
+                    }
+                }
+                $courante['donnees'] = $donnees;
             }
+        }
+        if ($courante !== null) {
+            $sections[] = $courante;
         }
         $sections = array_values(array_filter($sections, fn (array $s) => $s['titre'] !== '' && ($s['texte'] !== '' || $s['donnees'] !== [])));
         if ($sections === []) {
