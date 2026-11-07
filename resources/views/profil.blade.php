@@ -5,12 +5,6 @@
 @php($carte = 'flex flex-col gap-4 rounded-2xl border border-bord bg-white p-6')
 @section('contenu')
 
-@if ($user->estAdmin() && ! $user->two_factor_confirmed_at)
-    <p role="alert" class="rounded-lg border border-amber-300 bg-alerte-fond p-3 text-sm">
-        En tant qu'admin, vous devez activer la double authentification pour accéder à l'administration.
-    </p>
-@endif
-
 <section class="{{ $carte }}" aria-labelledby="infos">
     <h2 id="infos" class="text-lg font-extrabold">Mes informations</h2>
     @foreach ($errors->updateProfileInformation->all() as $erreur)<p role="alert" class="text-sm text-erreur">{{ $erreur }}</p>@endforeach

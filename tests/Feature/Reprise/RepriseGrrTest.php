@@ -282,6 +282,24 @@ it('devine la lignée d\'après le premier mot reconnu du libellé, sinon laisse
     }
 });
 
+it('devine aussi la lignée d\'après un alias de LIGNEES_ALIAS, sans tenir compte de la casse', function () {
+    comptesPropres();
+    config(['chamrousse.lignees_alias' => 'Cv:Carrel-Vidal, Fantome:Inconnue']);
+    $libelles = ['CV' => 'carrel', 'cv (échange Bertin)' => 'carrel', 'Fantome' => null, 'CARREL' => 'carrel'];
+    $ids = [];
+    foreach (array_keys($libelles) as $i => $libelle) {
+        $jour = 20 + $i;
+        $ids[$libelle] = grrEntree('bob', "2025-12-{$jour} 12:01", '2025-12-'.($jour + 1).' 12:01', 'A', $libelle, salle: 2);
+    }
+
+    app(ImportGrr::class)->importer();
+
+    foreach ($libelles as $libelle => $attendue) {
+        $lignee = DB::table('reprise_propositions')->where('grr_entry_id', $ids[$libelle])->value('lignee_id');
+        expect($lignee)->toBe($attendue === null ? null : $this->{$attendue}->id, $libelle);
+    }
+});
+
 it('fait d\'une attribution à venir, une fois validée, une plage de l\'écran Vacances', function () {
     \Illuminate\Support\Facades\Mail::fake();
     ouvrirAnnee2026();

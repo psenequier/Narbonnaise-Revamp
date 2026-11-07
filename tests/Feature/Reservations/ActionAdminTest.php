@@ -53,12 +53,6 @@ it('US-309-N2 renvoie 403 à un membre non admin qui appelle la même action', f
     expect($this->resa->fresh()->annulee_le)->toBeNull();
 });
 
-it('refuse l\'action d\'un admin sans double authentification (403)', function () {
-    $admin = User::factory()->admin()->create();
-
-    $this->actingAs($admin)->delete("/reservations/{$this->resa->id}", ['motif' => 'Test'])->assertForbidden();
-});
-
 it('montre à l\'admin le bouton d\'action et le champ motif', function () {
     $this->actingAs($this->admin)->get('/jour/2026-11-14')->assertOk()->assertSee('Action admin');
     $this->actingAs($this->admin)->get("/reservations/{$this->resa->id}/modifier")->assertOk()->assertSee('name="motif"', false);
