@@ -57,6 +57,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::view('/', 'admin.accueil')->name('accueil');
         Route::get('/vacances', [VacancesController::class, 'index'])->name('vacances');
         Route::get('/lignees', [VacancesController::class, 'cumul'])->name('cumul');
+        Route::get('/lignees/modifier', [\App\Http\Controllers\Admin\LigneesController::class, 'index'])->name('lignees');
+        Route::put('/lignees/{lignee}', [\App\Http\Controllers\Admin\LigneesController::class, 'modifier'])->whereNumber('lignee')->name('lignees.modifier');
         Route::post('/plages', [VacancesController::class, 'attribuer'])->name('plages.attribuer');
         Route::put('/plages/{plage}', [VacancesController::class, 'modifier'])->name('plages.modifier');
         Route::delete('/plages/{plage}', [VacancesController::class, 'retirer'])->name('plages.retirer');

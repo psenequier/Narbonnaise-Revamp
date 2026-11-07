@@ -78,7 +78,7 @@ if [ -n "$admin" ]; then
   if [ "${modifies:-0}" = "0" ]; then
     echo "  ⚠ Aucun compte $admin modifié (adresse absente de GRR, ou déjà admin)."
   else
-    echo "  $admin est admin (double authentification demandée à la connexion)."
+    echo "  $admin est admin (onglet « Admin » après connexion)."
   fi
 fi
 

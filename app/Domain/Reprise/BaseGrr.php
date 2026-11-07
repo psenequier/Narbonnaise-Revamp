@@ -163,7 +163,9 @@ final class BaseGrr
 
     /**
      * Lignée devinée d'après le premier mot du libellé (« Senequier (échange …) »,
-     * « NICOLET », « Mottin »…) ; null si aucune ne correspond : l'admin choisira.
+     * « NICOLET », « Mottin »…), sans tenir compte de la casse ni des accents. Un mot reconnu est
+     * le premier mot du nom d'une lignée, ou un alias de LIGNEES_ALIAS (« Surnom:Nom de la lignée »).
+     * Null si aucun ne correspond : l'admin choisira.
      *
      * @param  Collection<int, Lignee>  $lignees
      */
@@ -172,6 +174,16 @@ final class BaseGrr
         $premiers = [];
         foreach ($lignees as $l) {
             $premiers[(preg_split('/[^a-z0-9]+/', self::normaliser($l->nom), -1, PREG_SPLIT_NO_EMPTY) ?: [''])[0]] = $l->id;
+        }
+        $parNom = [];
+        foreach ($lignees as $l) {
+            $parNom[self::normaliser(trim($l->nom))] = $l->id;
+        }
+        foreach (array_filter(array_map('trim', explode(',', (string) config('chamrousse.lignees_alias')))) as $alias) {
+            [$mot, $nom] = array_map(fn (string $t) => self::normaliser(trim($t)), explode(':', $alias, 2)) + [1 => ''];
+            if ($mot !== '' && preg_match('/^[a-z0-9]+$/', $mot) === 1 && isset($parNom[$nom])) {
+                $premiers[$mot] ??= $parNom[$nom];
+            }
         }
         // Le premier mot reconnu l'emporte : « Senequier (échange Mottin) » revient à Senequier.
         foreach (preg_split('/[^a-z0-9]+/', self::normaliser($libelle), -1, PREG_SPLIT_NO_EMPTY) ?: [] as $mot) {

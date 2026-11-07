@@ -12,8 +12,27 @@ abstract class TestCase extends BaseTestCase
 
         // Aucune requête réseau réelle en test : toute source externe est simulée.
         \Illuminate\Support\Facades\Http::preventStrayRequests();
+        // Ni résolution DNS réelle : les sources passent le filtre anti-SSRF avec une adresse publique fictive.
+        $this->app->instance(\App\Domain\Sources\UrlSourceSure::class, new \App\Domain\Sources\UrlSourceSure(fn () => ['185.75.143.24']));
 
         // Les styles ne sont compilés que dans le job « interface ».
         $this->withoutVite();
+
+        // Archives de bascule écrites par les tests : jamais dans storage/app/exports, que le site
+        // local affiche (Admin → Reprise). Un dossier temporaire par test, vidé à la fin.
+        $this->dossierExportsTest = sys_get_temp_dir().'/exports-test-'.bin2hex(random_bytes(4));
+        config(['chamrousse.dossier_exports' => $this->dossierExportsTest]);
+    }
+
+    protected string $dossierExportsTest = '';
+
+    protected function tearDown(): void
+    {
+        foreach (glob($this->dossierExportsTest.'/*') ?: [] as $fichier) {
+            @unlink($fichier);
+        }
+        @rmdir($this->dossierExportsTest);
+
+        parent::tearDown();
     }
 }
