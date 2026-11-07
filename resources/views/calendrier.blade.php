@@ -3,7 +3,6 @@
 @section('sans-titre', '1')
 @section('large', '1')
 @push('tete')<link rel="stylesheet" href="{{ route('lignees.css') }}">@endpush
-@php($jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'])
 @php($nomMois = \Illuminate\Support\Carbon::instance($premier)->locale('fr')->translatedFormat('F Y'))
 @php($cleJour = $aujourdhui->format('Y-m-d'))
 @section('contenu')
@@ -40,59 +39,16 @@
 
     @include('partiels.legende')
 
-    {{-- Écran large : grille du mois. --}}
-    <div class="hidden overflow-x-auto rounded-[14px] border border-bord bg-white min-[600px]:block">
-        <table class="w-full min-w-[640px] table-fixed border-collapse">
-            <caption class="sr-only">Occupation de l'appartement, {{ $nomMois }}</caption>
-            <thead><tr class="border-b border-bord">@foreach ($jours as $j)<th scope="col" class="px-3 py-2.5 text-left text-xs font-bold tracking-wider text-gris uppercase">{{ $j }}</th>@endforeach</tr></thead>
-            <tbody>
-            @foreach ($semaines as $semaine)
-                <tr>
-                @foreach ($semaine as $jour)
-                    @php($d = $jour->format('Y-m-d'))
-                    @php($horsMois = $jour->format('m') !== $premier->format('m'))
-                    <td class="h-[120px] border-r border-b border-bord-doux p-2 align-top {{ $horsMois ? 'bg-fond opacity-45' : '' }} {{ $d === $cleJour ? 'shadow-[inset_0_0_0_3px_var(--color-principale)]' : '' }}">
-                        <div class="flex flex-col gap-[5px]">
-                            <div class="flex items-center justify-between gap-1">
-                                    <a href="{{ route('jour', $d) }}" title="Voir le détail du jour" class="self-start rounded px-0.5 text-sm {{ $d === $cleJour ? 'font-extrabold' : 'font-bold' }} {{ $horsMois ? 'text-gris-clair' : 'text-encre' }} hover:underline">{{ $jour->format('j') }}<span class="sr-only"> : détail du {{ $jour->format('d/m') }}</span></a>
-                                @if ($d === $cleJour)<span class="rounded-full bg-principale px-2 text-[11px] leading-5 font-bold text-white">Aujourd'hui</span>@endif
-                            </div>
-                            @include('partiels.case', ['a' => $affichages[$d.'-J']])
-                            @include('partiels.case', ['a' => $affichages[$d.'-N']])
-                        </div>
-                    </td>
-                @endforeach
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
-    </div>
+    @include('partiels.grille-semaines', ['legende' => "Occupation de l'appartement, ".$nomMois, 'dansVue' => fn ($jour) => $jour->format('m') === $premier->format('m')])
 
-    {{-- Téléphone (moins de 600 px) : liste par semaine, une ligne par jour (US-203-P1). --}}
-    <div class="flex flex-col gap-4 min-[600px]:hidden" data-vue="liste">
-    @foreach ($semaines as $semaine)
-        <section class="flex flex-col gap-1">
-            <h3 class="text-xs font-bold text-gris">Semaine du {{ $semaine[0]->format('d/m') }}</h3>
-            @foreach ($semaine as $jour)
-                @continue($jour->format('m') !== $premier->format('m'))
-                {{-- Le jour ouvre son détail ; chaque créneau se touche comme sur ordinateur : sélection, période,
-                     pop-up, édition de ma réservation, bulle de détail sur une réservation (demande du 6 nov.). --}}
-                <div class="grid grid-cols-[4rem_minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 rounded-xl border border-bord bg-white px-3 py-2 {{ $jour == $aujourdhui ? 'ring-2 ring-sapin' : '' }}">
-                    <a href="{{ route('jour', $jour->format('Y-m-d')) }}" class="flex min-h-11 items-center text-sm font-bold underline-offset-4 hover:underline" title="Voir le détail du jour">{{ $jours[(int) $jour->format('N') - 1] }} {{ $jour->format('j') }}</a>
-                    @foreach (['J', 'N'] as $t)
-                        {{-- US-203-P3 : réservant et nombre de personnes ; la lignée seule sur un créneau attribué. --}}
-                        @include('partiels.case', ['a' => $affichages[$jour->format('Y-m-d').'-'.$t]])
-                    @endforeach
-                </div>
-            @endforeach
-        </section>
-    @endforeach
-    </div>
-
+    @can('admin')
+        <p class="text-sm text-gris" data-aide-attribution><strong>Admin :</strong> cliquez sur un créneau « En attente » puis sur un second pour attribuer ces vacances à une lignée ; cliquez sur un créneau attribué pour changer sa lignée, ses dates, ou retirer l'attribution.</p>
+    @endcan
     <p class="text-sm text-gris">J = journée · N = nuit du jour au lendemain. Chaque créneau affiche le réservant, le nombre de personnes et le début du commentaire (tout le détail au survol de la souris) ; un créneau attribué n'affiche que la lignée. Cliquez (ou touchez) un créneau pour le sélectionner, recliquez pour le désélectionner, cliquez sur un second créneau pour choisir la période. Cliquez sur le numéro du jour pour voir le détail.</p>
 </section>
 
 </div>
 
 @include('partiels.popup-reservation')
+@include('partiels.popup-attribution')
 @endsection

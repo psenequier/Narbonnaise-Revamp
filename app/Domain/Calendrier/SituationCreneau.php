@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Calendrier;
 
+use App\Models\Plage;
 use App\Models\Reservation;
 
 /** Ce que l'on sait d'un créneau pour l'afficher : état, lignée, réservations actives. */
@@ -16,6 +17,7 @@ final readonly class SituationCreneau
         public ?string $lignee = null,
         public ?string $couleurLignee = null,
         public array $reservations = [],
+        public ?Plage $plage = null,
     ) {}
 
     public function cle(): string

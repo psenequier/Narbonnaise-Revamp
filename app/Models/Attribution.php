@@ -7,6 +7,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $creneau_id
+ * @property int $lignee_id
+ * @property ?int $plage_id
+ * @property-read ?Lignee $lignee
+ * @property-read ?Plage $plage
+ */
 class Attribution extends Model
 {
     protected $fillable = ['creneau_id', 'lignee_id', 'plage_id', 'saisie_par'];
@@ -15,6 +23,12 @@ class Attribution extends Model
     public function lignee(): BelongsTo
     {
         return $this->belongsTo(Lignee::class);
+    }
+
+    /** @return BelongsTo<Plage, $this> */
+    public function plage(): BelongsTo
+    {
+        return $this->belongsTo(Plage::class);
     }
 
     /** @return BelongsTo<Creneau, $this> */

@@ -1,6 +1,7 @@
 // Vues mois et saison (PRD « Sélection dans le calendrier », ADR 017) :
 // infobulle au survol, sélection d'un créneau ou d'une période par clics, pop-up de réservation.
-// Créneaux = éléments [data-rang] (rang croissant dans le temps), data-dispo = libre | non.
+// Créneaux = éléments [data-rang] (rang croissant dans le temps), data-dispo = libre | mienne | non,
+// et pour un admin attribuable (en attente) | attribution (attribué) : on attribue comme on réserve (7 nov.).
 // Ce n'est qu'une aide : ServiceReservation revérifie tout côté serveur.
 
 const RAISONS = {
@@ -71,13 +72,22 @@ function demarrer() {
         return;
     }
     const popup = document.getElementById('popup-reservation');
+    const popupAttr = document.getElementById('popup-attribution');
     // Seuls les créneaux affichés comptent : la grille (ordinateur) et la liste (téléphone) coexistent dans la page.
     const creneaux = () => Array.from(document.querySelectorAll('[data-rang]')).filter((e) => e.offsetParent !== null);
-    if (!popup || creneaux().length === 0) {
+    if ((!popup && !popupAttr) || creneaux().length === 0) {
         return;
     }
     const rang = (el) => Number(el.dataset.rang);
+    // Même rang que le serveur (AffichageCreneau) : deux par jour depuis le 1er janvier 1970.
+    const rangCle = (cle) => {
+        const [a, m, j] = cle.slice(0, 10).split('-').map(Number);
+        return (Date.UTC(a, m - 1, j) / 86400000) * 2 + (cle.endsWith('-N') ? 1 : 0);
+    };
+    const unePopupOuverte = () => Boolean(popup?.open || popupAttr?.open);
     let debut = null;
+    // Sélection en cours : « libre » (réservation) ou « attribuable » (attribution, admins seulement).
+    let sorte = 'libre';
     let barre = null;
 
     const message = (texte) => {
@@ -119,8 +129,9 @@ function demarrer() {
         const reserver = document.createElement('button');
         reserver.type = 'button';
         reserver.className = 'bg-white text-encre';
-        reserver.textContent = court ? 'Réserver' : 'Réserver ce créneau';
-        reserver.onclick = () => ouvrirPopup([el]);
+        const attribuer = sorte === 'attribuable';
+        reserver.textContent = attribuer ? (court ? 'Attribuer' : 'Attribuer ce créneau') : (court ? 'Réserver' : 'Réserver ce créneau');
+        reserver.onclick = () => (attribuer ? ouvrirAttribution([el]) : ouvrirPopup([el]));
         const annuler = document.createElement('button');
         annuler.type = 'button';
         annuler.className = 'text-bord';
@@ -131,11 +142,19 @@ function demarrer() {
         document.body.classList.add('avec-barre');
     };
 
-    const form = popup.querySelector('form');
-    const actionCreation = form.getAttribute('action');
+    const form = popup?.querySelector('form');
+    const actionCreation = form?.getAttribute('action');
+    const compte = (cles) => {
+        const journees = cles.filter((c) => c.endsWith('-J')).length;
+        const nuits = cles.length - journees;
+        return `${journees} journée${journees > 1 ? 's' : ''} · ${nuits} nuit${nuits > 1 ? 's' : ''}`;
+    };
 
     // edition = le créneau cliqué d'une de mes réservations (attributs data-mienne…), ou null pour créer.
     const ouvrirPopup = (els, edition = null) => {
+        if (!popup) {
+            return;
+        }
         fermerBarre();
         const cles = els.map((e) => e.dataset.cle);
         const journees = cles.filter((c) => c.endsWith('-J')).length;
@@ -175,18 +194,65 @@ function demarrer() {
         form.elements.nombre_personnes.focus();
     };
 
-    const fermerPopup = () => {
-        if (popup.open) {
-            popup.close();
+    // Pop-up d'attribution (admins) : création depuis une sélection, ou édition de la plage d'un créneau attribué.
+    const ouvrirAttribution = (els, edition = null) => {
+        if (!popupAttr) {
+            return;
         }
+        fermerBarre();
+        const f = popupAttr.querySelector('form');
+        const premiere = edition ? edition.dataset.debutPlage : els[0].dataset.cle;
+        const derniere = edition ? edition.dataset.finPlage : els[els.length - 1].dataset.cle;
+        f.elements.debut.value = premiere.slice(0, 10);
+        f.elements.debut_type.value = premiere.slice(-1);
+        f.elements.fin.value = derniere.slice(0, 10);
+        f.elements.fin_type.value = derniere.slice(-1);
+
+        const parCle = new Map(creneaux().map((e) => [e.dataset.cle, e]));
+        const libelle = (cle) => parCle.get(cle)?.dataset.label ?? cle;
+        const cles = [];
+        for (let k = rangCle(premiere); k <= rangCle(derniere); k++) {
+            const jour = new Date(Math.floor(k / 2) * 86400000).toISOString().slice(0, 10);
+            cles.push(`${jour}-${k % 2 ? 'N' : 'J'}`);
+        }
+        f.querySelector('[data-periode]').textContent = premiere === derniere ? libelle(premiere) : `Du ${libelle(premiere)} au ${libelle(derniere)}`;
+        f.querySelector('[data-compte]').textContent = compte(cles);
+
+        f.querySelector('[data-methode]').disabled = edition === null;
+        f.setAttribute('action', edition ? edition.dataset.action : f.dataset.actionCreation);
+        f.querySelector('[data-titre]').textContent = edition ? "Modifier l'attribution" : 'Nouvelle attribution';
+        popupAttr.querySelector('[data-valider]').textContent = edition ? 'Enregistrer' : 'Attribuer';
+        const dates = f.querySelector('[data-dates]');
+        dates.hidden = edition === null;
+        dates.open = false;
+        const retrait = popupAttr.querySelector('[data-zone-retrait]');
+        retrait.hidden = edition === null;
+        retrait.open = false;
+        if (edition) {
+            retrait.querySelector('[data-form-retrait]').setAttribute('action', edition.dataset.action);
+            const choix = f.querySelector(`input[name=lignee_id][value="${edition.dataset.lignee}"]`);
+            if (choix) {
+                choix.checked = true;
+            }
+            marquer(cles.map((c) => parCle.get(c)).filter(Boolean));
+        }
+
+        popupAttr.showModal();
+        (f.querySelector('input[name=lignee_id]:checked') ?? f.querySelector('input[name=lignee_id]'))?.focus();
     };
-    popup.addEventListener('close', toutEffacer);
-    popup.querySelector('[data-fermer]').addEventListener('click', fermerPopup);
-    // Clic hors de la pop-up (sur le fond) : on ferme.
-    popup.addEventListener('click', (e) => {
-        if (e.target === popup) {
-            fermerPopup();
-        }
+
+    const fermerPopup = () => {
+        [popup, popupAttr].forEach((p) => p?.open && p.close());
+    };
+    [popup, popupAttr].filter(Boolean).forEach((p) => {
+        p.addEventListener('close', toutEffacer);
+        p.querySelector('[data-fermer]').addEventListener('click', fermerPopup);
+        // Clic hors de la pop-up (sur le fond) : on ferme.
+        p.addEventListener('click', (e) => {
+            if (e.target === p) {
+                fermerPopup();
+            }
+        });
     });
 
     // Un créneau de ma réservation : la pop-up s'ouvre sur toute la réservation, en édition.
@@ -200,12 +266,27 @@ function demarrer() {
     };
 
     const choisir = (el) => {
+        if (el.dataset.dispo === 'attribution') {
+            if (debut === null) {
+                toutEffacer();
+                ouvrirAttribution([el], el);
+            } else {
+                message('Ce créneau est déjà attribué. Choisissez une fin en attente d\'attribution.');
+            }
+            return;
+        }
         if (el.dataset.dispo === 'mienne') {
             if (debut === null) {
                 editer(el);
             } else {
                 message('Ce créneau fait déjà partie de votre réservation. Choisissez une fin libre.');
             }
+            return;
+        }
+        if (el.dataset.dispo !== 'non' && debut !== null && el.dataset.dispo !== sorte) {
+            message(sorte === 'attribuable'
+                ? "Ce créneau n'est pas en attente d'attribution. Choisissez une fin dans les mêmes vacances."
+                : RAISONS[el.dataset.etat] ?? 'Choisissez une fin libre.');
             return;
         }
         if (el.dataset.dispo === 'non') {
@@ -220,6 +301,7 @@ function demarrer() {
         const k = rang(el);
         if (debut === null) {
             debut = k;
+            sorte = el.dataset.dispo;
             marquer([el]);
             ouvrirBarre(el);
             return;
@@ -229,18 +311,24 @@ function demarrer() {
             return;
         }
         const periode = entre(debut, k);
-        if (periode.some((e) => e.dataset.dispo !== 'libre')) {
-            message('La période contient un créneau déjà réservé ou indisponible. Choisissez une autre fin.');
+        if (periode.some((e) => e.dataset.dispo !== sorte)) {
+            message(sorte === 'attribuable'
+                ? "La période contient un créneau qui n'est pas en attente d'attribution. Choisissez une autre fin."
+                : 'La période contient un créneau déjà réservé ou indisponible. Choisissez une autre fin.');
             return;
         }
         marquer(periode);
         debut = null;
-        ouvrirPopup(periode);
+        if (sorte === 'attribuable') {
+            ouvrirAttribution(periode);
+        } else {
+            ouvrirPopup(periode);
+        }
     };
 
     document.addEventListener('click', (e) => {
         const el = e.target.closest?.('[data-rang]');
-        if (el && !popup.open) {
+        if (el && !unePopupOuverte()) {
             choisir(el);
         }
     });
@@ -249,14 +337,14 @@ function demarrer() {
         if (el && (e.key === 'Enter' || e.key === ' ')) {
             e.preventDefault();
             choisir(el);
-        } else if (e.key === 'Escape' && !popup.open) {
+        } else if (e.key === 'Escape' && !unePopupOuverte()) {
             toutEffacer();
         }
     });
 
 
     // Refus du serveur : on resélectionne la période envoyée et on rouvre la pop-up avec la raison.
-    if (popup.dataset.anciens) {
+    if (popup?.dataset.anciens) {
         const anciens = popup.dataset.anciens.split(',');
         const els = creneaux().filter((e) => anciens.includes(e.dataset.cle)).sort((x, y) => rang(x) - rang(y));
         if (els.length) {

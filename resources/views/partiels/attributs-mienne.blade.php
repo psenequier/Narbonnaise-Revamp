@@ -6,3 +6,8 @@
     data-commentaire="{{ $a->mienne->commentaire }}" data-invites="{{ $a->mienne->invites }}"
     data-creneaux="{{ $a->creneauxMienne() }}"
 @endif
+{{-- Admin : un créneau attribué ouvre la pop-up d'attribution en édition (plage entière). --}}
+@if (($bornes = $a->bornesPlage()) !== null)
+    data-plage="{{ $a->situation->plage?->id }}" data-action="{{ route('admin.plages.modifier', (int) $a->situation->plage?->id) }}"
+    data-lignee="{{ $a->situation->plage?->lignee_id }}" data-debut-plage="{{ $bornes[0] }}" data-fin-plage="{{ $bornes[1] }}"
+@endif

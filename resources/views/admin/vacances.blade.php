@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('titre', 'Vacances et attributions')
 @php($champ = 'h-11 rounded-lg border border-bord bg-white px-2 font-normal')
+@section('large', '1')
+@push('tete')<link rel="stylesheet" href="{{ route('lignees.css') }}">@endpush
 @section('contenu')
 @if ($errors->any())
     <div role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
@@ -31,6 +33,10 @@
 </section>
 @endif
 
+@if ($periodes->isNotEmpty())
+    <p class="text-sm text-gris">Pour attribuer des vacances, cliquez sur un créneau « En attente », puis sur un second pour choisir la période : une pop-up demande la lignée. Cliquez sur un créneau attribué pour changer sa lignée, ses dates, ou retirer l'attribution. Les admins peuvent aussi le faire depuis les vues Mois et Saison.</p>
+@endif
+
 @foreach ($periodes as $periode)
 <section class="flex flex-col gap-4 rounded-2xl border border-bord bg-white p-5" data-periode="{{ $periode->nom }}">
     <div class="flex flex-wrap items-baseline gap-2">
@@ -39,35 +45,25 @@
         @if ($periode->manuelle)<span class="rounded bg-amber-100 px-2 text-xs font-bold">corrigée à la main</span>@endif
     </div>
 
-    <ol class="flex flex-wrap gap-1" aria-label="Créneaux de la période">
-        @foreach ($situations[$periode->id] as $cle => $s)
-            @continue(($cle === $periode->premiere_nuit->format('Y-m-d').'-J') || ($cle === $periode->dernier_jour->format('Y-m-d').'-N'))
-            <li title="{{ $s->creneau->date->format('d/m') }} {{ $s->creneau->type->libelle() }}">
-                <span class="sr-only">{{ $s->creneau->date->format('d/m') }}</span>@include('partiels.creneau', ['situation' => $s])
-            </li>
-        @endforeach
-    </ol>
+    {{-- Les jours comme dans la vue mois (demande du 7 nov.) : on attribue comme on réserve, par clics puis pop-up. --}}
+    @include('partiels.grille-semaines', [
+        'semaines' => $semaines[$periode->id],
+        'affichages' => $affichages[$periode->id],
+        'legende' => 'Créneaux de '.$periode->libelle().' '.$annee->libelle,
+        'dansVue' => fn ($jour) => $jour->format('Y-m-d') >= $periode->premiere_nuit->format('Y-m-d') && $jour->format('Y-m-d') <= $periode->dernier_jour->format('Y-m-d'),
+    ])
 
     <h3 class="font-bold">Plages attribuées</h3>
-    @forelse ($periode->plages as $plage)
-        <form method="POST" action="{{ route('admin.plages.modifier', $plage) }}" class="flex flex-wrap items-end gap-2" data-plage="{{ $plage->id }}">
-            @csrf @method('PUT')
-            @include('admin._champs-plage', ['valeurs' => $plage])
-            <button type="submit" class="h-11 rounded-lg border border-bord px-3 font-bold">Modifier</button>
-            <button type="submit" form="retirer-{{ $plage->id }}" class="h-11 rounded-lg border border-erreur px-3 font-bold text-erreur">Retirer</button>
-        </form>
-        <form id="retirer-{{ $plage->id }}" method="POST" action="{{ route('admin.plages.retirer', $plage) }}">@csrf @method('DELETE')</form>
+    @forelse ($periode->plages->sortBy(fn ($p) => $p->debut->format('Y-m-d').$p->debut_type) as $plage)
+        <p class="flex flex-wrap items-center gap-2 text-sm" data-plage="{{ $plage->id }}">
+            <span class="case case-attribue {{ \App\Domain\Calendrier\AffichageCreneau::classeCouleur((string) $plage->lignee->couleur) }} min-h-0 w-8 items-center px-0 text-center" aria-hidden="true">{{ $symboles[$plage->lignee->nom] ?? '' }}</span>
+            <strong>{{ $plage->lignee->nom }}</strong>
+            du {{ $plage->debut->format('d/m/Y') }} ({{ $plage->debut_type === 'N' ? 'nuit' : 'journée' }})
+            au {{ $plage->fin->format('d/m/Y') }} ({{ $plage->fin_type === 'N' ? 'nuit' : 'journée' }})
+        </p>
     @empty
         <p class="text-sm text-gris">Aucune plage : tous les créneaux sont en attente d'attribution.</p>
     @endforelse
-
-    <h3 class="font-bold">Nouvelle plage</h3>
-    <form method="POST" action="{{ route('admin.plages.attribuer') }}" class="flex flex-wrap items-end gap-2">
-        @csrf
-        <input type="hidden" name="periode_id" value="{{ $periode->id }}">
-        @include('admin._champs-plage', ['valeurs' => null])
-        <button type="submit" class="h-11 rounded-lg bg-sapin px-4 font-bold text-white">Attribuer</button>
-    </form>
 
     <details>
         <summary class="cursor-pointer text-sm underline">Corriger les dates à la main</summary>
@@ -82,4 +78,5 @@
 @endforeach
 
 @include('admin._cumul')
+@include('partiels.popup-attribution')
 @endsection

@@ -22,7 +22,7 @@ final class Occupation
         $au = $fin->format('Y-m-d');
 
         $stockes = CreneauStocke::query()
-            ->with(['attribution.lignee'])
+            ->with(['attribution.lignee', 'attribution.plage'])
             ->whereBetween('date', [$du, $au])
             ->get()
             ->keyBy(fn (CreneauStocke $c) => $c->date->format('Y-m-d').'-'.$c->type);
@@ -71,7 +71,7 @@ final class Occupation
         if ($stocke->attribution !== null) {
             $lignee = $stocke->attribution->lignee;
 
-            return new SituationCreneau($creneau, EtatCreneau::Attribue, $lignee?->nom, $lignee?->couleur);
+            return new SituationCreneau($creneau, EtatCreneau::Attribue, $lignee?->nom, $lignee?->couleur, plage: $stocke->attribution->plage);
         }
         if ($stocke->periode_id !== null) {
             return new SituationCreneau($creneau, EtatCreneau::Attente);

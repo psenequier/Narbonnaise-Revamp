@@ -13,7 +13,9 @@ use App\Domain\Vacances\Conflits;
 use App\Domain\Vacances\PeriodesScolaires;
 use App\Domain\Vacances\RefusVacances;
 use App\Domain\Vacances\SuiviAttributions;
+use App\Http\Controllers\CalendrierController;
 use App\Models\AnneeScolaire;
+use App\Models\Creneau as CreneauStocke;
 use App\Models\Lignee;
 use App\Models\PeriodeVacances;
 use App\Models\Plage;
@@ -22,6 +24,7 @@ use App\Models\User;
 use DateTimeImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /** Écran Vacances des admins : périodes, plages attribuées, cumul, conflits (US-403 à US-408). */
@@ -42,20 +45,30 @@ final class VacancesController
         $annee = $annees->firstWhere('libelle', $libelle);
 
         $periodes = $annee ? $annee->periodes()->with('plages.lignee')->orderBy('premiere_nuit')->get() : collect();
-        $situations = [];
+        // Chaque période en semaines complètes, comme la vue mois : les créneaux se cliquent pour attribuer (7 nov.).
+        $semaines = [];
+        $affichages = [];
+        $aujourdhui = CalendrierController::aujourdhui();
         foreach ($periodes as $p) {
-            $situations[$p->id] = $this->occupation->entre(
-                new DateTimeImmutable($p->premiere_nuit->format('Y-m-d')),
-                new DateTimeImmutable($p->dernier_jour->format('Y-m-d')),
-            );
+            $premiere = new DateTimeImmutable($p->premiere_nuit->format('Y-m-d'), CalendrierController::paris());
+            $dernier = new DateTimeImmutable($p->dernier_jour->format('Y-m-d'), CalendrierController::paris());
+            $debutGrille = $premiere->format('N') === '1' ? $premiere : $premiere->modify('last monday');
+            $finGrille = $dernier->format('N') === '7' ? $dernier : $dernier->modify('next sunday');
+            $affichages[$p->id] = CalendrierController::affichages($this->occupation->entre($debutGrille, $finGrille), $aujourdhui, (int) $request->user()?->id);
+            for ($jour = $debutGrille; $jour <= $finGrille; $jour = $jour->modify('+1 day')) {
+                $semaines[$p->id][$jour->format('o-W')][] = $jour;
+            }
         }
 
         return view('admin.vacances', [
             'annees' => $annees,
             'annee' => $annee,
             'periodes' => $periodes,
-            'situations' => $situations,
+            'semaines' => $semaines,
+            'affichages' => $affichages,
+            'cleJour' => $aujourdhui->format('Y-m-d'),
             'lignees' => Lignee::query()->orderBy('nom')->get(),
+            'symboles' => CalendrierController::symbolesLignees(),
             'cumul' => $this->suivi->cumul(),
             'conflits' => Reservation::query()->actives()->whereNotNull('en_conflit_le')->with('user:id,prenom,nom', 'creneaux')->get(),
         ]);
@@ -138,7 +151,8 @@ final class VacancesController
     private function plageDemandee(Request $request, ?PeriodeVacances $periode = null): array
     {
         $valide = $request->validate([
-            'periode_id' => [$periode ? 'nullable' : 'required', 'integer', 'exists:periodes_vacances,id'],
+            // Sans période (pop-up du calendrier) : celle du premier créneau choisi.
+            'periode_id' => ['nullable', 'integer', 'exists:periodes_vacances,id'],
             'lignee_id' => ['required', 'integer'],
             'debut' => ['required', 'date_format:Y-m-d'],
             'debut_type' => ['required', 'in:J,N'],
@@ -146,12 +160,20 @@ final class VacancesController
             'fin_type' => ['required', 'in:J,N'],
         ]);
 
-        return [
-            $periode ?? PeriodeVacances::query()->findOrFail((int) $valide['periode_id']),
-            (int) $valide['lignee_id'],
-            new Creneau(new DateTimeImmutable((string) $valide['debut']), TypeCreneau::from((string) $valide['debut_type'])),
-            new Creneau(new DateTimeImmutable((string) $valide['fin']), TypeCreneau::from((string) $valide['fin_type'])),
-        ];
+        $debut = new Creneau(new DateTimeImmutable((string) $valide['debut']), TypeCreneau::from((string) $valide['debut_type']));
+        $fin = new Creneau(new DateTimeImmutable((string) $valide['fin']), TypeCreneau::from((string) $valide['fin_type']));
+        if ($periode === null && isset($valide['periode_id'])) {
+            $periode = PeriodeVacances::query()->findOrFail((int) $valide['periode_id']);
+        }
+        if ($periode === null) {
+            $idPeriode = CreneauStocke::query()->whereDate('date', $debut->date->format('Y-m-d'))->where('type', $debut->type->value)->value('periode_id');
+            $periode = $idPeriode === null ? null : PeriodeVacances::query()->find((int) $idPeriode);
+        }
+        if ($periode === null) {
+            throw ValidationException::withMessages(['plage' => 'Ce créneau ne fait pas partie de vacances scolaires : il ne s\'attribue pas.']);
+        }
+
+        return [$periode, (int) $valide['lignee_id'], $debut, $fin];
     }
 
     private function admin(Request $request): User
