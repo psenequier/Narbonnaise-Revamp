@@ -91,8 +91,12 @@
         @endforeach
         </div>
     </section>
+    @can('admin')
+        <p class="text-sm text-gris" data-aide-attribution><strong>Admin :</strong> cliquez sur un créneau « En attente » puis sur un second pour attribuer ces vacances à une lignée ; cliquez sur un créneau attribué pour changer sa lignée, ses dates, ou retirer l'attribution.</p>
+    @endcan
     <p class="text-sm text-gris">Barre du haut = journée, barre du bas = nuit. Chaque barre porte le réservant, le nombre de personnes et le début du commentaire (initiales et nombre sur un seul créneau) ; tout le détail s'affiche au survol de la souris. Un créneau attribué n'affiche que la lignée. Cliquez sur un créneau pour le sélectionner, recliquez pour le désélectionner, cliquez sur un second créneau pour choisir la période. Cliquez sur le numéro du jour pour voir le détail. Les week-ends sont en gras.</p>
 @endif
 
 @include('partiels.popup-reservation')
+@include('partiels.popup-attribution')
 @endsection

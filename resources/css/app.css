@@ -89,6 +89,9 @@
     .case-ferme, .barre-ferme { @apply cursor-not-allowed border-gris bg-fond text-gris line-through; }
     .case-pas-ouvert, .barre-pas-ouvert { @apply cursor-not-allowed border-dotted border-bord bg-fond text-gris; }
     .case-passe { @apply cursor-default opacity-60; }
+    /* Admin : les créneaux en attente et attribués se cliquent pour attribuer (demande du 7 nov.). */
+    .case[data-dispo='attribuable'], .case[data-dispo='attribution'] { cursor: pointer; }
+    .case[data-dispo='attribuable']:hover { @apply border-alerte; }
 
     .barre { @apply flex flex-col justify-center overflow-hidden rounded-md border px-1 py-0.5 leading-tight whitespace-nowrap; }
     .barre-ouverte { @apply border-ouverte-bord bg-ouverte-bord text-ouverte-texte; }

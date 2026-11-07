@@ -39,7 +39,11 @@ final readonly class AffichageCreneau
      */
     public array $infobulle;
 
-    /** libre | mienne | non : un créneau libre se sélectionne ; un créneau de ma réservation ouvre son édition. */
+    /**
+     * libre | mienne | attribuable | attribution | non : un créneau libre se sélectionne ; un créneau de ma
+     * réservation ouvre son édition. Pour un admin seulement (demande du 7 nov.) : un créneau en attente
+     * d'attribution se sélectionne pour une attribution, un créneau attribué ouvre l'édition de sa plage.
+     */
     public string $dispo;
 
     /** Rang croissant dans le temps (deux par jour), pour sélectionner une période. */
@@ -51,7 +55,7 @@ final readonly class AffichageCreneau
     /** Ma réservation sur ce créneau, modifiable depuis la pop-up. */
     public ?Reservation $mienne;
 
-    public function __construct(public SituationCreneau $situation, DateTimeImmutable $aujourdhui, int $moi = 0)
+    public function __construct(public SituationCreneau $situation, DateTimeImmutable $aujourdhui, int $moi = 0, bool $admin = false)
     {
         $creneau = $situation->creneau;
         $date = Carbon::instance($creneau->date);
@@ -107,6 +111,8 @@ final readonly class AffichageCreneau
         $this->dispo = $passe ? 'non' : match (true) {
             $this->mienne !== null => 'mienne',
             $situation->etat === EtatCreneau::Libre => 'libre',
+            $admin && $situation->etat === EtatCreneau::Attente => 'attribuable',
+            $admin && $situation->etat === EtatCreneau::Attribue && $situation->plage !== null => 'attribution',
             default => 'non',
         };
 
@@ -168,6 +174,33 @@ final readonly class AffichageCreneau
         }
 
         return $this->mienne->creneaux->map(fn ($c) => $c->date->format('Y-m-d').'-'.$c->type)->implode(',');
+    }
+
+    /** Libellé de l'action au clic, pour les lecteurs d'écran ; null si le créneau ne se clique pas. */
+    public function action(): ?string
+    {
+        return match ($this->dispo) {
+            'libre' => 'Sélectionner',
+            'mienne' => 'Modifier ma réservation',
+            'attribuable' => 'Attribuer',
+            'attribution' => 'Modifier l\'attribution',
+            default => null,
+        };
+    }
+
+    /**
+     * Premier et dernier créneau de la plage attribuée (« 2026-12-18-N »), pour la pop-up d'attribution.
+     *
+     * @return array{0: string, 1: string}|null
+     */
+    public function bornesPlage(): ?array
+    {
+        $plage = $this->situation->plage;
+        if ($this->dispo !== 'attribution' || $plage === null) {
+            return null;
+        }
+
+        return [$plage->premier()->cle(), $plage->dernier()->cle()];
     }
 
     public function infobulleTexte(): string

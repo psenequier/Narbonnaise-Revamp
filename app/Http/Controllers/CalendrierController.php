@@ -49,7 +49,7 @@ final class CalendrierController
             'semaines' => $semaines,
             'situations' => $situations,
             'affichages' => self::affichages($situations, $aujourdhui, (int) auth()->id()),
-            'lignees' => Lignee::query()->orderBy('nom')->get(['nom', 'couleur']),
+            'lignees' => Lignee::query()->orderBy('nom')->get(['id', 'nom', 'couleur']),
             'symboles' => self::symbolesLignees(),
             'aujourdhui' => $aujourdhui,
             'pasOuvert' => collect($situations)->contains(fn ($s) => $s->etat === EtatCreneau::PasOuvert
@@ -97,7 +97,7 @@ final class CalendrierController
             'mois' => $mois,
             'situations' => $situations,
             'affichages' => self::affichages($situations, self::aujourdhui(), (int) auth()->id()),
-            'lignees' => Lignee::query()->orderBy('nom')->get(['nom', 'couleur']),
+            'lignees' => Lignee::query()->orderBy('nom')->get(['id', 'nom', 'couleur']),
             'symboles' => self::symbolesLignees(),
             'ouverture' => $parametres->facultatif("station.ouverture.{$saison}"),
             'fermeture' => $parametres->facultatif("station.fermeture.{$saison}"),
@@ -128,9 +128,11 @@ final class CalendrierController
      * @param  array<string, SituationCreneau>  $situations
      * @return array<string, AffichageCreneau>
      */
-    private static function affichages(array $situations, DateTimeImmutable $aujourdhui, int $moi): array
+    public static function affichages(array $situations, DateTimeImmutable $aujourdhui, int $moi): array
     {
-        return array_map(fn (SituationCreneau $s) => new AffichageCreneau($s, $aujourdhui, $moi), $situations);
+        $admin = \Illuminate\Support\Facades\Gate::allows('admin');
+
+        return array_map(fn (SituationCreneau $s) => new AffichageCreneau($s, $aujourdhui, $moi, $admin), $situations);
     }
 
     /**
@@ -138,7 +140,7 @@ final class CalendrierController
      *
      * @return array<string, string>
      */
-    private static function symbolesLignees(): array
+    public static function symbolesLignees(): array
     {
         $symboles = ['●', '■', '▲', '◆', '★'];
         $noms = Lignee::query()->orderBy('id')->pluck('nom')->map(fn ($n) => (string) $n)->values()->all();

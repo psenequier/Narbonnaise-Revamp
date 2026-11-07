@@ -181,3 +181,53 @@ it('affiche l\'écran Vacances à un admin', function () {
     $this->actingAs($this->admin)->get('/admin/vacances')->assertOk()
         ->assertSee('Noël 2026-2027')->assertSee('Lignée Bleue')->assertSee('data-plage', false);
 });
+
+/*
+ * Attribuer comme on réserve (demande de Pascal du 7 nov. 2026) : clics sur les créneaux puis pop-up,
+ * depuis l'écran Vacances et les vues mois et saison, pour les admins seulement.
+ */
+it('US-403 montre aux admins seuls les créneaux en attente comme attribuables, dans toutes les vues', function () {
+    $mois = $this->actingAs($this->admin)->get('/calendrier/2026-12')->assertOk();
+    $mois->assertSee('data-cle="2026-12-20-J" data-dispo="attribuable"', false)->assertSee('id="popup-attribution"', false);
+    $this->actingAs($this->admin)->get('/saison/2026-2027')->assertOk()
+        ->assertSee('data-cle="2026-12-20-J" data-dispo="attribuable"', false)->assertSee('id="popup-attribution"', false);
+    $this->actingAs($this->admin)->get('/admin/vacances')->assertOk()
+        ->assertSee('data-cle="2026-12-20-J" data-dispo="attribuable"', false)->assertSee('id="popup-attribution"', false)
+        ->assertDontSee('Nouvelle plage');
+
+    $this->actingAs($this->membre)->get('/calendrier/2026-12')->assertOk()
+        ->assertSee('data-cle="2026-12-20-J" data-dispo="non"', false)->assertDontSee('id="popup-attribution"', false);
+});
+
+it('US-403 attribue depuis la pop-up du calendrier sans préciser la période', function () {
+    $this->actingAs($this->admin)->from('/calendrier/2026-12')->post('/admin/plages', [
+        'lignee_id' => $this->a->id, 'debut' => '2026-12-18', 'debut_type' => 'N', 'fin' => '2026-12-26', 'fin_type' => 'J',
+    ])->assertSessionHasNoErrors()->assertRedirect('/calendrier/2026-12');
+
+    expect(Plage::sole()->periode_id)->toBe(periode('noel')->id)
+        ->and(Attribution::where('lignee_id', $this->a->id)->count())->toBe(16);
+});
+
+it('US-403 refuse une attribution depuis le calendrier hors des vacances', function () {
+    $this->actingAs($this->admin)->post('/admin/plages', [
+        'lignee_id' => $this->a->id, 'debut' => '2026-12-10', 'debut_type' => 'J', 'fin' => '2026-12-11', 'fin_type' => 'J',
+    ])->assertSessionHasErrors('plage');
+    expect(Attribution::count())->toBe(0);
+});
+
+it('US-404 ouvre un créneau attribué en édition pour un admin, jamais pour un membre', function () {
+    $this->actingAs($this->admin)->post('/admin/plages', plage($this->a->id, '2026-12-18-N', '2026-12-26-J'));
+    $plage = Plage::sole();
+
+    $this->actingAs($this->admin)->get('/calendrier/2026-12')
+        ->assertSee('data-cle="2026-12-20-J" data-dispo="attribution"', false)
+        ->assertSee('data-plage="'.$plage->id.'"', false)
+        ->assertSee('data-debut-plage="2026-12-18-N" data-fin-plage="2026-12-26-J"', false);
+
+    $this->actingAs($this->membre)->get('/calendrier/2026-12')
+        ->assertSee('data-cle="2026-12-20-J" data-dispo="non"', false)
+        ->assertDontSee('data-plage=', false);
+    $this->actingAs($this->membre)->put('/admin/plages/'.$plage->id, plage($this->b->id, '2026-12-18-N', '2026-12-26-J'))->assertForbidden();
+    $this->actingAs($this->membre)->delete('/admin/plages/'.$plage->id)->assertForbidden();
+    expect($plage->fresh()->lignee_id)->toBe($this->a->id);
+});
