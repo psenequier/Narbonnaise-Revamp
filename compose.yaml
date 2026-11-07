@@ -1,5 +1,6 @@
 # Site local de test sur son ordinateur : « docker compose up », puis http://localhost:8000.
-# Données fictives uniquement ; GRR et la production ne sont jamais touchés.
+# Données fictives par défaut (ou copie de la vraie base, voir local/charger-grr.sh, jamais commise) ;
+# GRR et la production ne sont jamais touchés. Les e-mails sont captés par Mailpit : http://localhost:8025
 name: chamrousse
 
 services:
@@ -15,11 +16,19 @@ services:
       interval: 3s
       retries: 60
 
+  # Boîte de test : capte tous les e-mails du site local, aucun ne part vers Internet.
+  mailpit:
+    image: axllent/mailpit:v1.32.0
+    ports:
+      - "127.0.0.1:8025:8025"
+
   site:
     build: local
     depends_on:
       mysql:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     environment:
       DB_HOST: mysql
       APP_URL: http://localhost:8000

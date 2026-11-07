@@ -16,6 +16,9 @@ jamais modifiés par le nouveau site.
    - `GRR_AJUSTEMENTS=<login perso de l'admin>:admin,<login du compte partagé>:desactive`
    - `GRR_REPRISE=ouverte`
    - `LIGNEES="<Nom>:#couleur,<Nom>:#couleur,<Nom>:#couleur"` (les trois lignées réelles)
+   - `MAIL_REDIRIGER_VERS=<adresse de Pascal>` : pendant les répétitions, tous les e-mails du
+     nouveau site (rappels, mot de passe oublié, informations groupées) partent vers cette seule
+     adresse, jamais vers les membres. Voir « E-mails » ci-dessous avant de le vider.
 3. Variables du dépôt (Settings → Secrets and variables → Actions → Variables) :
    `DEPLOIEMENT_ACTIF=oui`, `SITE_SERVI=non`, `REPRISE_GRR=non`.
 
@@ -53,6 +56,16 @@ reprise suivante les remet à jour sans doublon. Les archives restent dans `part
 **Tables GRR** (N2) : elles ne se suppriment qu'avec `php artisan grr:supprimer-tables --confirmer`,
 refusé tant que le dernier contrôle n'est pas validé et qu'aucun export chiffré intact n'est présent.
 Pas avant la fin de la saison.
+
+## E-mails : redirection pendant les tests
+
+Tant que `MAIL_REDIRIGER_VERS` est renseigné dans `partage/.env`, aucun membre ne reçoit rien.
+Pour un envoi réel (annonce J-7, « Jour J », bascule) :
+1. OVH → Bases de données → phpMyAdmin, table `emails_sortants` : vérifier qu'aucune ligne n'a
+   `envoye_le` vide (un e-mail de test en attente partirait aux vrais destinataires dès la
+   redirection levée) ;
+2. vider `MAIL_REDIRIGER_VERS=` dans `partage/.env` ;
+3. seulement ensuite, déclencher l'envoi.
 
 ## Retour arrière (2 minutes)
 
