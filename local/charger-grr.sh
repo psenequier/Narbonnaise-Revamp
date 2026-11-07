@@ -82,6 +82,9 @@ if [ -n "$admin" ]; then
   fi
 fi
 
+echo "▶ Attributions GRR de la saison en cours, lignée reconnue : appliquées"
+docker compose exec -T site php artisan grr:appliquer-saison
+
 docker compose exec -T site touch storage/app/.donnees-grr
 docker compose exec -T site rm -f storage/app/.donnees-fictives
 
