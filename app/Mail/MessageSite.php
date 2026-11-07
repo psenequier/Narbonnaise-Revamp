@@ -28,6 +28,7 @@ final class MessageSite extends Mailable
         'admin.source_vacances' => 'Calendrier scolaire : la source officielle est en échec',
         'admin.vacances_modifiees' => 'Calendrier scolaire : dates de vacances modifiées',
         'admin.conflits_vacances' => 'Réservations en conflit avec les vacances',
+        'admin.conflits_fermeture' => 'Réservations en conflit avec une fermeture',
         'admin.rappel_attributions' => 'Vacances à attribuer',
         'admin.suppression_demandee' => 'Demande de suppression de compte',
         'admin.panne' => 'Alerte : un problème sur le site de réservation',
