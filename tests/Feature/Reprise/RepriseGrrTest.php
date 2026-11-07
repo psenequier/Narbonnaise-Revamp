@@ -142,7 +142,7 @@ it('US-802-P3 rend « ouverte » une réservation sans type et propose les ancie
     $p = DB::table('reprise_propositions')->where('grr_entry_id', $e['attribution'])->sole();
     expect($p->lignee_id)->toBe($this->bertin->id)->and($p->statut)->toBe('en_attente');
 
-    $admin = adminAvec2fa();
+    $admin = unAdmin();
     $this->actingAs($admin)->get('/admin/reprise')->assertOk()->assertSee('data-proposition="'.$p->id.'"', false);
     $this->actingAs($admin)->post("/admin/reprise/propositions/{$p->id}")->assertSessionHasErrors('lignee_id');
     $this->actingAs($admin)->post("/admin/reprise/propositions/{$p->id}", ['lignee_id' => $this->bertin->id])->assertRedirect();
@@ -220,7 +220,7 @@ it('US-803-P1 affiche par année des totaux égaux de part et d\'autre, et 20 r�
     foreach ($rapport['annees'] as $a) {
         expect($a['grr_reservations'])->toBe($a['site_reservations'])->and($a['grr_nuits'])->toBe($a['site_nuits']);
     }
-    $this->actingAs(adminAvec2fa())->get('/admin/reprise')->assertOk()->assertSee('data-controle="valide"', false);
+    $this->actingAs(unAdmin())->get('/admin/reprise')->assertOk()->assertSee('data-controle="valide"', false);
 });
 
 it('US-803-N1 signale l\'écart sur la bonne année quand une réservation a disparu, et passe « non validé »', function () {
@@ -308,7 +308,7 @@ it('fait d\'une attribution à venir, une fois validée, une plage de l\'écran 
     app(ImportGrr::class)->importer();
     $p = DB::table('reprise_propositions')->where('grr_entry_id', $id)->sole();
 
-    $this->actingAs(adminAvec2fa())->post("/admin/reprise/propositions/{$p->id}", ['lignee_id' => $p->lignee_id])->assertSessionHasNoErrors();
+    $this->actingAs(unAdmin())->post("/admin/reprise/propositions/{$p->id}", ['lignee_id' => $p->lignee_id])->assertSessionHasNoErrors();
 
     $plage = App\Models\Plage::sole();
     expect($plage->lignee_id)->toBe($this->carrel->id)
@@ -390,7 +390,7 @@ it('applique les ajustements de la configuration à chaque import : promotion ad
 it('lance la reprise depuis l\'écran admin, sans SSH, tant qu\'elle est ouverte', function () {
     comptesPropres();
     grrEntree('alice', '2025-02-15 12:00', '2025-02-15 12:02', 'C', salle: 2);
-    $admin = adminAvec2fa();
+    $admin = unAdmin();
 
     $this->actingAs(User::factory()->create())->post('/admin/reprise/lancer')->assertForbidden();
     $this->actingAs($admin)->post('/admin/reprise/lancer')->assertSessionHasNoErrors()->assertRedirect();

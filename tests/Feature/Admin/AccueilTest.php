@@ -1,7 +1,7 @@
 <?php
 
 it('présente les rubriques d\'administration dans une seule grille régulière', function () {
-    $this->actingAs(adminAvec2fa());
+    $this->actingAs(unAdmin());
 
     $html = $this->get('/admin')->assertOk()
         ->assertSeeInOrder(['Vacances et attributions', 'Lignées', 'Utilisateurs', 'Journal des actions', 'Reprise de GRR'])

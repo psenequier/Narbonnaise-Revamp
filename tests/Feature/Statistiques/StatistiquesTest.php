@@ -249,7 +249,7 @@ it('US-711-P1 montre au compte désigné les nuits, la part, les nuitées-person
 });
 
 it('US-711-P2 un admin choisit la lignée d\'un membre, ou aucune, et c\'est journalisé', function () {
-    $admin = adminAvec2fa();
+    $admin = unAdmin();
 
     $this->actingAs($admin)->get("/admin/utilisateurs/{$this->membre->id}")->assertOk()
         ->assertSee('Lignée : aucune')->assertSee('Lignée : Lignée fictive');

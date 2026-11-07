@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Mail;
 beforeEach(fn () => Mail::fake());
 
 it('n\'a plus d\'écran de cumul par lignée (retiré le 7 nov. 2026)', function () {
-    $admin = adminAvec2fa();
+    $admin = unAdmin();
     Lignee::create(['nom' => 'Lignée Bleue', 'couleur' => '#2F6FB0']);
 
     $this->actingAs($admin)->get('/admin/lignees')->assertNotFound();
@@ -37,13 +37,13 @@ it('US-406-P2 affiche le bandeau admin tant qu\'il reste un créneau sans ligné
     $this->travelTo('2026-11-02 10:00:00');
     ouvrirAnnee2026();
 
-    $this->actingAs(adminAvec2fa())->get('/')->assertOk()->assertSee('data-bandeau="attributions"', false)->assertSee('64 créneau(x)');
+    $this->actingAs(unAdmin())->get('/')->assertOk()->assertSee('data-bandeau="attributions"', false)->assertSee('64 créneau(x)');
 });
 
 it('US-406-N1 n\'envoie aucun rappel et retire le bandeau quand tout est attribué', function () {
     $this->travelTo('2026-08-20 10:00:00');
     ouvrirAnnee2026();
-    $admin = adminAvec2fa();
+    $admin = unAdmin();
     $lignee = Lignee::create(['nom' => 'Lignée Bleue', 'couleur' => '#2F6FB0']);
     foreach (DB::table('creneaux')->whereNotNull('periode_id')->pluck('id') as $id) {
         DB::table('attributions')->insert(['creneau_id' => $id, 'lignee_id' => $lignee->id, 'saisie_par' => $admin->id]);

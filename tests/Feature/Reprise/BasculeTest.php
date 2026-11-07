@@ -70,7 +70,7 @@ it('garde l\'hommage sans chiffres tant que rien n\'est repris', function () {
 });
 
 it('montre le texte de l\'annonce sur l\'écran admin avant l\'envoi', function () {
-    $this->actingAs(adminAvec2fa())->get('/admin/reprise')->assertOk()
+    $this->actingAs(unAdmin())->get('/admin/reprise')->assertOk()
         ->assertSee('Texte de l\'annonce', false)->assertSee('Le site de réservation de l\'appartement change')
         ->assertSee('[date de la bascule]')->assertSee('le Glaude');
     Mail::assertNothingSent();
@@ -122,7 +122,7 @@ it('US-806-N2 met les destinataires en copie cachée, un seul e-mail par annonce
 });
 
 it('envoie les annonces depuis l\'écran admin, la mise en service une seule fois', function () {
-    $admin = adminAvec2fa();
+    $admin = unAdmin();
 
     $this->actingAs($admin)->post('/admin/reprise/annonce', ['date' => '2026-12-12', 'duree' => 'une nuit'])->assertSessionHasNoErrors();
     $this->actingAs($admin)->post('/admin/reprise/annonce', ['date' => '2026-11-20', 'duree' => 'une nuit'])->assertSessionHasErrors('date');

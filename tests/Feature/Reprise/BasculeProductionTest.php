@@ -138,7 +138,7 @@ it('US-805-N2 supprime les tables GRR une fois le contrôle validé et l\'export
 
 it('ne laisse télécharger les archives qu\'aux admins, par un nom sans chemin', function () {
     $meta = app(ExportBascule::class)->exporterGrr();
-    $admin = adminAvec2fa();
+    $admin = unAdmin();
 
     $this->actingAs(User::factory()->create())->get('/admin/reprise/archives/'.$meta['fichier'])->assertForbidden();
     $this->actingAs($admin)->get('/admin/reprise')->assertSee('data-archive="grr"', false);
