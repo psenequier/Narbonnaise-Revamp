@@ -71,7 +71,7 @@ it('garde l\'hommage sans chiffres tant que rien n\'est repris', function () {
 
 it('montre le texte de l\'annonce sur l\'écran admin avant l\'envoi', function () {
     $this->actingAs(adminAvec2fa())->get('/admin/reprise')->assertOk()
-        ->assertSee('Texte de l\'annonce')->assertSee('Le site de réservation de l\'appartement change')
+        ->assertSee('Texte de l\'annonce', false)->assertSee('Le site de réservation de l\'appartement change')
         ->assertSee('[date de la bascule]')->assertSee('le Glaude');
     Mail::assertNothingSent();
 });
