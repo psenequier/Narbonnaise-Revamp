@@ -5,7 +5,7 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
-    $this->travelTo('2026-12-16 09:40:00');
+    $this->travelTo(\Illuminate\Support\Carbon::parse('2026-12-16 09:40:00', 'Europe/Paris')); // heure affichée à Paris
     app()->instance(\App\Domain\Sources\UrlSourceSure::class, new \App\Domain\Sources\UrlSourceSure(fn () => ['185.75.143.24']));
     reinitialiserHttp();
     $this->membre = User::factory()->create();
