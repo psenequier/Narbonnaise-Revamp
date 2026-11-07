@@ -179,6 +179,6 @@
             </div>
         @endforeach
     @endif
-    <p class="text-sm text-texte-2">Bulletin rédigé par M. Caplain, que nous remercions pour ce travail de passionné. Source : <a href="{{ \App\Domain\Meteo\BulletinCaplain::URL }}" target="_blank" rel="noopener noreferrer" class="font-bold text-sapin">mto38.free.fr</a></p>
+    <p class="text-sm italic text-texte-2" data-credit-caplain>Bulletin rédigé par M. Caplain, que nous remercions pour ce travail de passionné. Source : <a href="{{ \App\Domain\Meteo\BulletinCaplain::URL }}" target="_blank" rel="noopener noreferrer" class="font-bold text-sapin">mto38.free.fr</a></p>
 </section>
 @endsection

@@ -28,6 +28,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property bool $a_reinitialiser
  * @property string|null $grr_login
  * @property bool $recoit_annonces_attribution
+ * @property \Illuminate\Support\Carbon|null $suppression_demandee_le
+ * @property \Illuminate\Support\Carbon|null $supprime_le
  */
 class User extends Authenticatable
 {
@@ -50,6 +52,8 @@ class User extends Authenticatable
             'recoit_annonces_attribution' => 'boolean',
             'a_reinitialiser' => 'boolean',
             'invitation_expire_le' => 'datetime',
+            'suppression_demandee_le' => 'datetime',
+            'supprime_le' => 'datetime',
         ];
     }
 
@@ -57,6 +61,7 @@ class User extends Authenticatable
     public function statut(): string
     {
         return match (true) {
+            $this->supprime_le !== null => 'Supprimé',
             ! $this->actif => 'Désactivé',
             $this->a_reinitialiser => 'À réinitialiser',
             $this->password === null => 'Invité',

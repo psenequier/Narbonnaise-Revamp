@@ -7,6 +7,18 @@
     <div role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>
 @endif
 
+@if ($membre->supprime_le !== null)
+<section class="flex flex-col gap-2 rounded-2xl border border-bord bg-white p-5" data-supprime>
+    <p><strong data-statut="Supprimé">Compte supprimé</strong> le {{ $membre->supprime_le->timezone('Europe/Paris')->format('d/m/Y') }} : seul le prénom est conservé (US-110).</p>
+</section>
+@else
+@if ($membre->suppression_demandee_le !== null)
+<section class="flex flex-col gap-3 rounded-2xl border border-erreur bg-erreur-fond p-5" aria-labelledby="suppression" data-suppression-demandee>
+    <h2 id="suppression" class="text-lg font-extrabold">Suppression demandée le {{ $membre->suppression_demandee_le->timezone('Europe/Paris')->format('d/m/Y') }}</h2>
+    <p class="text-sm">Seul le prénom sera conservé. Le nom, l'adresse e-mail, le mot de passe et le compte Google lié seront effacés, y compris du journal et de la boîte d'envoi. Les réservations passées restent, avec le prénom. Ses réservations à venir seront annulées et les créneaux libérés. Cette action ne se défait pas.</p>
+    <form method="POST" action="{{ route('admin.utilisateurs.supprimer', $membre) }}">@csrf<button class="h-11 rounded-lg bg-erreur px-4 font-bold text-white">Supprimer le compte</button></form>
+</section>
+@endif
 <section class="flex flex-col gap-2 rounded-2xl border border-bord bg-white p-5">
     <p>{{ $membre->email }} · <strong data-statut="{{ $membre->statut() }}">{{ $membre->statut() }}</strong> · {{ $membre->estAdmin() ? 'Administrateur' : 'Membre' }}</p>
     <div class="flex flex-wrap gap-2">
@@ -31,6 +43,8 @@
         </form>
     </div>
 </section>
+
+@endif
 
 <section class="flex flex-col gap-2 rounded-2xl border border-bord bg-white p-5" aria-labelledby="futures">
     <h2 id="futures" class="text-lg font-extrabold">Réservations à venir</h2>

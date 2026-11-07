@@ -27,12 +27,12 @@ final class Conflits
     ) {}
 
     /**
-     * Marque les réservations actives sur ces créneaux et alerte les admins.
+     * Marque les réservations actives sur ces créneaux et alerte les admins (vacances, US-407 ; fermeture, US-605-P2).
      *
      * @param  list<int>  $creneaux
      * @return int nombre de réservations nouvellement en conflit
      */
-    public function detecter(array $creneaux): int
+    public function detecter(array $creneaux, string $gabarit = 'admin.conflits_vacances', string $intro = 'De nouvelles dates de vacances englobent des réservations existantes. Aucune n\'a été annulée : arbitrez chacune depuis l\'écran Vacances.'): int
     {
         if ($creneaux === []) {
             return 0;
@@ -52,8 +52,8 @@ final class Conflits
             Journal::ecrire('reservation.en_conflit', $r);
         }
         $this->annonces->alerterAdmins(
-            'admin.conflits_vacances',
-            'De nouvelles dates de vacances englobent des réservations existantes. Aucune n\'a été annulée : arbitrez chacune depuis l\'écran Vacances.',
+            $gabarit,
+            $intro,
             array_values($reservations->map(fn (Reservation $r) => 'Réservation n° '.$r->id.' de '.$r->user?->prenom.' '.$r->user?->nom
                 .', du '.$r->creneaux->first()?->date->format('d/m/Y').' au '.$r->creneaux->last()?->date->format('d/m/Y'))->all()),
         );
