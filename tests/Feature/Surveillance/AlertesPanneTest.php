@@ -104,8 +104,10 @@ it('US-909-P2 garde 30 sauvegardes : au 31e jour, la plus ancienne est supprimé
 it('US-909-N2 ne sert pas les sauvegardes depuis le web', function () {
     expect(config('backup.backup.destination.disks'))->toBe(['local'])
         ->and(config('filesystems.disks.local.root'))->not->toStartWith(public_path());
-    $this->get('/sauvegardes/2026-10-01-03-00-00.zip')->assertNotFound();
-    $this->get('/storage/app/private/sauvegardes/2026-10-01-03-00-00.zip')->assertNotFound();
+    // US-909-N2 : 404 ou 403 (le chemin /storage est refusé d'office).
+    foreach (['/sauvegardes/2026-10-01-03-00-00.zip', '/storage/app/private/sauvegardes/2026-10-01-03-00-00.zip'] as $url) {
+        expect($this->get($url)->status())->toBeIn([403, 404]);
+    }
 });
 
 it('US-909-N1 chiffre l\'archive avec le mot de passe des sauvegardes', function () {
