@@ -1,0 +1,163 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Equite;
+
+use DateTimeImmutable;
+use Illuminate\Support\Facades\DB;
+
+/**
+ * Occupation par lignée (US-711) et par membre (US-712), ADR 019, pour les seuls comptes désignés : la vérification
+ * d'accès est faite par l'appelant (porte « statistiques-lignees »). Volontairement hors du
+ * module Statistiques, qui ne lit que v_occupation (ADR 012).
+ *
+ * Une nuit de vacances compte pour la lignée attribuée ; une autre nuit, pour la lignée de
+ * l'auteur de chaque réservation active (exclusive l'emporte sur ouverte). Jamais par personne.
+ *
+ * @phpstan-type Ligne array{nom: string, rang: int, ouverte: int, exclusive: int, attribuee: int, total: int, personnes: int, reservations: int}
+ * @psalm-type Ligne = array{nom: string, rang: int, ouverte: int, exclusive: int, attribuee: int, total: int, personnes: int, reservations: int}
+ * @phpstan-type Membre array{nom: string, lignee: string|null, rang: int, ouverte: int, exclusive: int, total: int, personnes: int, reservations: int}
+ * @psalm-type Membre = array{nom: string, lignee: string|null, rang: int, ouverte: int, exclusive: int, total: int, personnes: int, reservations: int}
+ */
+final class OccupationParLignee
+{
+    /** @return list<Ligne> une ligne par lignée (ordre de création), puis « Sans lignée » s'il y a lieu */
+    public function periode(DateTimeImmutable $debut, DateTimeImmutable $fin): array
+    {
+        $bornes = [$debut->format('Y-m-d'), $fin->format('Y-m-d')];
+
+        /** @var array<string, string> $noms clé de lignée (id, ou « sans ») → nom */
+        $noms = [];
+        foreach (DB::table('lignees')->orderBy('id')->get(['id', 'nom']) as $l) {
+            $noms[(string) (int) $l->id] = (string) $l->nom;
+        }
+        $cle = fn (mixed $id): string => $id !== null && isset($noms[(string) (int) $id]) ? (string) (int) $id : 'sans';
+
+        /** @var array<string, int> $attribuees */
+        $attribuees = [];
+        /** @var array<string, int> $personnes */
+        $personnes = [];
+        /** @var array<string, array<int, string>> $modes clé → créneau → mode retenu */
+        $modes = [];
+        /** @var array<string, array<int, true>> $reservations */
+        $reservations = [];
+
+        // Nuits attribuées (vacances).
+        $nuitsAttribuees = [];
+        $lignesAttribuees = DB::table('attributions as a')
+            ->join('creneaux as c', 'c.id', '=', 'a.creneau_id')
+            ->where('c.type', 'N')->whereBetween('c.date', $bornes)
+            ->get(['a.lignee_id', 'c.id as creneau']);
+        foreach ($lignesAttribuees as $a) {
+            $nuitsAttribuees[(int) $a->creneau] = true;
+            $k = $cle($a->lignee_id);
+            if ($k !== 'sans') {
+                $attribuees[$k] = ($attribuees[$k] ?? 0) + 1;
+            }
+        }
+
+        // Réservations actives : nuits hors vacances, nuitées-personnes et nombre de réservations.
+        $lignesReservees = DB::table('reservation_creneau as rc')
+            ->join('reservations as r', 'r.id', '=', 'rc.reservation_id')
+            ->join('creneaux as c', 'c.id', '=', 'rc.creneau_id')
+            ->leftJoin('users as u', 'u.id', '=', 'r.user_id')
+            ->whereNull('r.annulee_le')
+            ->where('c.type', 'N')->whereBetween('c.date', $bornes)
+            ->get(['u.lignee_id', 'r.id as reservation', 'r.mode', 'r.nombre_personnes', 'c.id as creneau']);
+        foreach ($lignesReservees as $r) {
+            $k = $cle($r->lignee_id);
+            $reservations[$k][(int) $r->reservation] = true;
+            $personnes[$k] = ($personnes[$k] ?? 0) + (int) $r->nombre_personnes;
+            if (isset($nuitsAttribuees[(int) $r->creneau])) {
+                continue;
+            }
+            if (($modes[$k][(int) $r->creneau] ?? null) !== 'exclusive') {
+                $modes[$k][(int) $r->creneau] = $r->mode === 'exclusive' ? 'exclusive' : 'ouverte';
+            }
+        }
+
+        $resultat = [];
+        $rang = 0;
+        foreach ([...array_keys($noms), 'sans'] as $k) {
+            $compte = array_count_values($modes[$k] ?? []);
+            $ligne = [
+                'nom' => $k === 'sans' ? 'Sans lignée' : $noms[$k],
+                'rang' => $k === 'sans' ? -1 : $rang++,
+                'ouverte' => $compte['ouverte'] ?? 0,
+                'exclusive' => $compte['exclusive'] ?? 0,
+                'attribuee' => $attribuees[$k] ?? 0,
+                'total' => 0,
+                'personnes' => $personnes[$k] ?? 0,
+                'reservations' => count($reservations[$k] ?? []),
+            ];
+            $ligne['total'] = $ligne['ouverte'] + $ligne['exclusive'] + $ligne['attribuee'];
+            if ($k !== 'sans' || $ligne['total'] > 0 || $ligne['reservations'] > 0) {
+                $resultat[] = $ligne;
+            }
+        }
+
+        return $resultat;
+    }
+
+    /**
+     * US-712 : nuits réservées par membre (ouvertes, exclusives), hors vacances attribuées.
+     * Affiché « Prénom N. » ; un compte supprimé n'a plus de nom (prénom seul). Jamais l'e-mail.
+     *
+     * @return list<Membre> du plus grand nombre de nuits au plus petit
+     */
+    public function parMembre(DateTimeImmutable $debut, DateTimeImmutable $fin): array
+    {
+        $bornes = [$debut->format('Y-m-d'), $fin->format('Y-m-d')];
+        $rangs = [];
+        $rang = 0;
+        $noms = [];
+        foreach (DB::table('lignees')->orderBy('id')->get(['id', 'nom']) as $l) {
+            $rangs[(int) $l->id] = $rang++;
+            $noms[(int) $l->id] = (string) $l->nom;
+        }
+        $lignes = DB::table('reservation_creneau as rc')
+            ->join('reservations as r', 'r.id', '=', 'rc.reservation_id')
+            ->join('creneaux as c', 'c.id', '=', 'rc.creneau_id')
+            ->join('users as u', 'u.id', '=', 'r.user_id')
+            ->leftJoin('attributions as a', 'a.creneau_id', '=', 'c.id')
+            ->whereNull('r.annulee_le')->whereNull('a.id')
+            ->where('c.type', 'N')->whereBetween('c.date', $bornes)
+            ->get(['u.id as membre', 'u.prenom', 'u.nom', 'u.lignee_id', 'r.id as reservation', 'r.mode', 'r.nombre_personnes', 'c.id as creneau']);
+
+        /** @var array<int, array{fiche: Membre, creneaux: array<int, string>, reservations: array<int, true>}> $membres */
+        $membres = [];
+        foreach ($lignes as $l) {
+            $id = (int) $l->membre;
+            if (! isset($membres[$id])) {
+                $nom = trim((string) $l->prenom.' '.mb_substr(trim((string) $l->nom), 0, 1));
+                $ligneeId = $l->lignee_id === null ? null : (int) $l->lignee_id;
+                $membres[$id] = ['fiche' => [
+                    'nom' => mb_strlen($nom) > mb_strlen(trim((string) $l->prenom)) ? $nom.'.' : $nom,
+                    'lignee' => $ligneeId !== null ? ($noms[$ligneeId] ?? null) : null,
+                    'rang' => $ligneeId !== null ? ($rangs[$ligneeId] ?? -1) : -1,
+                    'ouverte' => 0, 'exclusive' => 0, 'total' => 0, 'personnes' => 0, 'reservations' => 0,
+                ], 'creneaux' => [], 'reservations' => []];
+            }
+            $membres[$id]['fiche']['personnes'] += (int) $l->nombre_personnes;
+            $membres[$id]['reservations'][(int) $l->reservation] = true;
+            if (($membres[$id]['creneaux'][(int) $l->creneau] ?? null) !== 'exclusive') {
+                $membres[$id]['creneaux'][(int) $l->creneau] = $l->mode === 'exclusive' ? 'exclusive' : 'ouverte';
+            }
+        }
+
+        $resultat = [];
+        foreach ($membres as $m) {
+            $compte = array_count_values($m['creneaux']);
+            $fiche = $m['fiche'];
+            $fiche['ouverte'] = $compte['ouverte'] ?? 0;
+            $fiche['exclusive'] = $compte['exclusive'] ?? 0;
+            $fiche['total'] = $fiche['ouverte'] + $fiche['exclusive'];
+            $fiche['reservations'] = count($m['reservations']);
+            $resultat[] = $fiche;
+        }
+        usort($resultat, fn (array $a, array $b) => [$b['total'], $a['nom']] <=> [$a['total'], $b['nom']]);
+
+        return $resultat;
+    }
+}

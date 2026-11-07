@@ -53,6 +53,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profil/google', [GoogleController::class, 'delier'])->name('profil.google.delier');
     Route::get('/statistiques', \App\Http\Controllers\StatistiquesController::class)->name('statistiques');
     Route::get('/meteo', \App\Http\Controllers\MeteoController::class)->name('meteo');
+    Route::get('/webcams', [\App\Http\Controllers\WebcamsController::class, 'index'])->name('webcams');
+    Route::get('/webcams/{cle}/image', [\App\Http\Controllers\WebcamsController::class, 'image'])->where('cle', '[a-z-]+')->name('webcams.image');
 
     Route::middleware('can:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::view('/', 'admin.accueil')->name('accueil');
@@ -75,6 +77,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/utilisateurs/{user}/desactiver', [UtilisateursController::class, 'desactiver'])->name('utilisateurs.desactiver');
         Route::post('/utilisateurs/{user}/reactiver', [UtilisateursController::class, 'reactiver'])->name('utilisateurs.reactiver');
         Route::put('/utilisateurs/{user}/role', [UtilisateursController::class, 'role'])->name('utilisateurs.role');
+        Route::put('/utilisateurs/{user}/lignee', [UtilisateursController::class, 'lignee'])->name('utilisateurs.lignee');
         Route::post('/utilisateurs/{user}/supprimer', [UtilisateursController::class, 'supprimer'])->name('utilisateurs.supprimer');
         Route::post('/utilisateurs/{user}/reinitialisation', [UtilisateursController::class, 'reinitialisation'])->name('utilisateurs.reinitialisation');
 

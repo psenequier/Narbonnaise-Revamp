@@ -36,7 +36,10 @@ final class UtilisateursController
             ->with('creneaux')->get()
             ->sortBy(fn (Reservation $r) => $r->creneaux->first()?->date->format('Y-m-d'));
 
-        return view('admin.utilisateurs.fiche', ['membre' => $user, 'futures' => $futures]);
+        return view('admin.utilisateurs.fiche', [
+            'membre' => $user, 'futures' => $futures,
+            'lignees' => \App\Models\Lignee::query()->orderBy('nom')->get(['id', 'nom']),
+        ]);
     }
 
     /** US-601 : seuls prénom, nom, e-mail et rôle sont lus ; tout mot de passe envoyé est ignoré. */
@@ -78,6 +81,17 @@ final class UtilisateursController
         $valide = $request->validate(['role' => ['required', Rule::in(['membre', 'admin'])]]);
 
         return $this->agir(fn () => $this->comptes->changerRole($user, (string) $valide['role']), 'Rôle modifié.');
+    }
+
+    /** US-711-P2 : « Aucune » (valeur vide) retire la lignée. */
+    public function lignee(Request $request, User $user): RedirectResponse
+    {
+        $valide = $request->validate(['lignee' => ['nullable', 'integer', Rule::exists('lignees', 'id')]], [
+            'lignee.exists' => 'Lignée inconnue.',
+        ]);
+        $lignee = isset($valide['lignee']) ? (int) $valide['lignee'] : null;
+
+        return $this->agir(fn () => $this->comptes->changerLignee($user, $lignee), 'Lignée enregistrée.');
     }
 
     /** US-110-P2 : confirmation par un admin ; seul le prénom est conservé. */

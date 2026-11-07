@@ -29,6 +29,14 @@ it('US-405-P1 affiche les totaux exacts de créneaux attribués par lignée', fu
         ->toMatch('/data-lignee="Lignée Verte".*?data-total="78"/s');
 });
 
+it('US-405-P1 n\'affiche plus le cumul sur l\'écran Vacances, seulement sur son écran', function () {
+    $admin = adminAvec2fa();
+    Lignee::create(['nom' => 'Lignée Bleue', 'couleur' => '#2F6FB0']);
+
+    $this->actingAs($admin)->get('/admin/vacances')->assertOk()->assertDontSee('aria-labelledby="cumul"', false);
+    $this->actingAs($admin)->get('/admin/lignees')->assertOk()->assertSee('aria-labelledby="cumul"', false);
+});
+
 it('US-405-N1 renvoie 403 à un membre non admin', function () {
     $this->actingAs(User::factory()->create())->get('/admin/lignees')->assertForbidden();
 });

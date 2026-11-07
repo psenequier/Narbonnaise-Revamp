@@ -105,12 +105,12 @@ it('US-705-P1 affiche la neige au sol en cm, avec la mention « estimation du mo
     $this->actingAs($this->membre)->get('/meteo')->assertSee('85 cm')->assertSee('estimation du modèle météo');
 });
 
-it('US-705-P2 pointe vers les pages configurées pour les pistes et les webcams, avec rel="noopener"', function () {
+it('US-705-P2 pointe vers la page configurée pour les pistes, avec rel="noopener", et vers l\'onglet Webcams', function () {
     simulerMeteo();
 
     $this->actingAs($this->membre)->get('/meteo')
         ->assertSee('href="https://www.chamrousse.com/ouverture-alpin-piste-remontee.html" target="_blank" rel="noopener noreferrer"', false)
-        ->assertSee('href="https://www.chamrousse.com/webcams.html" target="_blank" rel="noopener noreferrer"', false);
+        ->assertSee('href="'.route('webcams').'"', false);
 });
 
 it('US-705-N1 affiche « Donnée indisponible » pour une hauteur de neige absente ou négative', function (mixed $hauteur) {
