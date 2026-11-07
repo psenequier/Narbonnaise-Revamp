@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 beforeEach(function () {
     $this->dossier = sys_get_temp_dir().'/exports-'.bin2hex(random_bytes(4));
     config(['chamrousse.dossier_exports' => $this->dossier]);
+    // La reprise ouvre aussi l'année scolaire : aucune résolution DNS réelle de la source.
+    app()->instance(App\Domain\Sources\UrlSourceSure::class, new App\Domain\Sources\UrlSourceSure(fn () => ['185.75.143.24']));
     creerBaseGrr();
     grrCompte('alice', 'alice-grr@example.test', password_hash('Ancien-2019!', PASSWORD_BCRYPT), prenom: 'Alice', nom: 'Martin');
     grrEntree('alice', '2025-02-15 12:00', '2025-02-15 12:02', 'C', salle: 2);
@@ -63,6 +65,30 @@ it('US-805-P1 sauvegarde la base et exporte GRR, chiffrés et vérifiés, avant 
 
     // La réponse lue dans le journal de la CI ne contient aucune donnée personnelle.
     expect(json_encode(app(ExportBascule::class)->archives()))->not->toContain('alice');
+});
+
+it('ouvre l\'année scolaire en cours pendant la reprise, sans attendre la tâche du 1er du mois', function () {
+    $this->travelTo('2026-12-12 22:15:00');
+    simulerCalendrier();
+    verrouDeNuit();
+
+    $this->postJson('/_deploiement/migrer?reprise=1', [], ['Authorization' => 'Bearer jeton-de-nuit'])
+        ->assertOk()
+        ->assertJson(['migre' => true, 'reprise' => ['valide' => true, 'annees_ouvertes' => ['2026-2027']]]);
+
+    expect(App\Models\AnneeScolaire::where('libelle', '2026-2027')->value('ouverte'))->toBeTruthy()
+        ->and(DB::table('creneaux')->where('date', '2026-12-25')->count())->toBe(2)
+        ->and(DB::table('emails_sortants')->where('gabarit', 'vacances.ouverture')->exists())->toBeTrue();
+});
+
+it('ne bloque pas la bascule si le calendrier scolaire officiel est injoignable', function () {
+    $this->travelTo('2026-12-12 22:15:00');
+    Illuminate\Support\Facades\Http::fake(fn () => Illuminate\Support\Facades\Http::response('', 503)); // source en panne
+    verrouDeNuit();
+
+    $this->postJson('/_deploiement/migrer?reprise=1', [], ['Authorization' => 'Bearer jeton-de-nuit'])
+        ->assertOk()
+        ->assertJson(['migre' => true, 'reprise' => ['valide' => true, 'annees_ouvertes' => []]]);
 });
 
 it('US-805-P1 s\'arrête à la première erreur : sans mot de passe d\'archive, ni migration ni import', function () {

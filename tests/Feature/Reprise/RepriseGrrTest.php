@@ -368,6 +368,7 @@ it('fait la première reprise dans le déploiement, quand aucun admin n\'existe 
     @mkdir(dirname($verrou), 0700, true);
     file_put_contents($verrou, hash('sha256', 'jeton-de-nuit'));
 
+    simulerCalendrier(); // la reprise ouvre aussi l'année scolaire : source officielle simulée
     expect(User::count())->toBe(0);
     $this->postJson('/_deploiement/migrer?reprise=1', [], ['Authorization' => 'Bearer jeton-de-nuit'])
         ->assertOk()

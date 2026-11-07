@@ -67,6 +67,8 @@ Pour essayer la reprise et les e-mails avec les vrais comptes, sans toucher à G
 4. Site lancé (`docker compose up`), dans un second Terminal :
    `bash local/charger-grr.sh contexte/<fichier>.sql.gz`
    Le préfixe des tables est `NAR_` par défaut (sinon : `GRR_PREFIXE=xxx_ bash local/charger-grr.sh …`).
+   Pour qu'un compte soit admin : `ADMIN=adresse@… bash local/charger-grr.sh …`. Le script ouvre
+   aussi l'année scolaire en cours avec les dates officielles (`vacances:verifier`).
 5. Se connecter sur http://localhost:8000 avec son compte GRR. Tous les e-mails (rappels,
    mot de passe oublié, informations groupées) arrivent dans Mailpit, http://localhost:8025.
 
