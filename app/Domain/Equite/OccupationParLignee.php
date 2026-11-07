@@ -27,78 +27,73 @@ final class OccupationParLignee
     {
         $bornes = [$debut->format('Y-m-d'), $fin->format('Y-m-d')];
 
-        /** @var array<int|string, Ligne> $lignes */
-        $lignes = [];
-        $rang = 0;
+        /** @var array<string, string> $noms clé de lignée (id, ou « sans ») → nom */
+        $noms = [];
         foreach (DB::table('lignees')->orderBy('id')->get(['id', 'nom']) as $l) {
-            $lignes[(int) $l->id] = self::vide((string) $l->nom, $rang++);
+            $noms[(string) (int) $l->id] = (string) $l->nom;
         }
-        $sans = self::vide('Sans lignée', -1);
+        $cle = fn (mixed $id): string => $id !== null && isset($noms[(string) (int) $id]) ? (string) (int) $id : 'sans';
+
+        /** @var array<string, int> $attribuees */
+        $attribuees = [];
+        /** @var array<string, int> $personnes */
+        $personnes = [];
+        /** @var array<string, array<int, string>> $modes clé → créneau → mode retenu */
+        $modes = [];
+        /** @var array<string, array<int, true>> $reservations */
+        $reservations = [];
 
         // Nuits attribuées (vacances).
-        $attribuees = DB::table('attributions as a')
+        $nuitsAttribuees = [];
+        $lignesAttribuees = DB::table('attributions as a')
             ->join('creneaux as c', 'c.id', '=', 'a.creneau_id')
             ->where('c.type', 'N')->whereBetween('c.date', $bornes)
             ->get(['a.lignee_id', 'c.id as creneau']);
-        $nuitsAttribuees = [];
-        foreach ($attribuees as $a) {
+        foreach ($lignesAttribuees as $a) {
             $nuitsAttribuees[(int) $a->creneau] = true;
-            if (isset($lignes[(int) $a->lignee_id])) {
-                $lignes[(int) $a->lignee_id]['attribuee']++;
+            $k = $cle($a->lignee_id);
+            if ($k !== 'sans') {
+                $attribuees[$k] = ($attribuees[$k] ?? 0) + 1;
             }
         }
 
         // Réservations actives : nuits hors vacances, nuitées-personnes et nombre de réservations.
-        $rangs = DB::table('reservation_creneau as rc')
+        $lignesReservees = DB::table('reservation_creneau as rc')
             ->join('reservations as r', 'r.id', '=', 'rc.reservation_id')
             ->join('creneaux as c', 'c.id', '=', 'rc.creneau_id')
             ->leftJoin('users as u', 'u.id', '=', 'r.user_id')
             ->whereNull('r.annulee_le')
             ->where('c.type', 'N')->whereBetween('c.date', $bornes)
             ->get(['u.lignee_id', 'r.id as reservation', 'r.mode', 'r.nombre_personnes', 'c.id as creneau']);
-        /** @var array<string, array<int, string>> $modes cle de lignée → créneau → mode retenu */
-        $modes = [];
-        /** @var array<string, array<int, true>> $reservations */
-        $reservations = [];
-        foreach ($rangs as $r) {
-            $cle = $r->lignee_id !== null && isset($lignes[(int) $r->lignee_id]) ? (string) (int) $r->lignee_id : 'sans';
-            $reservations[$cle][(int) $r->reservation] = true;
-            if ($cle === 'sans') {
-                $sans['personnes'] += (int) $r->nombre_personnes;
-            } else {
-                $lignes[(int) $cle]['personnes'] += (int) $r->nombre_personnes;
-            }
+        foreach ($lignesReservees as $r) {
+            $k = $cle($r->lignee_id);
+            $reservations[$k][(int) $r->reservation] = true;
+            $personnes[$k] = ($personnes[$k] ?? 0) + (int) $r->nombre_personnes;
             if (isset($nuitsAttribuees[(int) $r->creneau])) {
                 continue;
             }
-            $mode = $r->mode === 'exclusive' ? 'exclusive' : 'ouverte';
-            if (($modes[$cle][(int) $r->creneau] ?? null) !== 'exclusive') {
-                $modes[$cle][(int) $r->creneau] = $mode;
-            }
-        }
-        foreach ($modes as $cle => $creneaux) {
-            $compte = array_count_values($creneaux);
-            if ($cle === 'sans') {
-                $sans['ouverte'] = $compte['ouverte'] ?? 0;
-                $sans['exclusive'] = $compte['exclusive'] ?? 0;
-            } else {
-                $lignes[(int) $cle]['ouverte'] = $compte['ouverte'] ?? 0;
-                $lignes[(int) $cle]['exclusive'] = $compte['exclusive'] ?? 0;
-            }
-        }
-        foreach ($reservations as $cle => $ids) {
-            if ($cle === 'sans') {
-                $sans['reservations'] = count($ids);
-            } else {
-                $lignes[(int) $cle]['reservations'] = count($ids);
+            if (($modes[$k][(int) $r->creneau] ?? null) !== 'exclusive') {
+                $modes[$k][(int) $r->creneau] = $r->mode === 'exclusive' ? 'exclusive' : 'ouverte';
             }
         }
 
         $resultat = [];
-        foreach ([...array_values($lignes), $sans] as $l) {
-            $l['total'] = $l['ouverte'] + $l['exclusive'] + $l['attribuee'];
-            if ($l['rang'] >= 0 || $l['total'] > 0 || $l['reservations'] > 0) {
-                $resultat[] = $l;
+        $rang = 0;
+        foreach ([...array_keys($noms), 'sans'] as $k) {
+            $compte = array_count_values($modes[$k] ?? []);
+            $ligne = [
+                'nom' => $k === 'sans' ? 'Sans lignée' : $noms[$k],
+                'rang' => $k === 'sans' ? -1 : $rang++,
+                'ouverte' => $compte['ouverte'] ?? 0,
+                'exclusive' => $compte['exclusive'] ?? 0,
+                'attribuee' => $attribuees[$k] ?? 0,
+                'total' => 0,
+                'personnes' => $personnes[$k] ?? 0,
+                'reservations' => count($reservations[$k] ?? []),
+            ];
+            $ligne['total'] = $ligne['ouverte'] + $ligne['exclusive'] + $ligne['attribuee'];
+            if ($k !== 'sans' || $ligne['total'] > 0 || $ligne['reservations'] > 0) {
+                $resultat[] = $ligne;
             }
         }
 
@@ -164,11 +159,5 @@ final class OccupationParLignee
         usort($resultat, fn (array $a, array $b) => [$b['total'], $a['nom']] <=> [$a['total'], $b['nom']]);
 
         return $resultat;
-    }
-
-    /** @return Ligne */
-    private static function vide(string $nom, int $rang): array
-    {
-        return ['nom' => $nom, 'rang' => $rang, 'ouverte' => 0, 'exclusive' => 0, 'attribuee' => 0, 'total' => 0, 'personnes' => 0, 'reservations' => 0];
     }
 }
