@@ -306,9 +306,9 @@ final class OutilsAssistant
 
         $demandes = array_key_exists('creneaux', $arguments)
             ? $this->creneaux($arguments['creneaux'])
-            : $reservation->creneaux->map(fn ($c) => new Creneau(
+            : array_values($reservation->creneaux->map(fn ($c) => new Creneau(
                 new DateTimeImmutable($c->date->format('Y-m-d'), CalendrierController::paris()), TypeCreneau::from((string) $c->type),
-            ))->values()->all();
+            ))->all());
         $mode = array_key_exists('mode', $arguments) ? $this->mode($arguments['mode']) : $reservation->mode;
         $personnes = array_key_exists('nombre_personnes', $arguments) ? $this->personnes($arguments['nombre_personnes']) : (int) $reservation->nombre_personnes;
         $commentaire = array_key_exists('commentaire', $arguments) ? $this->commentaire($arguments['commentaire']) : $reservation->commentaire;
