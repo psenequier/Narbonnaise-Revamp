@@ -62,6 +62,9 @@ final class MigrationDeploiementController
             return response()->json(['migre' => false, 'etape' => 'migrations', 'sortie' => 'voir les journaux'], 500);
         }
 
+        // Premier déploiement : les lignées viennent de LIGNEES (partage/.env), puis de l'admin.
+        \App\Models\Lignee::remplirSiVide((string) config('chamrousse.lignees'));
+
         // Nuits de répétition et de bascule : première reprise de GRR (aucun admin n'existe encore
         // pour la lancer depuis l'écran). Le script de déploiement s'arrête si le contrôle n'est pas validé (US-805-N1).
         $reprise = null;

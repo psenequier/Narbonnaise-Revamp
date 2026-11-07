@@ -102,6 +102,9 @@ user stories à jour sont dans `contexte/` (privé). Changements :
 - **Double authentification facultative**, y compris pour les admins : l'espace admin s'ouvre au
   seul rôle admin (US-108-N1 retiré). Elle reste proposée dans le profil. À reporter dans l'ADR et
   les user stories de `contexte/`.
+- **Lignées** : nom et couleur modifiables dans Admin → Lignées (ni ajout ni retrait). `LIGNEES`
+  ne sert qu'au premier remplissage, au premier déploiement.
+- **Calendrier scolaire** relu et année ouverte à chaque déploiement et au démarrage local.
 - **Tester avec la vraie base** : sur le Mac (`local/charger-grr.sh`, e-mails dans Mailpit), puis
   pendant les répétitions avec `MAIL_REDIRIGER_VERS` (PR #31). La reprise de nuit ouvre l'année
   scolaire (PR #32).

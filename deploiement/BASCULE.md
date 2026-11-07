@@ -16,7 +16,9 @@ jamais modifiés par le nouveau site.
    - `GRR_AJUSTEMENTS=<login GRR de chaque admin>:admin,…,<login du compte partagé>:desactive`
      (le **login GRR**, pas l'adresse e-mail ; appliqué à chaque reprise, répétitions comprises)
    - `GRR_REPRISE=ouverte`
-   - `LIGNEES="<Nom>:#couleur,<Nom>:#couleur,<Nom>:#couleur"` (les trois lignées réelles)
+   - `LIGNEES="<Nom>:#couleur,<Nom>:#couleur,<Nom>:#couleur"` (les trois lignées réelles) : lu au
+     premier déploiement seulement, quand aucune lignée n'existe ; ensuite, nom et couleur se
+     modifient dans Admin → Lignées
    - `MAIL_REDIRIGER_VERS=<adresse de Pascal>` : pendant les répétitions, tous les e-mails du
      nouveau site (rappels, mot de passe oublié, informations groupées) partent vers cette seule
      adresse, jamais vers les membres. Voir « E-mails » ci-dessous avant de le vider.
