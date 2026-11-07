@@ -16,7 +16,7 @@ dans `CLAUDE.md` ; ce fichier dit où on en est. À mettre à jour à chaque ét
 | #15 | Utilisateurs : invitations, désactivation, rôles, réinitialisation |
 | #16 | Reprise GRR : comptes, réservations, attributions à valider, contrôle par année |
 | #18 | Reprise : ajustements par login (`GRR_AJUSTEMENTS`), noms propres, abonnements e-mail |
-| #19 | US-806 : annonce de la bascule (J-7) et messages du jour J |
+| #19 | US-806 : annonce de la bascule et messages du jour J |
 | #20 | US-805 : sauvegarde et export GRR chiffrés avant migration, arrêt si le contrôle échoue, garde de suppression des tables GRR |
 | #21 | Site local de test : `docker compose up`, données fictives |
 
@@ -62,10 +62,9 @@ user stories à jour sont dans `contexte/` (privé). Changements :
   ciel `#A8D3E6` pour les réservations ouvertes, lichen `#23302A` pour les exclusives, Nunito Sans
   servie par le site ; branches prairie ●, rhododendron ■, génépi ▲ (texte lichen dessus) ;
   cases du mois en 12,5 px (écart à la charte, 16 px minimum, voulu par Pascal). Logo
-  « Chamrousse », favicons (SVG, ICO, PNG) et bandeau animé de la charte Alpage. Couleurs de lignée servies par
-  `/lignees.css` (la CSP interdit les styles en ligne), texte lichen ou blanc selon la clarté.
-  **En production, mettre dans `LIGNEES` de `partage/.env` les couleurs `#8BBF7E`, `#F2B5C4` et
-  `#F2D06B`.**
+  « Chamrousse », favicons (SVG, ICO, PNG) et bandeau animé de la charte Alpage. Depuis le 7 nov., une couleur par type de
+  réservation, par criticité croissante : ouverte ciel, exclusive génépi `#F2D06B`, attribuée
+  lichen, quelle que soit la lignée (plus de couleur par lignée ni de `/lignees.css`).
 
 
 
@@ -102,7 +101,7 @@ user stories à jour sont dans `contexte/` (privé). Changements :
 - **Double authentification facultative**, y compris pour les admins : l'espace admin s'ouvre au
   seul rôle admin (US-108-N1 retiré). Elle reste proposée dans le profil. À reporter dans l'ADR et
   les user stories de `contexte/`.
-- **Lignées** : nom et couleur modifiables dans Admin → Lignées (ni ajout ni retrait). `LIGNEES`
+- **Lignées** : nom modifiable dans Admin → Lignées (ni ajout ni retrait ; plus de couleur par lignée). `LIGNEES`
   ne sert qu'au premier remplissage, au premier déploiement.
 - **Attributions GRR de la saison en cours** : appliquées d'office comme plages quand la lignée est
   reconnue (reprise de nuit, bouton « Lancer la reprise », `grr:appliquer-saison`) ; les saisons
@@ -127,6 +126,6 @@ user stories à jour sont dans `contexte/` (privé). Changements :
 |---|---|
 | vers le 23 novembre | 1re répétition de nuit (PHP 8.5, migrations, délai, retour à GRR) |
 | vers le 9 décembre | 2e répétition : import à blanc de la vraie base, recette des admins |
-| J-7 (5 décembre au plus tard) | annonce aux membres (écran Reprise, US-806) |
+| pendant une répétition (23 nov. ou 9 déc.), au choix de Pascal | annonce aux membres (écran Reprise, US-806), sans préavis minimal |
 | 12-13 décembre | bascule |
 | 19 décembre | MVP en service avant Noël |
