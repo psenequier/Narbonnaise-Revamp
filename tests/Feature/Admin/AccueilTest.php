@@ -4,7 +4,7 @@ it('présente les rubriques d\'administration dans une seule grille régulière'
     $this->actingAs(adminAvec2fa());
 
     $html = $this->get('/admin')->assertOk()
-        ->assertSeeInOrder(['Vacances et attributions', 'Cumul par lignée', 'Utilisateurs', 'Journal des actions', 'Reprise de GRR'])
+        ->assertSeeInOrder(['Vacances et attributions', 'Cumul par lignée', 'Lignées', 'Utilisateurs', 'Journal des actions', 'Reprise de GRR'])
         ->getContent();
 
     // Une seule liste : sinon l'écart de la page s'ajoute entre deux rangées.

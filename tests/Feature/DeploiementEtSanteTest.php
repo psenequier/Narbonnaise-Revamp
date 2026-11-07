@@ -17,6 +17,16 @@ it('US-907-N3 répond 404 hors déploiement, sans fichier verrou', function () {
     $this->postJson('/_deploiement/migrer', [], ['Authorization' => 'Bearer nimporte'])->assertNotFound();
 });
 
+it('lit le calendrier scolaire officiel et ouvre l\'année à chaque déploiement, sans reprise', function () {
+    $this->travelTo('2026-11-23 22:15:00');
+    simulerCalendrier();
+    poserVerrou('jeton-deploiement');
+
+    $this->postJson('/_deploiement/migrer', [], ['Authorization' => 'Bearer jeton-deploiement'])
+        ->assertOk()->assertJson(['migre' => true, 'reprise' => null, 'annees_ouvertes' => ['2026-2027']]);
+    expect(App\Models\AnneeScolaire::where('libelle', '2026-2027')->value('ouverte'))->toBeTruthy();
+});
+
 it('US-907-N3 répond 403 avec un jeton faux, puis 404 une fois le jeton utilisé', function () {
     poserVerrou('bon-jeton');
     $this->postJson('/_deploiement/migrer', [], ['Authorization' => 'Bearer faux'])->assertForbidden();

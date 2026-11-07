@@ -2,23 +2,19 @@
 
 namespace Database\Seeders;
 
+use App\Models\Lignee;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Données de référence. Le dépôt est public : les noms des lignées ne sont
  * pas dans le code. En production, ils viennent de LIGNEES dans partage/.env
- * (« Nom:#couleur,Nom:#couleur,… ») ; ailleurs, des noms fictifs.
+ * (« Nom:#couleur,Nom:#couleur,… ») ; ailleurs, des noms fictifs. Seulement si
+ * aucune lignée n'existe : ensuite, nom et couleur se modifient dans l'admin.
  */
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $config = (string) (config('chamrousse.lignees') ?: 'Lignée A:#8BBF7E,Lignée B:#F2B5C4,Lignée C:#F2D06B');
-
-        foreach (array_filter(explode(',', $config)) as $entree) {
-            [$nom, $couleur] = array_map('trim', explode(':', $entree, 2)) + [1 => '#5B6673'];
-            DB::table('lignees')->updateOrInsert(['nom' => $nom], ['couleur' => $couleur, 'updated_at' => now(), 'created_at' => now()]);
-        }
+        Lignee::remplirSiVide((string) (config('chamrousse.lignees') ?: 'Lignée A:#8BBF7E,Lignée B:#F2B5C4,Lignée C:#F2D06B'));
     }
 }

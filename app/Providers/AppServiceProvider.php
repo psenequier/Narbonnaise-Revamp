@@ -23,8 +23,9 @@ class AppServiceProvider extends ServiceProvider
         // Attrape en développement les accès paresseux et les attributs inconnus.
         Model::shouldBeStrict(! $this->app->isProduction());
 
-        // US-108-N1 : l'espace admin exige aussi la double authentification confirmée.
-        Gate::define('admin', fn (User $user) => $user->actif && $user->estAdmin() && $user->two_factor_confirmed_at !== null);
+        // Espace admin : rôle admin et compte actif. La double authentification est facultative
+        // (décision de Pascal du 7 nov. 2026 ; elle reste proposée dans le profil).
+        Gate::define('admin', fn (User $user) => $user->actif && $user->estAdmin());
 
         // US-604-P1 : chaque connexion (mot de passe, Google, double authentification) est tracée.
         \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Login::class, function (\Illuminate\Auth\Events\Login $e) {
