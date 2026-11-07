@@ -23,7 +23,11 @@ dans `CLAUDE.md` ; ce fichier dit où on en est. À mettre à jour à chaque ét
 La PR #17 (`lot/bascule`, d'une autre session) a été fermée sans fusion : son contenu utile
 est dans #18, #19 et #20.
 
-## En cours : PR #26, branche `lot/nom-reservant-calendrier`
+## Fusionné le 6 novembre : PR #26 (calendrier), #27 (Symfony), #24 et #28 (Dependabot)
+
+Charte Alpage en cours sur la branche `lot/charte-alpage`.
+
+### Détail de la PR #26
 
 Revue du site local avec Pascal les 5 et 6 novembre 2026. Les maquettes, le PRD, l'ADR 017 et les
 user stories à jour sont dans `contexte/` (privé). Changements :
@@ -50,17 +54,16 @@ user stories à jour sont dans `contexte/` (privé). Changements :
   US-204-P2, US-301-P2, US-304, US-305-N4, US-502 ; ajouté : US-301-N9. US-308-P1 est à réécrire
   dans les specs (le test vérifie maintenant qu'une seule réservation est créée).
 - **Commentaire** visible de tous, 200 caractères au plus ; invités masqués aux autres membres.
-- **Charte n° 6 « Sorbet »** (6 nov., remplace « Après-ski ») : palette pastel (violet
-  électrique, menthe, nuit), Plus Jakarta Sans servie par le site, arrondis et ombres légères ;
-  branches pêche, lavande et citron avec ● ■ ▲ (texte nuit dessus) ; pas de trames ; texte des
-  cases du mois en 12,5 px (écart à la charte, 16 px minimum, voulu par Pascal). Logo « Chamrousse »
-  (la charte proposait un autre nom, écarté par Pascal), favicon cabine et bandeau animé (Réserver, Modifier, Mes réservations). Couleurs de
-  lignée servies par `/lignees.css` (la CSP interdit les styles en ligne), texte nuit ou blanc
-  selon la clarté. **En production, mettre dans `LIGNEES` de `partage/.env` les couleurs
-  `#FFB4A2`, `#B9B0FF` et `#FFE27A`.**
+- **Charte n° 3 « Alpage »** (6 nov., remplace « Sorbet », PR suivante) : forêt `#1F4D3A`,
+  ciel `#A8D3E6` pour les réservations ouvertes, lichen `#23302A` pour les exclusives, Nunito Sans
+  servie par le site ; branches prairie ●, rhododendron ■, génépi ▲ (texte lichen dessus) ;
+  cases du mois en 12,5 px (écart à la charte, 16 px minimum, voulu par Pascal). Logo
+  « Chamrousse », favicons (SVG, ICO, PNG) et bandeau animé de la charte Alpage. Couleurs de lignée servies par
+  `/lignees.css` (la CSP interdit les styles en ligne), texte lichen ou blanc selon la clarté.
+  **En production, mettre dans `LIGNEES` de `partage/.env` les couleurs `#8BBF7E`, `#F2B5C4` et
+  `#F2D06B`.**
 
-La PR #27 (mise à jour Symfony 8.1, 11 avis de sécurité) est à fusionner avant la #26 : sans elle,
-le contrôle « dépendances » de la CI échoue sur toute branche.
+
 
 ## Critères d'acceptation
 

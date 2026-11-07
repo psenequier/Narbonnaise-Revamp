@@ -20,7 +20,7 @@ final class CouleursLigneesController
         foreach (Lignee::query()->pluck('couleur')->unique() as $couleur) {
             $classe = AffichageCreneau::classeCouleur((string) $couleur);
             if ($classe !== null) {
-                $texte = self::claire((string) $couleur) ? '#1F2140' : '#fff'; // pastels de la charte : texte nuit
+                $texte = self::claire((string) $couleur) ? '#23302A' : '#fff'; // couleurs claires de la charte : texte lichen
                 $css .= ".{$classe}{background-color:{$couleur};border-color:{$couleur};color:{$texte}}\n";
             }
         }
