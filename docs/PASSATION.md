@@ -110,6 +110,15 @@ user stories à jour sont dans `contexte/` (privé). Changements :
 - **Tester avec la vraie base** : sur le Mac (`local/charger-grr.sh`, e-mails dans Mailpit), puis
   pendant les répétitions avec `MAIL_REDIRIGER_VERS` (PR #31). La reprise de nuit ouvre l'année
   scolaire (PR #32).
+- **Assistant IA connecté par MCP** (épique 10, US-1001 à US-1004, ADR 020, lot 3) : un membre
+  connecte son assistant (tout client MCP) à `/mcp`, se connecte comme sur le site puis clique
+  « Autoriser » ; lecture du calendrier, de ses réservations, des nuits libres et des
+  statistiques ; avec un droit à part, réserver, modifier et annuler ses propres réservations
+  (mêmes services et e-mails que le site). Accès valable 14 mois après l'autorisation
+  (`MCP_DUREE_MAX_MOIS`), sans règle d'inactivité ; retrait dans Profil et au changement de mot
+  de passe, à la désactivation ou à la suppression. Serveur OAuth intégré (`app/Domain/Assistants`),
+  sans dépendance. À vérifier en répétition : en-tête `Authorization` transmis par OVH ; à dire
+  dans la page de confidentialité (noms envoyés au fournisseur d'assistant).
 
 ## Questions ouvertes (à trancher avec Pascal, données dans GRR)
 
