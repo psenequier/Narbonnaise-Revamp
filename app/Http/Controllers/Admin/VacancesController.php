@@ -70,6 +70,10 @@ final class VacancesController
             'lignees' => Lignee::query()->orderBy('nom')->get(),
             'symboles' => CalendrierController::symbolesLignees(),
             'cumul' => $this->suivi->cumul(),
+            'consultation' => PeriodesScolaires::derniereConsultation(),
+            // Année proposée pour la saisie à la main : la première suivie qui n'est pas encore ouverte.
+            'anneeASaisir' => collect(PeriodesScolaires::anneesSuivies($aujourdhui))
+                ->first(fn ($l) => ! $annees->contains(fn ($a) => $a->libelle === $l && $a->ouverte)) ?? '',
             'conflits' => Reservation::query()->actives()->whereNotNull('en_conflit_le')->with('user:id,prenom,nom', 'creneaux')->get(),
         ]);
     }
@@ -128,6 +132,40 @@ final class VacancesController
         }
 
         return back()->with('status', 'Période corrigée à la main : la source officielle ne l\'écrasera plus.');
+    }
+
+    /** Relit tout de suite le calendrier scolaire officiel, sans attendre le 1er du mois (US-401). */
+    public function relire(): RedirectResponse
+    {
+        $echecs = $this->periodes->synchroniser(new DateTimeImmutable('now', CalendrierController::paris()));
+
+        return $echecs === []
+            ? back()->with('status', 'Calendrier scolaire relu. Une année s\'ouvre dès que Noël et février sont connus.')
+            : back()->withErrors(['source' => 'La source officielle n\'a pas pu être lue : '.implode(' ; ', $echecs).' Vous pouvez saisir les dates à la main.']);
+    }
+
+    /** Saisie à la main des vacances d'une année, puis ouverture de l'année (US-402, US-408). */
+    public function saisir(Request $request): RedirectResponse
+    {
+        $date = ['required', 'date_format:Y-m-d'];
+        $valide = $request->validate([
+            'annee' => ['required', 'string', 'regex:/^\d{4}-\d{4}$/'],
+            'noel_premiere_nuit' => $date, 'noel_dernier_jour' => $date,
+            'hiver_premiere_nuit' => $date, 'hiver_dernier_jour' => $date,
+        ], ['annee.regex' => 'Écrivez l\'année scolaire sous la forme 2027-2028.']);
+
+        try {
+            $ouverte = $this->periodes->saisirAnnee((string) $valide['annee'], [
+                'noel' => [(string) $valide['noel_premiere_nuit'], (string) $valide['noel_dernier_jour']],
+                'hiver' => [(string) $valide['hiver_premiere_nuit'], (string) $valide['hiver_dernier_jour']],
+            ], $this->admin($request));
+        } catch (RefusVacances $e) {
+            return back()->withInput()->withErrors(['saisie' => $e->getMessage()]);
+        }
+
+        return redirect()->route('admin.vacances', ['annee' => $valide['annee']])->with('status', $ouverte
+            ? 'Dates enregistrées et année ouverte à la réservation. Les membres sont prévenus.'
+            : 'Dates enregistrées à la main : la source officielle ne les écrasera plus.');
     }
 
     /** US-407-P2 : maintenir ou annuler une réservation en conflit, avec un motif. */

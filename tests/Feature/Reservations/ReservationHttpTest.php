@@ -160,7 +160,7 @@ it('US-305-P1 enregistre une modification : créneaux libérés, nouveaux occup�
         ->and($trace->details['avant']['nombre_personnes'])->toBe(2);
 });
 
-it('US-305-P2 accepte le passage d\'ouverte à exclusive si je suis seul', function () {
+it('US-305-P2 accepte le passage d\'ouverte à exclusive', function () {
     $r = reserverPour($this->alice, ['2026-11-14-N']);
 
     $this->actingAs($this->alice)->put("/reservations/{$r->id}", demandeHttp(['2026-11-14-N'], ['mode' => 'exclusive']))->assertSessionHasNoErrors();

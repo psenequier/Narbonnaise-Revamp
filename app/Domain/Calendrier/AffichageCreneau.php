@@ -152,20 +152,6 @@ final readonly class AffichageCreneau
         return $this->situation->etat->value.'|'.$this->situation->lignee.'|'.implode(',', $ids);
     }
 
-    /** Classe CSS de la couleur de la lignée d'un créneau attribué (feuille /lignees.css). */
-    public function classeLignee(): ?string
-    {
-        return $this->situation->etat === EtatCreneau::Attribue && $this->situation->couleurLignee !== null
-            ? self::classeCouleur($this->situation->couleurLignee)
-            : null;
-    }
-
-    /** « #2C5C8F » → « lc-2c5c8f » ; null pour une couleur mal formée. */
-    public static function classeCouleur(string $couleur): ?string
-    {
-        return preg_match('/^#([0-9a-fA-F]{6})$/', $couleur, $m) === 1 ? 'lc-'.strtolower($m[1]) : null;
-    }
-
     /** Créneaux de ma réservation (« 2026-11-14-N », …), pour la pop-up d'édition. */
     public function creneauxMienne(): string
     {
@@ -236,7 +222,7 @@ final readonly class AffichageCreneau
      * Une barre longue porte le réservant, le nombre et le commentaire ; une case isolée, les initiales et le nombre.
      *
      * @param  list<self>  $ligne  un créneau par jour du mois, dans l'ordre
-     * @return list<array{debut: int, longueur: int, etat: string, classe: ?string, lignee: ?string, l1: string, l2: string}>
+     * @return list<array{debut: int, longueur: int, etat: string, lignee: ?string, l1: string, l2: string}>
      */
     public static function barres(array $ligne): array
     {
@@ -267,7 +253,7 @@ final readonly class AffichageCreneau
             } elseif ($etat === EtatCreneau::Attente && $longueur >= 2) {
                 $l1 = 'En attente';
             }
-            $barres[] = ['debut' => $i + 1, 'longueur' => $longueur, 'etat' => $etat->value, 'classe' => $a->classeLignee(), 'lignee' => $etat === EtatCreneau::Attribue ? $a->situation->lignee : null, 'l1' => $l1, 'l2' => $l2];
+            $barres[] = ['debut' => $i + 1, 'longueur' => $longueur, 'etat' => $etat->value, 'lignee' => $etat === EtatCreneau::Attribue ? $a->situation->lignee : null, 'l1' => $l1, 'l2' => $l2];
             $i = $j + 1;
         }
 

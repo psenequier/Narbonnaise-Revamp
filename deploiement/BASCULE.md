@@ -17,8 +17,9 @@ jamais modifiés par le nouveau site.
      (le **login GRR**, pas l'adresse e-mail ; appliqué à chaque reprise, répétitions comprises)
    - `GRR_REPRISE=ouverte`
    - `LIGNEES="<Nom>:#couleur,<Nom>:#couleur,<Nom>:#couleur"` (les trois lignées réelles) : lu au
-     premier déploiement seulement, quand aucune lignée n'existe ; ensuite, nom et couleur se
-     modifient dans Admin → Lignées
+     premier déploiement seulement, quand aucune lignée n'existe ; ensuite, le nom se modifie
+     dans Admin → Lignées (la couleur n'est plus affichée : une seule couleur pour les créneaux
+     attribués, décision du 7 nov. 2026)
    - `LIGNEES_ALIAS="<surnom>:<Nom de la lignée>,…"` : autres mots des libellés GRR qui désignent une
      lignée, pour que la reprise attribue d'elle-même les anciennes vacances (le premier mot du nom
      est déjà reconnu, sans tenir compte de la casse)
@@ -69,18 +70,20 @@ Tant que `MAIL_REDIRIGER_VERS` est renseigné dans `partage/.env`, aucun membre 
 Le garder de la première répétition jusqu'au message « Jour J » : l'e-mail « année ouverte »,
 envoyé à l'ouverture de l'année pendant la première répétition, n'arrive ainsi qu'à Pascal
 (l'année reste ouverte ensuite : il ne repart pas). Les membres ne reçoivent que l'annonce
-J-7 et le message « Jour J ».
-Pour un envoi réel (annonce J-7, « Jour J », bascule) :
+de la bascule et le message « Jour J ».
+Pour un envoi réel (annonce de la bascule, « Jour J », bascule) :
 1. OVH → Bases de données → phpMyAdmin, table `emails_sortants` : vérifier qu'aucune ligne n'a
    `envoye_le` vide (un e-mail de test en attente partirait aux vrais destinataires dès la
    redirection levée) ;
 2. vider `MAIL_REDIRIGER_VERS=` dans `partage/.env` ;
 3. seulement ensuite, déclencher l'envoi ;
-4. pour l'annonce J-7 : une fois partie (table `emails_sortants`, `envoye_le` rempli), remettre
+4. pour l'annonce de la bascule : une fois partie (table `emails_sortants`, `envoye_le` rempli), remettre
    `MAIL_REDIRIGER_VERS` jusqu'au message « Jour J ».
 
 Texte de l'annonce : relu sur l'écran Reprise (« Texte de l'annonce ») avant l'envoi. Elle part
-quand l'admin clique, à la date qu'il choisit (7 jours avant de préférence). Ses chiffres (date
+quand l'admin clique, au moment qu'il choisit : aucun préavis minimal n'est imposé (décision de
+Pascal du 7 nov. 2026). L'écran Reprise n'étant servi que pendant une répétition, l'envoyer
+pendant celle du 23 novembre ou celle du 9 décembre. Ses chiffres (date
 de la première réservation GRR, réservations, créneaux, nuits, membres) sont calculés depuis la
 dernière reprise : lancer la reprise juste avant. Date de la mise à jour majeure de GRR, facultative :
 `GRR_MISE_A_JOUR_MAJEURE=` dans `partage/.env` (et dans `.env` en local).

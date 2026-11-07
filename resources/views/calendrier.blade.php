@@ -2,7 +2,6 @@
 @section('titre', 'Calendrier')
 @section('sans-titre', '1')
 @section('large', '1')
-@push('tete')<link rel="stylesheet" href="{{ route('lignees.css') }}">@endpush
 @php($nomMois = \Illuminate\Support\Carbon::instance($premier)->locale('fr')->translatedFormat('F Y'))
 @php($cleJour = $aujourdhui->format('Y-m-d'))
 @section('contenu')
@@ -32,8 +31,8 @@
 
     @if ($pasOuvert)
         <p role="note" class="rounded-lg border border-bord bg-white p-3 text-sm">
-            <strong>Pas encore ouvert :</strong> une année scolaire s'ouvre à la réservation quand les admins ont attribué
-            les vacances de Noël et de février. En attendant, ces dates ne peuvent pas être réservées.
+            <strong>Pas encore ouvert :</strong> une année scolaire s'ouvre à la réservation dès que les dates
+            de ses vacances de Noël et de février sont connues. En attendant, ces dates ne peuvent pas être réservées.
         </p>
     @endif
 

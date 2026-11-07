@@ -38,7 +38,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/calendrier/{mois?}', [CalendrierController::class, 'mois'])->name('calendrier.mois');
     Route::get('/saison/{saison?}', [CalendrierController::class, 'saison'])->name('saison');
     Route::get('/jour/{date}', [CalendrierController::class, 'jour'])->name('jour');
-    Route::get('/lignees.css', \App\Http\Controllers\CouleursLigneesController::class)->name('lignees.css');
 
     Route::get('/reserver', [ReservationController::class, 'formulaire'])->name('reservations.formulaire');
     Route::post('/reservations', [ReservationController::class, 'enregistrer'])->middleware('throttle:30,1')->name('reservations.enregistrer');
@@ -51,7 +50,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profil/email/{user}/{empreinte}', ConfirmationEmailController::class)->middleware('signed')->name('profil.email.confirmer');
     Route::get('/profil/google/lier', [GoogleController::class, 'lier'])->name('profil.google.lier');
     Route::delete('/profil/google', [GoogleController::class, 'delier'])->name('profil.google.delier');
-    // Statistiques, météo : voir le plan de dev, lot MVP 1.
+    Route::get('/statistiques', \App\Http\Controllers\StatistiquesController::class)->name('statistiques');
+    Route::get('/meteo', \App\Http\Controllers\MeteoController::class)->name('meteo');
 
     Route::middleware('can:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::view('/', 'admin.accueil')->name('accueil');
@@ -63,6 +63,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/plages/{plage}', [VacancesController::class, 'modifier'])->name('plages.modifier');
         Route::delete('/plages/{plage}', [VacancesController::class, 'retirer'])->name('plages.retirer');
         Route::put('/periodes/{periode}', [VacancesController::class, 'corriger'])->name('periodes.corriger');
+        Route::post('/vacances/relire', [VacancesController::class, 'relire'])->middleware('throttle:5,10')->name('vacances.relire');
+        Route::post('/vacances/saisir', [VacancesController::class, 'saisir'])->name('vacances.saisir');
         Route::post('/conflits/{reservation}', [VacancesController::class, 'arbitrer'])->name('conflits.arbitrer');
 
         Route::get('/utilisateurs', [UtilisateursController::class, 'index'])->name('utilisateurs');

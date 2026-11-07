@@ -99,7 +99,7 @@ it('US-501-N3 ne contient ni l\'adresse des autres participants, ni lien utilisa
 
 // US-502 (prévenir les autres inscrits) n'a plus d'objet : un créneau ne porte qu'une réservation (5 nov. 2026).
 
-it('US-503-P1 envoie une seule information en copie cachée aux membres qui la souhaitent, hors réservant et inscrits', function () {
+it('US-503-P1 envoie une seule information en copie cachée aux membres qui la souhaitent, hors réservant', function () {
     $curieux = User::factory()->create(['email' => 'curieux@example.test']);
 
     poster($this->alice, ['2026-11-14-N']);

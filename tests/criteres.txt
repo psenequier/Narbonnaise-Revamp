@@ -1,4 +1,4 @@
-# Critères d'acceptation exportés du document des user stories (rev 24, 27/10/2026).
+# Critères d'acceptation exportés du document des user stories (rev 24, 27/10/2026 ; mis à jour le 7/11/2026).
 # Format : identifiant, lot. Régénérer à chaque modification du document.
 # La CI liste les critères MVP sans test ; le contrôle devient bloquant quand
 # la variable de dépôt CRITERES_BLOQUANTS vaut « oui » (prévu à la recette, T37).
@@ -51,6 +51,8 @@ US-109-P2 MVP
 US-109-N1 MVP
 US-110-P1 Lot2
 US-110-P2 Lot2
+US-110-P3 Lot2
+US-110-P4 Lot2
 US-110-N1 Lot2
 US-110-N2 Lot2
 US-110-N3 Lot2
@@ -64,6 +66,8 @@ US-201-P7 MVP
 US-201-P8 MVP
 US-201-P9 MVP
 US-201-P10 MVP
+US-201-P11 MVP
+US-201-P12 MVP
 US-201-N1 MVP
 US-201-N2 MVP
 US-201-N3 MVP
@@ -119,11 +123,14 @@ US-303-N1 MVP
 US-303-N2 MVP
 US-305-P1 MVP
 US-305-P2 MVP
+US-305-P3 MVP
+US-305-P4 MVP
 US-305-N1 MVP
 US-305-N2 MVP
 US-305-N3 MVP
 US-306-P1 MVP
 US-306-P2 MVP
+US-306-P3 MVP
 US-306-N1 MVP
 US-306-N2 MVP
 US-306-N3 MVP
@@ -257,28 +264,45 @@ US-608-N1 Lot2
 US-608-N2 Lot2
 US-701-P1 Lot2
 US-701-P2 Lot2
+US-701-P3 Lot2
 US-701-N1 Lot2
 US-701-N2 Lot2
 US-701-N3 Lot2
 US-701-N4 Lot2
 US-702-P1 Lot2
 US-702-P2 Lot2
+US-702-P3 Lot2
+US-702-P4 Lot2
 US-702-N1 Lot2
 US-703-P1 Lot2
 US-703-N1 Lot2
+US-703-N2 Lot2
 US-704-P1 Lot2
 US-704-P2 Lot2
 US-704-P3 Lot2
 US-704-N1 Lot2
 US-704-N2 Lot2
 US-704-N3 Lot2
+US-704-N4 Lot2
 US-705-P1 Lot2
 US-705-P2 Lot2
 US-705-N1 Lot2
-US-706-P1 Lot2
-US-706-P2 Lot2
-US-706-N1 Lot2
-US-706-N2 Lot2
+US-707-P1 Lot2
+US-707-P2 Lot2
+US-707-P3 Lot2
+US-707-N1 Lot2
+US-707-N2 Lot2
+US-707-N3 Lot2
+US-708-P1 Lot2
+US-708-P2 Lot2
+US-708-P3 Lot2
+US-708-P4 Lot2
+US-708-N1 Lot2
+US-708-N2 Lot2
+US-708-N3 Lot2
+US-709-P1 Lot2
+US-709-P2 Lot2
+US-709-N1 Lot2
 US-801-P1 MVP
 US-801-P2 MVP
 US-801-N1 MVP

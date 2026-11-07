@@ -73,6 +73,20 @@ final class BoiteEnvoi
         return $partis;
     }
 
+    /**
+     * Envoie tout de suite un e-mail déposé, dans la limite du plafond : pour une alerte qui
+     * ne peut pas attendre la relance horaire (planificateur muet, panne). Sinon il attend son tour.
+     */
+    public function envoyerMaintenant(int $id): bool
+    {
+        $nombre = (int) DB::table('emails_sortants')->where('id', $id)->value('nombre_destinataires');
+        if ($this->envoyesDerniereHeure() + $nombre > self::PLAFOND_HORAIRE) {
+            return false;
+        }
+
+        return $this->envoyerUn($id);
+    }
+
     public function envoyesDerniereHeure(): int
     {
         return (int) DB::table('emails_sortants')->where('envoye_le', '>=', now()->subHour())->sum('nombre_destinataires');
