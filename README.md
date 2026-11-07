@@ -13,7 +13,7 @@ Documents de référence (privés, sur claude.ai) : PRD, ADR 001 à 016, user st
 | Laravel | 13 | ADR 002 |
 | Livewire, Blade, Tailwind 4 | 4.x | interface rendue côté serveur (ADR 003) |
 | MySQL | 8.0 en production, 8.4 testé en CI | base unique de l'offre Starter (ADR 004) |
-| Fortify, Socialite | 1.x, 5.x | connexion, double authentification des admins, Google sans création de compte (ADR 010) |
+| Fortify, Socialite | 1.x, 5.x | connexion, double authentification facultative, Google sans création de compte (ADR 010) |
 | Pest 5, Pest Browser, Larastan, Psalm, Semgrep, ZAP | — | tests et sécurité (ADR 013, ADR 016) |
 
 ## Installer en local
@@ -47,8 +47,8 @@ Pour cliquer dans le nouveau site sans toucher à GRR : données fictives unique
    La première fois, compter 5 à 10 minutes (téléchargements). Le site est prêt quand s'affiche
    « ✔ Site prêt ».
 4. Ouvrir http://localhost:8000 et se connecter avec `admin@example.test` ou `membre@example.test`,
-   mot de passe `Mot-de-passe-de-test-42!`. L'admin doit d'abord activer la double authentification
-   (application d'authentification sur le téléphone).
+   mot de passe `Mot-de-passe-de-test-42!`. L'onglet « Admin » apparaît pour un admin ; la double
+   authentification est facultative (Profil).
 
 Arrêter : `Ctrl+C` dans le Terminal. Relancer : `docker compose up` (les données sont gardées).
 Repartir de zéro : `REINITIALISER=oui docker compose up`. Les e-mails envoyés par le site ne partent

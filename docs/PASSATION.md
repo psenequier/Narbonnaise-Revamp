@@ -97,6 +97,15 @@ user stories à jour sont dans `contexte/` (privé). Changements :
    recette par les trois admins (`deploiement/BASCULE.md`).
 6. **Bascule le 12-13 décembre.** Suppression des tables GRR pas avant la fin de la saison.
 
+## Décisions du 7 novembre 2026
+
+- **Double authentification facultative**, y compris pour les admins : l'espace admin s'ouvre au
+  seul rôle admin (US-108-N1 retiré). Elle reste proposée dans le profil. À reporter dans l'ADR et
+  les user stories de `contexte/`.
+- **Tester avec la vraie base** : sur le Mac (`local/charger-grr.sh`, e-mails dans Mailpit), puis
+  pendant les répétitions avec `MAIL_REDIRIGER_VERS` (PR #31). La reprise de nuit ouvre l'année
+  scolaire (PR #32).
+
 ## Questions ouvertes (à trancher avec Pascal, données dans GRR)
 
 - Deux réservations GRR finissent à 12 h un lundi : lues aujourd'hui comme s'arrêtant avant la

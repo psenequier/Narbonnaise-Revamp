@@ -43,12 +43,17 @@ it('US-108-P3 demande le code à chaque connexion d\'un membre qui a activé la 
     }
 });
 
-it('US-108-N1 renvoie un admin sans double authentification vers l\'activation et refuse l\'admin (403)', function () {
+it('ouvre l\'espace admin à un admin sans double authentification (facultative depuis le 7 nov. 2026)', function () {
     $admin = User::factory()->admin()->create();
 
-    connecter($admin)->assertRedirect('/profil');
-    $this->get('/profil')->assertOk()->assertSee('activer la double authentification');
-    $this->get('/admin')->assertForbidden();
+    connecter($admin)->assertRedirect('/');
+    $this->get('/admin')->assertOk()->assertSee('Administration');
+    $this->get('/profil')->assertOk()->assertSee('Double authentification');
+});
+
+it('refuse l\'espace admin à un membre et à un admin désactivé (403)', function () {
+    $this->actingAs(User::factory()->create())->get('/admin')->assertForbidden();
+    expect($this->actingAs(User::factory()->admin()->create(['actif' => false]))->get('/admin')->status())->not->toBe(200);
 });
 
 it('US-108-N2 refuse un code faux ou expiré et bloque 15 minutes après 5 échecs', function () {

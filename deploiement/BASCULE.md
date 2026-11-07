@@ -33,7 +33,7 @@ jamais modifiés par le nouveau site.
 | 22 h 12 | Actions → ci → Run workflow sur `main`, approuver l'environnement « production » | Pascal |
 | 22 h 15 | Le job enchaîne, et s'arrête à la première erreur (P1) : maintenance, envoi, **sauvegarde complète** puis **export GRR (SQL et CSV)**, chiffrés en AES-256 et relus, migrations, import, contrôle, puis **ouverture de l'année scolaire** (dates officielles de Noël et février) | – |
 | 22 h 25 | Journal du job : `"reprise":{"valide":true,…,"annees_ouvertes":["2026-2027"]}`. Si le job affiche **« Bascule arrêtée »** : retour arrière ci-dessous (N1). Si `annees_ouvertes` est vide (source officielle injoignable), relancer le job plus tard : la reprise se refait sans doublon | Pascal |
-| 22 h 30 | Se connecter avec son ancien mot de passe GRR, activer la double authentification | admins |
+| 22 h 30 | Se connecter avec son ancien mot de passe GRR (double authentification facultative, conseillée aux admins) | admins |
 | 22 h 35 | Admin → Reprise → **Archives de la bascule** : télécharger la sauvegarde et l'export, les ranger hors d'OVH (Drive), vérifier qu'ils s'ouvrent avec le mot de passe des sauvegardes | Pascal |
 | 22 h 40 | Écran Reprise : contrôle validé, 20 réservations à comparer avec GRR | admins |
 | 22 h 50 | Écran Reprise : valider les attributions (choisir la lignée quand elle n'est pas devinée) | admins |
