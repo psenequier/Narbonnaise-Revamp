@@ -1,20 +1,21 @@
 @extends('layouts.app')
 @section('titre', 'Administration')
 @section('contenu')
-<ul class="grid gap-3 sm:grid-cols-2">
-    <li><a href="{{ route('admin.vacances') }}" class="flex min-h-11 flex-col rounded-2xl border border-bord bg-white p-5">
-        <strong>Vacances et attributions</strong><span class="text-sm text-gris">Périodes, plages par lignée, conflits</span></a></li>
-    <li><a href="{{ route('admin.cumul') }}" class="flex min-h-11 flex-col rounded-2xl border border-bord bg-white p-5">
-        <strong>Cumul par lignée</strong><span class="text-sm text-gris">Créneaux attribués depuis le début</span></a></li>
-    <li><a href="{{ route('admin.lignees') }}" class="flex min-h-11 flex-col rounded-2xl border border-bord bg-white p-5">
-        <strong>Lignées</strong><span class="text-sm text-gris">Nom et couleur</span></a></li>
-</ul>
-<ul class="mt-3 grid gap-3 sm:grid-cols-2">
-    <li><a href="{{ route('admin.utilisateurs') }}" class="flex min-h-11 flex-col rounded-2xl border border-bord bg-white p-5">
-        <strong>Utilisateurs</strong><span class="text-sm text-gris">Invitations, désactivation, rôles, réinitialisation</span></a></li>
-    <li><a href="{{ route('admin.journal') }}" class="flex min-h-11 flex-col rounded-2xl border border-bord bg-white p-5">
-        <strong>Journal des actions</strong><span class="text-sm text-gris">Qui a fait quoi, quand</span></a></li>
-    <li><a href="{{ route('admin.reprise') }}" class="flex min-h-11 flex-col rounded-2xl border border-bord bg-white p-5">
-        <strong>Reprise de GRR</strong><span class="text-sm text-gris">Rapport de contrôle, attributions à valider</span></a></li>
+@php
+    // Une seule grille : mêmes écarts partout, cartes de même hauteur.
+    $cartes = [
+        ['admin.vacances', 'Vacances et attributions', 'Périodes, plages par lignée, conflits'],
+        ['admin.cumul', 'Cumul par lignée', 'Créneaux attribués depuis le début'],
+        ['admin.lignees', 'Lignées', 'Nom et couleur'],
+        ['admin.utilisateurs', 'Utilisateurs', 'Invitations, désactivation, rôles, réinitialisation'],
+        ['admin.journal', 'Journal des actions', 'Qui a fait quoi, quand'],
+        ['admin.reprise', 'Reprise de GRR', 'Rapport de contrôle, attributions à valider'],
+    ];
+@endphp
+<ul class="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" data-cartes-admin>
+    @foreach ($cartes as [$route, $titre, $detail])
+        <li class="min-w-0"><a href="{{ route($route) }}" class="flex h-full min-h-11 flex-col gap-1 rounded-2xl border border-bord bg-white p-5 hover:border-sapin">
+            <strong>{{ $titre }}</strong><span class="text-sm text-gris">{{ $detail }}</span></a></li>
+    @endforeach
 </ul>
 @endsection
