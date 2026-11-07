@@ -27,7 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
-/** Écran Vacances des admins : périodes, plages attribuées, cumul, conflits (US-403 à US-408). */
+/** Écran Vacances des admins : périodes, plages attribuées, conflits (US-403 à US-408) ; le cumul a son propre écran. */
 final class VacancesController
 {
     public function __construct(
@@ -69,7 +69,6 @@ final class VacancesController
             'cleJour' => $aujourdhui->format('Y-m-d'),
             'lignees' => Lignee::query()->orderBy('nom')->get(),
             'symboles' => CalendrierController::symbolesLignees(),
-            'cumul' => $this->suivi->cumul(),
             'consultation' => PeriodesScolaires::derniereConsultation(),
             // Année proposée pour la saisie à la main : la première suivie qui n'est pas encore ouverte.
             'anneeASaisir' => collect(PeriodesScolaires::anneesSuivies($aujourdhui))
@@ -78,7 +77,7 @@ final class VacancesController
         ]);
     }
 
-    /** US-405 : le cumul seul (aussi affiché sur l'écran Vacances). */
+    /** US-405 : le cumul, sur son propre écran (retiré de l'écran Vacances le 7 nov. 2026). */
     public function cumul(): View
     {
         return view('admin.cumul', ['cumul' => $this->suivi->cumul()]);
