@@ -95,6 +95,18 @@
     @endif
 </section>
 
+<section class="{{ $carte }}" aria-labelledby="suppression">
+    <h2 id="suppression" class="text-lg font-extrabold">Supprimer mon compte</h2>
+    @if ($user->suppression_demandee_le !== null)
+        <p class="text-sm" data-suppression-demandee>Demande envoyée le {{ $user->suppression_demandee_le->timezone('Europe/Paris')->format('d/m/Y') }} : un admin va la confirmer.</p>
+    @else
+        <p class="text-sm text-gris">Un admin confirme la suppression. Seul votre prénom est conservé, avec vos réservations passées ; votre nom, votre adresse e-mail, votre mot de passe et votre compte Google lié sont effacés.</p>
+        <form method="POST" action="{{ route('profil.suppression') }}">@csrf
+            <button type="submit" class="h-11 rounded-lg border border-erreur px-4 font-bold text-erreur">Demander la suppression de mon compte</button>
+        </form>
+    @endif
+</section>
+
 <section class="{{ $carte }}" aria-labelledby="prefs">
     <h2 id="prefs" class="text-lg font-extrabold">E-mails d'information</h2>
     <p class="text-sm text-gris">Les alertes de sécurité et les e-mails sur vos propres créneaux sont toujours envoyés.</p>

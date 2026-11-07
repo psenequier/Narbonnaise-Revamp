@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/reservations/{reservation}', [ReservationController::class, 'annuler'])->name('reservations.annuler');
     Route::get('/profil', [ProfilController::class, 'afficher'])->name('profil');
     Route::put('/profil/preferences', [ProfilController::class, 'preferences'])->name('profil.preferences');
+    Route::post('/profil/suppression', [ProfilController::class, 'demanderSuppression'])->middleware('throttle:3,60')->name('profil.suppression');
     Route::get('/profil/email/{user}/{empreinte}', ConfirmationEmailController::class)->middleware('signed')->name('profil.email.confirmer');
     Route::get('/profil/google/lier', [GoogleController::class, 'lier'])->name('profil.google.lier');
     Route::delete('/profil/google', [GoogleController::class, 'delier'])->name('profil.google.delier');
@@ -74,6 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/utilisateurs/{user}/desactiver', [UtilisateursController::class, 'desactiver'])->name('utilisateurs.desactiver');
         Route::post('/utilisateurs/{user}/reactiver', [UtilisateursController::class, 'reactiver'])->name('utilisateurs.reactiver');
         Route::put('/utilisateurs/{user}/role', [UtilisateursController::class, 'role'])->name('utilisateurs.role');
+        Route::post('/utilisateurs/{user}/supprimer', [UtilisateursController::class, 'supprimer'])->name('utilisateurs.supprimer');
         Route::post('/utilisateurs/{user}/reinitialisation', [UtilisateursController::class, 'reinitialisation'])->name('utilisateurs.reinitialisation');
 
         // Journal : lecture seule (US-604-N1).

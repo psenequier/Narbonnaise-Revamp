@@ -34,6 +34,7 @@ final class GestionComptes
 
     public function renvoyerInvitation(User $membre): void
     {
+        self::refuserSiSupprime($membre);
         if ($membre->password !== null) {
             throw new CompteRefuse('Ce compte est déjà activé : envoyez plutôt un lien de réinitialisation.');
         }
@@ -55,12 +56,14 @@ final class GestionComptes
 
     public function reactiver(User $membre): void
     {
+        self::refuserSiSupprime($membre);
         $membre->forceFill(['actif' => true])->save();
         Journal::ecrire('compte.reactive', $membre, ['avant' => ['actif' => false], 'apres' => ['actif' => true]]);
     }
 
     public function changerRole(User $membre, string $role): void
     {
+        self::refuserSiSupprime($membre);
         if ($role === $membre->role) {
             return;
         }
@@ -85,6 +88,14 @@ final class GestionComptes
             throw new CompteRefuse('Un lien vient déjà d\'être envoyé : réessayez dans une minute.');
         }
         Journal::ecrire('compte.lien_reinitialisation', $membre);
+    }
+
+    /** US-110 : un compte supprimé ne se rouvre pas. */
+    private static function refuserSiSupprime(User $membre): void
+    {
+        if ($membre->supprime_le !== null) {
+            throw new CompteRefuse('Ce compte est supprimé : il ne peut plus être rouvert.');
+        }
     }
 
     /** US-602-N1 : il reste toujours au moins un admin actif. */

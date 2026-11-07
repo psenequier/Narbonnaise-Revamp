@@ -29,6 +29,7 @@ final class MessageSite extends Mailable
         'admin.vacances_modifiees' => 'Calendrier scolaire : dates de vacances modifiées',
         'admin.conflits_vacances' => 'Réservations en conflit avec les vacances',
         'admin.rappel_attributions' => 'Vacances à attribuer',
+        'admin.suppression_demandee' => 'Demande de suppression de compte',
         'admin.panne' => 'Alerte : un problème sur le site de réservation',
         'vacances.ouverture' => 'Une nouvelle année est ouverte à la réservation',
         'vacances.attributions' => 'Attribution des vacances aux lignées',

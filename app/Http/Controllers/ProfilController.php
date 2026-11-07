@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Domain\Comptes\SuppressionCompte;
 use App\Models\Journal;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,5 +34,15 @@ final class ProfilController
         Journal::ecrire('preferences.modifiees', $user);
 
         return back()->with('status', 'Préférences enregistrées.');
+    }
+
+    /** US-110-P1, N1 : on ne demande que la suppression de son propre compte ; tout autre champ est ignoré. */
+    public function demanderSuppression(Request $request, SuppressionCompte $suppression): RedirectResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        $suppression->demander($user);
+
+        return back()->with('status', 'Votre demande est transmise aux admins. Vous recevrez une réponse par e-mail.');
     }
 }

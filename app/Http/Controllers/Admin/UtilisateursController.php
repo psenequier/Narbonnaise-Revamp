@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Domain\Comptes\CompteRefuse;
 use App\Domain\Comptes\GestionComptes;
+use App\Domain\Comptes\SuppressionCompte;
 use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -77,6 +78,12 @@ final class UtilisateursController
         $valide = $request->validate(['role' => ['required', Rule::in(['membre', 'admin'])]]);
 
         return $this->agir(fn () => $this->comptes->changerRole($user, (string) $valide['role']), 'Rôle modifié.');
+    }
+
+    /** US-110-P2 : confirmation par un admin ; seul le prénom est conservé. */
+    public function supprimer(User $user, SuppressionCompte $suppression): RedirectResponse
+    {
+        return $this->agir(fn () => $suppression->supprimer($user), 'Compte supprimé : seul le prénom est conservé.');
     }
 
     public function reinitialisation(User $user): RedirectResponse
