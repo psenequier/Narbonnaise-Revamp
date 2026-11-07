@@ -321,3 +321,10 @@ it('US-712-N1 aucun autre compte ne voit l\'encadré par membre ; ni e-mail ni r
         ->assertSeeInOrder(['>Zoé T.</th>', '>3</td>', '>3 · 0</td>', '>12</td>', '>1</td>'], false)->getContent();
     expect($page)->not->toContain('zoe@example.test');
 });
+
+it('applique le choix de saison ou d\'année dès la sélection, sans bouton « Afficher »', function (string $url) {
+    $page = (string) $this->actingAs($this->membre)->get($url)->assertOk()->getContent();
+
+    expect($page)->toContain('data-envoi-auto')
+        ->and((string) preg_replace('#<noscript>.*?</noscript>#s', '', $page))->not->toContain('>Afficher</button>');
+})->with(['/statistiques', '/statistiques?vue=annee']);

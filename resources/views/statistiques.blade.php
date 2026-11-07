@@ -42,12 +42,13 @@
         @if ($vue === 'annee')
             <input type="hidden" name="vue" value="annee">
             <label for="choix" class="sr-only">Année</label>
-            <select id="choix" name="annee" class="{{ $choix }}">@foreach ($choixAnnees as $a)<option value="{{ $a }}" @selected((string) $a === $choisi)>Année {{ $a }}</option>@endforeach</select>
+            <select id="choix" name="annee" class="{{ $choix }}" data-envoi-auto>@foreach ($choixAnnees as $a)<option value="{{ $a }}" @selected((string) $a === $choisi)>Année {{ $a }}</option>@endforeach</select>
         @else
             <label for="choix" class="sr-only">Saison</label>
-            <select id="choix" name="saison" class="{{ $choix }}">@foreach ($choixSaisons as $s)<option value="{{ $s }}" @selected($s === $choisi)>Saison {{ $s }}</option>@endforeach</select>
+            <select id="choix" name="saison" class="{{ $choix }}" data-envoi-auto>@foreach ($choixSaisons as $s)<option value="{{ $s }}" @selected($s === $choisi)>Saison {{ $s }}</option>@endforeach</select>
         @endif
-        <button type="submit" class="h-11 rounded-lg bg-sapin px-3 text-sm font-bold text-white">Afficher</button>
+        {{-- Le choix dans la liste suffit (décision du 7 nov. 2026) ; bouton gardé seulement sans JavaScript. --}}
+        <noscript><button type="submit" class="h-11 rounded-lg bg-sapin px-3 text-sm font-bold text-white">Afficher</button></noscript>
     </form>
     @endunless
 </div>
