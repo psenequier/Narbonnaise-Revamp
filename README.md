@@ -62,8 +62,9 @@ Pour essayer la reprise et les e-mails avec les vrais comptes, sans toucher à G
    de la base → **Télécharger la sauvegarde** (prendre la plus récente). GRR n'est pas modifié.
 2. Ranger le fichier dans `contexte/` (dossier privé, ignoré par git). **Ne jamais le mettre ailleurs
    dans le dossier du site** : le dépôt est public. Le script refuse un fichier qui n'est pas ignoré.
-3. Facultatif, dans `.env` (jamais commis) : `LIGNEES` avec les vrais noms et couleurs, et
-   `GRR_AJUSTEMENTS`, comme sur le serveur.
+3. Dans `.env` (jamais commis), comme sur le serveur : `LIGNEES` avec les vrais noms et couleurs
+   (les lignées sont créées au chargement), `LIGNEES_ALIAS` pour les surnoms des libellés GRR, et
+   `GRR_AJUSTEMENTS` (login GRR des admins).
 4. Site lancé (`docker compose up`), dans un second Terminal :
    `bash local/charger-grr.sh contexte/<fichier>.sql.gz`
    Le préfixe des tables est `NAR_` par défaut (sinon : `GRR_PREFIXE=xxx_ bash local/charger-grr.sh …`).

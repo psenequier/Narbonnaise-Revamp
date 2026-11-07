@@ -19,6 +19,9 @@ jamais modifiés par le nouveau site.
    - `LIGNEES="<Nom>:#couleur,<Nom>:#couleur,<Nom>:#couleur"` (les trois lignées réelles) : lu au
      premier déploiement seulement, quand aucune lignée n'existe ; ensuite, nom et couleur se
      modifient dans Admin → Lignées
+   - `LIGNEES_ALIAS="<surnom>:<Nom de la lignée>,…"` : autres mots des libellés GRR qui désignent une
+     lignée, pour que la reprise attribue d'elle-même les anciennes vacances (le premier mot du nom
+     est déjà reconnu, sans tenir compte de la casse)
    - `MAIL_REDIRIGER_VERS=<adresse de Pascal>` : pendant les répétitions, tous les e-mails du
      nouveau site (rappels, mot de passe oublié, informations groupées) partent vers cette seule
      adresse, jamais vers les membres. Voir « E-mails » ci-dessous avant de le vider.
