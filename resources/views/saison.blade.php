@@ -2,7 +2,6 @@
 @section('titre', 'Saison '.$saison)
 @section('sans-titre', '1')
 @section('large', '1')
-@push('tete')<link rel="stylesheet" href="{{ route('lignees.css') }}">@endpush
 @php($lettres = ['L', 'M', 'M', 'J', 'V', 'S', 'D'])
 @section('contenu')
 <div hidden data-vue-saison></div>

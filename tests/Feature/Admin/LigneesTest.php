@@ -11,30 +11,31 @@ beforeEach(function () {
     Lignee::create(['nom' => 'Lignée B', 'couleur' => '#F2B5C4']);
 });
 
-it('permet à un admin de renommer une lignée et de changer sa couleur, avec une trace au journal', function () {
-    $this->actingAs($this->admin)->get('/admin/lignees/modifier')->assertOk()->assertSee('Lignée A')->assertSee('#8bbf7e');
+it('permet à un admin de renommer une lignée, avec une trace au journal, sans champ couleur', function () {
+    $this->actingAs($this->admin)->get('/admin/lignees/modifier')->assertOk()->assertSee('Lignée A')->assertDontSee('name="couleur"', false);
 
     $this->actingAs($this->admin)->put("/admin/lignees/{$this->lignee->id}", ['nom' => ' Branche prairie ', 'couleur' => '#1f4d3a'])
         ->assertRedirect()->assertSessionHas('status');
 
-    expect($this->lignee->fresh()->only('nom', 'couleur'))->toBe(['nom' => 'Branche prairie', 'couleur' => '#1F4D3A'])
+    expect($this->lignee->fresh()->only('nom', 'couleur'))->toBe(['nom' => 'Branche prairie', 'couleur' => '#8BBF7E'])
         ->and(DB::table('journal')->where('action', 'lignee.modifiee')->exists())->toBeTrue();
-    $this->actingAs($this->admin)->get('/lignees.css')->assertSee('.lc-1f4d3a', false);
 });
 
-it('refuse une couleur invalide et un nom déjà pris', function () {
-    $this->actingAs($this->admin)->put("/admin/lignees/{$this->lignee->id}", ['nom' => 'Lignée A', 'couleur' => 'rouge'])
-        ->assertSessionHasErrors('couleur', null, 'lignee'.$this->lignee->id);
-    $this->actingAs($this->admin)->put("/admin/lignees/{$this->lignee->id}", ['nom' => 'Lignée B', 'couleur' => '#000000'])
+it('refuse un nom déjà pris', function () {
+    $this->actingAs($this->admin)->put("/admin/lignees/{$this->lignee->id}", ['nom' => 'Lignée B'])
         ->assertSessionHasErrors('nom', null, 'lignee'.$this->lignee->id);
 
-    expect($this->lignee->fresh()->only('nom', 'couleur'))->toBe(['nom' => 'Lignée A', 'couleur' => '#8BBF7E']);
+    expect($this->lignee->fresh()->nom)->toBe('Lignée A');
+});
+
+it('ne sert plus de feuille de couleurs de lignée', function () {
+    $this->actingAs($this->admin)->get('/lignees.css')->assertNotFound();
 });
 
 it('refuse la page et la modification à un membre (403)', function () {
     $membre = User::factory()->create();
     $this->actingAs($membre)->get('/admin/lignees/modifier')->assertForbidden();
-    $this->actingAs($membre)->put("/admin/lignees/{$this->lignee->id}", ['nom' => 'X', 'couleur' => '#000000'])->assertForbidden();
+    $this->actingAs($membre)->put("/admin/lignees/{$this->lignee->id}", ['nom' => 'X'])->assertForbidden();
 });
 
 it('ne recrée pas les lignées de LIGNEES une fois renommées', function () {

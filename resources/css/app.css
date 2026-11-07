@@ -78,7 +78,6 @@
  * Vues mois et saison (maquettes Main et Saison). Une couleur par état : un créneau
  * attribué a la même couleur quelle que soit la lignée, nommée dans la case. Couleurs par
  * criticité croissante (décision du 7 nov. 2026) : ouverte ciel, exclusive génépi, attribuée lichen.
- * Les couleurs de lignée (/lignees.css) ne sont plus utilisées dans le calendrier ni dans la pop-up d'attribution.
  */
 @layer components {
     /* Écart assumé à la charte (16 px minimum) : les créneaux du mois restent en 12,5 px pour lire le nom et le commentaire (demande de Pascal, 5 nov.). */

@@ -152,12 +152,6 @@ final readonly class AffichageCreneau
         return $this->situation->etat->value.'|'.$this->situation->lignee.'|'.implode(',', $ids);
     }
 
-    /** « #2C5C8F » → « lc-2c5c8f » ; null pour une couleur mal formée. */
-    public static function classeCouleur(string $couleur): ?string
-    {
-        return preg_match('/^#([0-9a-fA-F]{6})$/', $couleur, $m) === 1 ? 'lc-'.strtolower($m[1]) : null;
-    }
-
     /** Créneaux de ma réservation (« 2026-11-14-N », …), pour la pop-up d'édition. */
     public function creneauxMienne(): string
     {

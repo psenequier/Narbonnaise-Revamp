@@ -2,7 +2,6 @@
 @section('titre', 'Calendrier')
 @section('sans-titre', '1')
 @section('large', '1')
-@push('tete')<link rel="stylesheet" href="{{ route('lignees.css') }}">@endpush
 @php($nomMois = \Illuminate\Support\Carbon::instance($premier)->locale('fr')->translatedFormat('F Y'))
 @php($cleJour = $aujourdhui->format('Y-m-d'))
 @section('contenu')

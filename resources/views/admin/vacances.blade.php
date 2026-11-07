@@ -2,7 +2,6 @@
 @section('titre', 'Vacances et attributions')
 @php($champ = 'h-11 rounded-lg border border-bord bg-white px-2 font-normal')
 @section('large', '1')
-@push('tete')<link rel="stylesheet" href="{{ route('lignees.css') }}">@endpush
 @section('contenu')
 @if ($errors->any())
     <div role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">@foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach</div>

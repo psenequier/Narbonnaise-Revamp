@@ -316,14 +316,3 @@ it('US-205-N1 ne propose aucune réservation sur ces dates et refuse une requêt
     expect(DB::table('reservations')->count())->toBe(0);
 });
 
-it('sert les couleurs de lignée avec un texte lisible : lichen sur les couleurs claires de la charte Alpage', function () {
-    DB::table('lignees')->insert([
-        ['nom' => 'Lignée Prairie', 'couleur' => '#F2D06B', 'created_at' => now(), 'updated_at' => now()],
-        ['nom' => 'Lignée Sombre', 'couleur' => '#1F6F6B', 'created_at' => now(), 'updated_at' => now()],
-    ]);
-
-    $css = $this->actingAs($this->alice)->get('/lignees.css')->assertOk()->getContent();
-
-    expect($css)->toContain('.lc-f2d06b{background-color:#F2D06B;border-color:#F2D06B;color:#23302A}')
-        ->toContain('.lc-1f6f6b{background-color:#1F6F6B;border-color:#1F6F6B;color:#fff}');
-});
