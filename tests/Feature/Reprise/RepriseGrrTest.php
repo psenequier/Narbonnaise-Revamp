@@ -317,6 +317,30 @@ it('fait d\'une attribution à venir, une fois validée, une plage de l\'écran 
         ->and(DB::table('attributions')->where('plage_id', $plage->id)->count())->toBe(16);
 });
 
+it('applique d\'office les attributions GRR de la saison en cours dont la lignée est reconnue', function () {
+    \Illuminate\Support\Facades\Mail::fake();
+    ouvrirAnnee2026();
+    comptesPropres(); // bob est administrateur dans GRR
+    $saison = grrEntree('bob', '2026-12-18 12:01', '2026-12-26 12:01', 'A', 'CARREL-VIDAL', salle: 2);
+    $inconnue = grrEntree('bob', '2026-12-26 12:01', '2027-01-02 12:01', 'A', 'Surnom', salle: 2);
+    $ancienne = grrEntree('bob', '2025-12-20 12:01', '2025-12-27 12:01', 'A', 'Bertin', salle: 2);
+    app(ImportGrr::class)->importer();
+    $avant = DB::table('emails_sortants')->count();
+
+    $this->artisan('grr:appliquer-saison')->assertSuccessful();
+
+    $statut = fn (int $id) => DB::table('reprise_propositions')->where('grr_entry_id', $id)->value('statut');
+    expect($statut($saison))->toBe('validee')
+        ->and($statut($inconnue))->toBe('en_attente')
+        ->and($statut($ancienne))->toBe('en_attente')
+        ->and(App\Models\Plage::sole()->lignee_id)->toBe($this->carrel->id)
+        ->and(DB::table('emails_sortants')->count())->toBe($avant); // pas de récapitulatif aux membres
+
+    // Relancer ne crée rien de plus.
+    $this->artisan('grr:appliquer-saison')->assertSuccessful();
+    expect(App\Models\Plage::count())->toBe(1);
+});
+
 it('lit les tables GRR avec le préfixe configuré (NAR_ pour l\'appartement)', function () {
     creerBaseGrr('nar_');
     grrCompte('alice', 'alice@example.test', password_hash(ANCIEN_MDP, PASSWORD_BCRYPT));

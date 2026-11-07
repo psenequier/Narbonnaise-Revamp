@@ -41,7 +41,7 @@ jamais modifiés par le nouveau site.
 | 22 h 30 | Se connecter avec son ancien mot de passe GRR (double authentification facultative, conseillée aux admins) | admins |
 | 22 h 35 | Admin → Reprise → **Archives de la bascule** : télécharger la sauvegarde et l'export, les ranger hors d'OVH (Drive), vérifier qu'ils s'ouvrent avec le mot de passe des sauvegardes | Pascal |
 | 22 h 40 | Écran Reprise : contrôle validé, 20 réservations à comparer avec GRR | admins |
-| 22 h 50 | Écran Reprise : valider les attributions (choisir la lignée quand elle n'est pas devinée) | admins |
+| 22 h 50 | Écran Vacances : les attributions GRR de la saison dont la lignée est reconnue sont déjà des plages (`attributions_appliquees` dans le journal du job). Écran Reprise : valider les autres (choisir la lignée quand elle n'est pas devinée) | admins |
 | 23 h 00 | Écran Vacances : vérifier Noël et février, compléter les plages | admins |
 | 23 h 10 | Tester : réservation ouverte et exclusive, annulation, e-mails reçus, « Mot de passe oublié » | admins |
 

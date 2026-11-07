@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Domain\Reprise\AttributionsReprises;
 use App\Domain\Reprise\ControleReprise;
 use App\Domain\Reprise\ExportBascule;
 use App\Domain\Reprise\ImportGrr;
@@ -81,7 +82,18 @@ final class MigrationDeploiementController
             ];
         }
 
-        return response()->json(['migre' => true, 'sortie' => null, 'reprise' => $reprise, 'annees_ouvertes' => $this->ouvrirAnnees()]);
+        $annees = $this->ouvrirAnnees();
+        if ($reprise !== null) {
+            // Saison en cours : les attributions GRR reconnues deviennent des plages (année ouverte requise).
+            try {
+                $reprise['attributions_appliquees'] = app(AttributionsReprises::class)->appliquerSaison();
+            } catch (\Throwable $e) {
+                report($e);
+                $reprise['attributions_appliquees'] = 0;
+            }
+        }
+
+        return response()->json(['migre' => true, 'sortie' => null, 'reprise' => $reprise, 'annees_ouvertes' => $annees]);
     }
 
     /**

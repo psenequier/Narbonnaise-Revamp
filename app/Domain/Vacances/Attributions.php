@@ -24,7 +24,7 @@ final class Attributions
 {
     public function __construct(private readonly AnnoncesVacances $annonces) {}
 
-    public function attribuer(PeriodeVacances $periode, int $ligneeId, CreneauDemande $debut, CreneauDemande $fin, User $admin): Plage
+    public function attribuer(PeriodeVacances $periode, int $ligneeId, CreneauDemande $debut, CreneauDemande $fin, User $admin, bool $annoncer = true): Plage
     {
         $plage = DB::transaction(function () use ($periode, $ligneeId, $debut, $fin, $admin) {
             $creneaux = $this->creneauxLibres($periode, $ligneeId, $debut, $fin, null);
@@ -42,7 +42,9 @@ final class Attributions
             return $plage;
         }, attempts: 3);
 
-        $this->annonces->recapitulatif($periode->annee, 'attribution');
+        if ($annoncer) {
+            $this->annonces->recapitulatif($periode->annee, 'attribution');
+        }
 
         return $plage;
     }

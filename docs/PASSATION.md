@@ -104,6 +104,9 @@ user stories à jour sont dans `contexte/` (privé). Changements :
   les user stories de `contexte/`.
 - **Lignées** : nom et couleur modifiables dans Admin → Lignées (ni ajout ni retrait). `LIGNEES`
   ne sert qu'au premier remplissage, au premier déploiement.
+- **Attributions GRR de la saison en cours** : appliquées d'office comme plages quand la lignée est
+  reconnue (reprise de nuit, bouton « Lancer la reprise », `grr:appliquer-saison`) ; les saisons
+  passées et les lignées non reconnues restent à valider.
 - **Calendrier scolaire** relu et année ouverte à chaque déploiement et au démarrage local.
 - **Tester avec la vraie base** : sur le Mac (`local/charger-grr.sh`, e-mails dans Mailpit), puis
   pendant les répétitions avec `MAIL_REDIRIGER_VERS` (PR #31). La reprise de nuit ouvre l'année
