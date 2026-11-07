@@ -3,6 +3,7 @@
 #
 #   docker compose up                                   (dans un premier Terminal)
 #   bash local/charger-grr.sh contexte/sauvegarde.sql.gz  (dans un second, depuis le dossier du site)
+#   ADMIN=adresse@… bash local/charger-grr.sh …           (facultatif : ce compte devient admin)
 #
 # La sauvegarde vient d'OVH (Hébergement → Bases de données → Télécharger la sauvegarde).
 # Elle contient des données réelles : elle doit rester dans contexte/ (ignoré par git), et
@@ -14,6 +15,11 @@ cd "$(dirname "$0")/.."
 
 fichier="${1:-}"
 prefixe="${GRR_PREFIXE:-NAR_}"
+admin="${ADMIN:-}"
+if [ -n "$admin" ] && ! printf '%s' "$admin" | grep -Eq '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'; then
+  echo "✘ ADMIN doit être une adresse e-mail." >&2
+  exit 1
+fi
 
 if [ -z "$fichier" ] || [ ! -f "$fichier" ]; then
   echo "✘ Donner le chemin de la sauvegarde : bash local/charger-grr.sh contexte/<fichier>.sql.gz" >&2
@@ -62,6 +68,20 @@ echo "▶ Tables du nouveau site, lignées, puis reprise de GRR"
 docker compose exec -T site php artisan migrate --force
 docker compose exec -T site php artisan db:seed --force
 docker compose exec -T site php artisan grr:importer
+
+echo "▶ Année scolaire en cours (et suivante si publiée) : dates officielles, puis ouverture"
+docker compose exec -T site php artisan vacances:verifier || echo "  ⚠ Source officielle injoignable : relancer plus tard « docker compose exec site php artisan vacances:verifier »"
+
+if [ -n "$admin" ]; then
+  modifies=$(docker compose exec -T mysql mysql -N chamrousse -e \
+    "UPDATE users SET role = 'admin', actif = 1 WHERE email = '${admin}'; SELECT ROW_COUNT();" | tr -d '[:space:]')
+  if [ "${modifies:-0}" = "0" ]; then
+    echo "  ⚠ Aucun compte $admin modifié (adresse absente de GRR, ou déjà admin)."
+  else
+    echo "  $admin est admin (double authentification demandée à la connexion)."
+  fi
+fi
+
 docker compose exec -T site touch storage/app/.donnees-grr
 docker compose exec -T site rm -f storage/app/.donnees-fictives
 

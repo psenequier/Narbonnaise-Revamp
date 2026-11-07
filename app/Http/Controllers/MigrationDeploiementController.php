@@ -7,6 +7,10 @@ namespace App\Http\Controllers;
 use App\Domain\Reprise\ControleReprise;
 use App\Domain\Reprise\ExportBascule;
 use App\Domain\Reprise\ImportGrr;
+use App\Domain\Vacances\PeriodesScolaires;
+use App\Models\AnneeScolaire;
+use DateTimeImmutable;
+use DateTimeZone;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -71,9 +75,30 @@ final class MigrationDeploiementController
                 'propositions' => $import['propositions'] ?? 0,
                 'rejets' => is_array($import['rejets'] ?? null) ? count($import['rejets']) : 0,
                 'archives' => $archives,
+                'annees_ouvertes' => $this->ouvrirAnnees(),
             ];
         }
 
         return response()->json(['migre' => true, 'sortie' => null, 'reprise' => $reprise]);
+    }
+
+    /**
+     * Ouvre l'année scolaire en cours (et la suivante si publiée) dès la nuit de reprise,
+     * sans attendre la tâche du 1er du mois. L'e-mail « année ouverte » part par la boîte
+     * d'envoi : redirigé vers un seul admin tant que MAIL_REDIRIGER_VERS est renseigné.
+     * Une source injoignable n'arrête pas la bascule (la tâche mensuelle réessaiera).
+     *
+     * @return list<string> libellés des années ouvertes
+     */
+    private function ouvrirAnnees(): array
+    {
+        try {
+            app(PeriodesScolaires::class)->synchroniser(new DateTimeImmutable('now', new DateTimeZone('Europe/Paris')));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return array_values(AnneeScolaire::query()->where('ouverte', true)->orderBy('libelle')->pluck('libelle')
+            ->map(fn ($l) => (string) $l)->all());
     }
 }
