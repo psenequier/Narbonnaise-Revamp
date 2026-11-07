@@ -83,7 +83,24 @@ it('US-203-P3 affiche sur téléphone le réservant et le nombre de personnes, l
     $html = $this->actingAs($this->bruno)->get('/calendrier/2026-11')->assertOk()->getContent();
     $liste = substr($html, (int) strpos($html, 'data-vue="liste"'));
 
-    expect($liste)->toContain('N · Alice O. · 2')->toContain('J · Lignée Bleue');
+    preg_match('/<div class="case[^>]*data-cle="2026-11-11-N".*?<\/div>/s', $liste, $nuit);
+    preg_match('/<div class="case[^>]*data-cle="2026-11-20-J".*?<\/div>/s', $liste, $attribue);
+
+    expect($nuit[0])->toContain('Alice O.')->toContain('>2<')
+        ->and($attribue[0])->toContain('Lignée Bleue')->not->toContain('data-reservants');
+});
+
+it('rend les créneaux de la liste téléphone sélectionnables, et le jour seul ouvre le détail', function () {
+    $html = $this->actingAs($this->alice)->get('/calendrier/2026-11')->assertOk()->getContent();
+    $liste = substr($html, (int) strpos($html, 'data-vue="liste"'));
+
+    expect($liste)->toContain('data-rang=')->toContain('data-dispo="libre"')->toContain('/jour/2026-11-12"')
+        ->and(substr_count($liste, 'data-cle="2026-11-12-J"'))->toBe(1);
+});
+
+it('ne propose pas la vue saison sur téléphone', function () {
+    $this->actingAs($this->alice)->get('/calendrier/2026-11')->assertSee('hidden rounded-full bg-segment p-[3px] text-sm min-[600px]:flex', false);
+    $this->actingAs($this->alice)->get('/saison/2026-2027')->assertSee('data-vue-saison', false);
 });
 
 it('US-301-N8 refuse un commentaire de plus de 200 caractères', function () {

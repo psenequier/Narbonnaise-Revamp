@@ -47,6 +47,10 @@ user stories à jour sont dans `contexte/` (privé). Changements :
   modification pour changer les dates). Bouton « Annuler la réservation », comme dans « Mes
   réservations », dans la pop-up et sur l'écran de modification, sur la même ligne que les autres
   boutons (confirmation visible sans défiler). Les créneaux des autres restent refusés.
+- **Téléphone** (6 nov.) : pas de vue saison (choix masqué, `/saison` renvoie vers le mois) ; les
+  créneaux de la liste se touchent comme sur ordinateur (un toucher, puis la fin de période, puis la
+  pop-up ; ma réservation s'ouvre en édition) ; un toucher sur la réservation d'un autre montre sa
+  bulle de détail ; barre de sélection compacte collée en bas de l'écran.
 - **Écrans Réserver et Modifier** : chaque créneau affiche le réservant, le nombre et le début du
   commentaire (sur ordinateur), avec la même infobulle que le calendrier.
 - **Un créneau, une réservation** (décision du 5 nov.) : un créneau déjà réservé, même ouvert, ne
