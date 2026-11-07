@@ -77,6 +77,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/utilisateurs/{user}/desactiver', [UtilisateursController::class, 'desactiver'])->name('utilisateurs.desactiver');
         Route::post('/utilisateurs/{user}/reactiver', [UtilisateursController::class, 'reactiver'])->name('utilisateurs.reactiver');
         Route::put('/utilisateurs/{user}/role', [UtilisateursController::class, 'role'])->name('utilisateurs.role');
+        Route::put('/utilisateurs/{user}/lignee', [UtilisateursController::class, 'lignee'])->name('utilisateurs.lignee');
         Route::post('/utilisateurs/{user}/supprimer', [UtilisateursController::class, 'supprimer'])->name('utilisateurs.supprimer');
         Route::post('/utilisateurs/{user}/reinitialisation', [UtilisateursController::class, 'reinitialisation'])->name('utilisateurs.reinitialisation');
 

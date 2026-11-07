@@ -30,6 +30,10 @@ return [
     // Coupé dans les tests (phpunit.xml) ; un test le rallume pour vérifier l'alerte.
     'alertes_panne' => (bool) env('ALERTES_PANNE', true),
 
+    // US-711 (ADR 019) : adresses des comptes qui voient les statistiques par lignée, séparées
+    // par des virgules. Vide : personne. Jamais d'adresse réelle dans le dépôt.
+    'statistiques_lignees' => env('STATISTIQUES_LIGNEES', ''),
+
     // Dossier des archives, hors du dossier publié ; vide = storage/app/exports.
     'dossier_exports' => env('EXPORTS_DOSSIER', ''),
 ];

@@ -7,7 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Pas de rattachement des membres : une lignée ne sert qu'aux attributions.
+ * Une lignée sert aux attributions et, depuis l'ADR 019, rattache les membres (facultatif).
  * Nom et couleur se modifient dans Admin → Lignées ; LIGNEES (.env) ne sert qu'au premier remplissage.
  *
  * @property int $id
