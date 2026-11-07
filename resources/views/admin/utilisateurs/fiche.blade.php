@@ -15,7 +15,7 @@
 @if ($membre->suppression_demandee_le !== null)
 <section class="flex flex-col gap-3 rounded-2xl border border-erreur bg-erreur-fond p-5" aria-labelledby="suppression" data-suppression-demandee>
     <h2 id="suppression" class="text-lg font-extrabold">Suppression demandée le {{ $membre->suppression_demandee_le->timezone('Europe/Paris')->format('d/m/Y') }}</h2>
-    <p class="text-sm">Seul le prénom sera conservé. Le nom, l'adresse e-mail, le mot de passe et le compte Google lié seront effacés, y compris du journal et de la boîte d'envoi. Les réservations passées restent, avec le prénom. Les réservations à venir doivent être annulées avant. Cette action ne se défait pas.</p>
+    <p class="text-sm">Seul le prénom sera conservé. Le nom, l'adresse e-mail, le mot de passe et le compte Google lié seront effacés, y compris du journal et de la boîte d'envoi. Les réservations passées restent, avec le prénom. Ses réservations à venir seront annulées et les créneaux libérés. Cette action ne se défait pas.</p>
     <form method="POST" action="{{ route('admin.utilisateurs.supprimer', $membre) }}">@csrf<button class="h-11 rounded-lg bg-erreur px-4 font-bold text-white">Supprimer le compte</button></form>
 </section>
 @endif

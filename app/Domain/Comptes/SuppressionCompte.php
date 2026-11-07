@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Comptes;
 
 use App\Domain\Emails\BoiteEnvoi;
+use App\Domain\Reservations\ServiceReservation;
 use App\Models\Journal;
 use App\Models\Reservation;
 use App\Models\User;
@@ -15,11 +16,14 @@ use Illuminate\Support\Str;
  * US-110 : droit à l'effacement. Le membre demande, un admin confirme. Seul le prénom est
  * conservé (décision du 7 nov. 2026) : nom, e-mail, mot de passe et compte Google sont
  * effacés, y compris du détail du journal et de la boîte d'envoi. Les réservations passées
- * restent, affichées avec le prénom ; les statistiques ne changent pas.
+ * restent, affichées avec le prénom ; les statistiques ne changent pas. Les réservations à
+ * venir sont annulées à la confirmation.
  */
 final class SuppressionCompte
 {
-    public function __construct(private readonly BoiteEnvoi $boite) {}
+    public const MOTIF_ANNULATION = 'Compte supprimé à la demande du membre';
+
+    public function __construct(private readonly BoiteEnvoi $boite, private readonly ServiceReservation $reservations) {}
 
     /** US-110-P1 : la demande prévient les admins. */
     public function demander(User $membre): void
@@ -49,11 +53,13 @@ final class SuppressionCompte
                 && User::query()->where('role', 'admin')->where('actif', true)->whereKeyNot($membre->id)->lockForUpdate()->count() === 0) {
                 throw new CompteRefuse('Impossible de supprimer ce compte : c\'est le dernier admin actif.');
             }
-            $aujourdhui = now('Europe/Paris')->format('Y-m-d');
+            // US-110-N4 (décision du 7 nov. 2026) : la confirmation annule d'office les
+            // réservations à venir ; les créneaux redeviennent libres.
+            $maintenant = now('Europe/Paris')->toDateTimeImmutable();
             $futures = Reservation::query()->actives()->where('user_id', $membre->id)
-                ->whereHas('creneaux', fn ($q) => $q->where('date', '>=', $aujourdhui))->count();
-            if ($futures > 0) {
-                throw new CompteRefuse("Ce membre a encore {$futures} réservation(s) à venir : annulez-les d'abord depuis le calendrier.");
+                ->whereHas('creneaux', fn ($q) => $q->where('date', '>=', $maintenant->format('Y-m-d')))->get();
+            foreach ($futures as $reservation) {
+                $this->reservations->annuler($reservation, $maintenant, self::MOTIF_ANNULATION);
             }
 
             $email = $membre->email;

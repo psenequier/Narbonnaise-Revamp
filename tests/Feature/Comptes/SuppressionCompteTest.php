@@ -56,12 +56,22 @@ it('US-110-P2 efface nom, e-mail, mot de passe et compte Google ; garde le prén
         ->assertSee('Compte supprimé')->assertDontSee('marc@example.test')->assertDontSee('Supprimer le compte');
 });
 
-it('US-110-N4 refuse la suppression tant qu\'il reste des réservations à venir', function () {
-    reservationDirecte($this->membre, '2027-02-10');
-    $this->actingAs($this->membre)->post('/profil/suppression');
+it('US-110-N4 la confirmation annule les réservations à venir ; un compte supprimé ne se rouvre pas', function () {
+    $passee = reservationDirecte($this->membre, '2027-01-10');
+    $future = reservationDirecte($this->membre, '2027-02-10');
+    $this->actingAs($this->membre)->post('/profil/suppression')->assertRedirect();
+    $this->actingAs($this->admin)->get("/admin/utilisateurs/{$this->membre->id}")
+        ->assertSee('Ses réservations à venir seront annulées', false);
 
-    $this->actingAs($this->admin)->post("/admin/utilisateurs/{$this->membre->id}/supprimer")->assertSessionHasErrors('compte');
-    expect($this->membre->fresh()->supprime_le)->toBeNull();
+    $this->actingAs($this->admin)->post("/admin/utilisateurs/{$this->membre->id}/supprimer")->assertSessionHasNoErrors();
+
+    expect($this->membre->fresh()->supprime_le)->not->toBeNull()
+        ->and(DB::table('reservations')->where('id', $future)->value('annulee_le'))->not->toBeNull()
+        ->and(DB::table('reservations')->where('id', $passee)->value('annulee_le'))->toBeNull();
+    $annulation = Journal::where('action', 'reservation.annulee')->where('objet_id', $future)->sole();
+    expect($annulation->details['motif_admin'] ?? null)->toBe('Compte supprimé à la demande du membre');
+    $this->actingAs($this->admin)->post("/admin/utilisateurs/{$this->membre->id}/reactiver")->assertSessionHasErrors();
+    expect($this->membre->fresh()->actif)->toBeFalse();
 });
 
 it('US-110-P3 efface nom et e-mail du détail du journal, sans toucher aux autres entrées', function () {
