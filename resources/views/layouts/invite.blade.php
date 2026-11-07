@@ -1,3 +1,4 @@
+@php($ambiance = \App\Domain\Affichage\Ambiance::pour(now()))
 <!doctype html>
 <html lang="fr">
 <head>
@@ -11,20 +12,34 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
 <body class="min-h-screen bg-fond font-sans text-encre">
-    <main class="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 px-4 py-10">
-        <img src="/images/logo.svg" width="360" height="64" alt="Appartement Chamrousse" class="h-14 w-auto self-start">
-        <section class="flex flex-col gap-4 rounded-2xl border border-bord bg-white p-6">
-            <h1 class="font-display text-2xl font-bold">@yield('titre')</h1>
+<div class="grid min-h-screen md:grid-cols-2">
+    {{-- Illustration de la charte Alpage : téléphériques animés (immobiles si l'appareil demande
+         moins d'animations), version hiver du 1er octobre au 30 avril, été le reste de l'année. --}}
+    <div class="ciel-{{ $ambiance->value }} relative flex h-[340px] flex-col gap-9 overflow-hidden px-5 py-5 md:h-auto md:min-h-[640px] md:px-14 md:py-12" data-ambiance="{{ $ambiance->value }}">
+        <img src="/images/logo.svg" width="260" height="64" alt="Appartement Chamrousse" class="relative z-10 h-11 w-auto self-start md:h-14">
+        <div class="relative z-10 hidden max-w-[480px] md:block">
+            <p class="mb-3 text-[40px] leading-[1.15] font-extrabold text-principale">L'appartement de la famille, au Recoin.</p>
+            <p class="text-lg">Réservez une journée ou une nuit et voyez qui monte.</p>
+        </div>
+        <img src="{{ asset($ambiance->illustration()) }}" alt="{{ $ambiance->description() }}" class="absolute inset-x-0 bottom-0 aspect-[640/460] w-full object-cover object-bottom md:aspect-auto md:h-[62%]">
+    </div>
+    <main class="flex items-start justify-center px-4 pb-8 md:items-center md:px-6 md:py-12">
+        <section class="relative z-10 -mt-7 flex w-full max-w-[420px] flex-col gap-5 rounded-lg bg-white p-5 shadow-lg md:mt-0 md:p-9">
+            <div>
+                <h1 class="text-[26px] leading-tight font-bold md:text-[30px]">@yield('titre')</h1>
+                @hasSection('sous-titre')<p class="mt-1 text-gris">@yield('sous-titre')</p>@endif
+            </div>
             @if (session('status'))
-                <p role="status" class="rounded-lg bg-sapin-clair p-3 text-sm">{{ session('status') }}</p>
+                <p role="status" class="rounded-md bg-sapin-clair p-3 text-sm">{{ session('status') }}</p>
             @endif
             @if ($errors->any())
-                <div role="alert" class="rounded-lg border border-erreur bg-erreur-fond p-3 text-sm text-erreur">
+                <div role="alert" class="rounded-md bg-erreur-fond p-3 text-sm font-semibold text-erreur">
                     @foreach ($errors->all() as $erreur)<p>{{ $erreur }}</p>@endforeach
                 </div>
             @endif
             @yield('contenu')
         </section>
     </main>
+</div>
 </body>
 </html>

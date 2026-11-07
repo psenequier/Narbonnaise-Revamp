@@ -117,3 +117,10 @@
     h2, h3 { font-weight: 700; }
     table, [data-date] { font-variant-numeric: tabular-nums; }
 }
+
+/* Pages d'accueil (connexion, mot de passe…) : ciel derrière les téléphériques, été et hiver. */
+@layer components {
+    .ciel-ete { background: linear-gradient(180deg, #EAF4F8 0%, #D3EAF3 55%, #A8D3E6 100%); }
+    .ciel-hiver { background: linear-gradient(180deg, #F2F7FA 0%, #DCEBF3 55%, #BCD8E6 100%); }
+    .champ-invite { @apply h-12 rounded-md border border-bord-fort bg-white px-3.5 text-base text-encre focus:border-principale focus:outline-3 focus:outline-offset-1 focus:outline-accent; }
+}
