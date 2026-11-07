@@ -1,4 +1,4 @@
-# Critères d'acceptation exportés du document des user stories (rev 24, 27/10/2026).
+# Critères d'acceptation exportés du document des user stories (rev 24, 27/10/2026 ; mis à jour le 7/11/2026).
 # Format : identifiant, lot. Régénérer à chaque modification du document.
 # La CI liste les critères MVP sans test ; le contrôle devient bloquant quand
 # la variable de dépôt CRITERES_BLOQUANTS vaut « oui » (prévu à la recette, T37).
@@ -64,6 +64,8 @@ US-201-P7 MVP
 US-201-P8 MVP
 US-201-P9 MVP
 US-201-P10 MVP
+US-201-P11 MVP
+US-201-P12 MVP
 US-201-N1 MVP
 US-201-N2 MVP
 US-201-N3 MVP
@@ -119,11 +121,14 @@ US-303-N1 MVP
 US-303-N2 MVP
 US-305-P1 MVP
 US-305-P2 MVP
+US-305-P3 MVP
+US-305-P4 MVP
 US-305-N1 MVP
 US-305-N2 MVP
 US-305-N3 MVP
 US-306-P1 MVP
 US-306-P2 MVP
+US-306-P3 MVP
 US-306-N1 MVP
 US-306-N2 MVP
 US-306-N3 MVP
