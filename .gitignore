@@ -10,6 +10,8 @@
 .phpunit.result.cache
 psalm.sarif
 semgrep.sarif
+coverage.xml
+.scannerwork/
 /.idea
 /.vscode
 /rapports
