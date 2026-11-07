@@ -58,19 +58,20 @@ final class CalendrierController
     }
 
     /**
-     * US-202-P6, P7 : pendant la saison (ouverture → fermeture de la station saisies par un admin,
-     * sinon 1er décembre → 30 avril), l'accueil montre la saison ; le reste de l'année, le mois.
+     * US-202-P6, P7 (décision du 7 nov. 2026) : du 1er octobre jusqu'à la fermeture de la station
+     * (saisie par un admin, sinon le 30 avril), l'accueil montre la saison, à condition que l'année
+     * scolaire en cours soit ouverte à la réservation ; le reste du temps, le mois.
      */
     public function accueil(Parametres $parametres): View
     {
         $aujourdhui = self::aujourdhui();
         $a = (int) $aujourdhui->format('Y') - ((int) $aujourdhui->format('n') < 9 ? 1 : 0);
         $saison = $a.'-'.($a + 1);
-        $ouverture = $parametres->facultatif("station.ouverture.{$saison}") ?: "{$a}-12-01";
         $fermeture = $parametres->facultatif("station.fermeture.{$saison}") ?: ($a + 1).'-04-30';
         $jour = $aujourdhui->format('Y-m-d');
+        $ouverte = \App\Models\AnneeScolaire::query()->where('libelle', $saison)->where('ouverte', true)->exists();
 
-        return $jour >= $ouverture && $jour <= $fermeture ? $this->saison($parametres, $saison) : $this->mois();
+        return $ouverte && $jour >= "{$a}-10-01" && $jour <= $fermeture ? $this->saison($parametres, $saison) : $this->mois();
     }
 
     public function saison(Parametres $parametres, ?string $saison = null): View

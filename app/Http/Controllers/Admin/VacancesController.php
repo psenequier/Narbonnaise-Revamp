@@ -28,7 +28,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
-/** Écran Vacances des admins : périodes, plages attribuées, conflits (US-403 à US-408) ; le cumul a son propre écran. */
+/** Écran Vacances des admins : périodes, plages attribuées, conflits (US-403 à US-408) ; le cumul par lignée a été retiré le 7 nov. 2026. */
 final class VacancesController
 {
     public function __construct(
@@ -78,12 +78,6 @@ final class VacancesController
             'refusSuppression' => $annee !== null && $annee->creee_a_la_main ? ($this->suppression->refus($annee, $aujourdhui) ?? '') : null,
             'conflits' => Reservation::query()->actives()->whereNotNull('en_conflit_le')->with('user:id,prenom,nom', 'creneaux')->get(),
         ]);
-    }
-
-    /** US-405 : le cumul, sur son propre écran (retiré de l'écran Vacances le 7 nov. 2026). */
-    public function cumul(): View
-    {
-        return view('admin.cumul', ['cumul' => $this->suivi->cumul()]);
     }
 
     public function attribuer(Request $request): RedirectResponse

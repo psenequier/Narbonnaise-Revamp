@@ -5,8 +5,7 @@
     // Une seule grille : mêmes écarts partout, cartes de même hauteur.
     $cartes = [
         ['admin.vacances', 'Vacances et attributions', 'Périodes, plages par lignée, conflits'],
-        ['admin.cumul', 'Cumul par lignée', 'Créneaux attribués depuis le début'],
-        ['admin.lignees', 'Lignées', 'Nom et couleur'],
+        ['admin.lignees', 'Lignées', 'Nom des lignées'],
         ['admin.utilisateurs', 'Utilisateurs', 'Invitations, désactivation, rôles, réinitialisation'],
         ['admin.journal', 'Journal des actions', 'Qui a fait quoi, quand'],
         ['admin.reprise', 'Reprise de GRR', 'Rapport de contrôle, attributions à valider'],
