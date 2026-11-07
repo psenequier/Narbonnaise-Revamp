@@ -22,6 +22,8 @@
             <nav aria-label="Navigation principale" class="flex flex-auto flex-wrap gap-1 text-sm">
                 <a href="{{ route('calendrier') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('calendrier', 'calendrier.mois', 'saison', 'jour') }}">Calendrier</a>
                 <a href="{{ route('reservations.mes') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('reservations.*') }}">Mes réservations</a>
+                <a href="{{ route('statistiques') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('statistiques') }}">Statistiques</a>
+                <a href="{{ route('meteo') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('meteo') }}">Météo</a>
                 @can('admin')<a href="{{ route('admin.accueil') }}" class="flex min-h-11 items-center rounded-full px-4 {{ $actif('admin.*') }}">Admin</a>@endcan
             </nav>
             <div class="flex items-center gap-3 text-sm">

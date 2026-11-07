@@ -50,7 +50,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profil/email/{user}/{empreinte}', ConfirmationEmailController::class)->middleware('signed')->name('profil.email.confirmer');
     Route::get('/profil/google/lier', [GoogleController::class, 'lier'])->name('profil.google.lier');
     Route::delete('/profil/google', [GoogleController::class, 'delier'])->name('profil.google.delier');
-    // Statistiques, météo : voir le plan de dev, lot MVP 1.
+    Route::get('/statistiques', \App\Http\Controllers\StatistiquesController::class)->name('statistiques');
+    Route::get('/meteo', \App\Http\Controllers\MeteoController::class)->name('meteo');
 
     Route::middleware('can:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::view('/', 'admin.accueil')->name('accueil');

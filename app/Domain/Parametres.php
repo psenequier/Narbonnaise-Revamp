@@ -24,6 +24,7 @@ final class Parametres
         'station.longitude' => '5.8773',
         'station.altitude' => '1650',
         'station.bulletin_neige' => 'https://www.chamrousse.com/ouverture-alpin-piste-remontee.html',
+        'station.webcams' => 'https://www.chamrousse.com/webcams.html',
         // Dates d'ouverture et de fermeture du domaine, par saison (modifiables dans Paramètres).
         'station.ouverture.2026-2027' => '2026-12-05',
         'station.fermeture.2026-2027' => '2027-04-11',
