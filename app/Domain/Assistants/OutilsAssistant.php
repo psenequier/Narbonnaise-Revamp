@@ -8,6 +8,7 @@ use App\Domain\Calendrier\Creneau;
 use App\Domain\Calendrier\Occupation;
 use App\Domain\Calendrier\SituationCreneau;
 use App\Domain\Calendrier\TypeCreneau;
+use App\Domain\Equite\OccupationParLignee;
 use App\Domain\Reservations\AvisReservation;
 use App\Domain\Reservations\ServiceReservation;
 use App\Domain\Statistiques\Statistiques;
@@ -16,6 +17,7 @@ use App\Models\AccesAssistant;
 use App\Models\Reservation;
 use App\Models\User;
 use DateTimeImmutable;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Outils proposés aux assistants IA (US-1003, US-1004). Ils lisent et agissent avec
@@ -32,6 +34,7 @@ final class OutilsAssistant
     public function __construct(
         private readonly Occupation $occupation,
         private readonly Statistiques $statistiques,
+        private readonly OccupationParLignee $parLignee,
         private readonly ServiceReservation $reservations,
         private readonly AvisReservation $avis,
     ) {}
@@ -76,7 +79,8 @@ final class OutilsAssistant
                 'description' => 'Mêmes chiffres que la page Statistiques : nuits occupées par type et par mois, taux, samedis, '
                     .'nuitées-personnes, comparaison des saisons. Saison = décembre à avril.',
                 'inputSchema' => ['type' => 'object', 'properties' => [
-                    'vue' => ['type' => 'string', 'enum' => ['saison', 'annee'], 'description' => 'Par saison (défaut) ou par année civile.'],
+                    'vue' => ['type' => 'string', 'enum' => ['saison', 'annee', 'tout'],
+                        'description' => 'Par saison (défaut), par année civile, ou « tout » : depuis la première occupation connue.'],
                     'saison' => ['type' => 'string', 'pattern' => '^\d{4}-\d{4}$', 'description' => 'Par exemple « 2026-2027 ». Défaut : la saison en cours.'],
                     'annee' => ['type' => 'integer', 'description' => 'Année civile. Défaut : l\'année en cours.'],
                 ], 'additionalProperties' => false], 'annotations' => $lecture],
@@ -131,7 +135,7 @@ final class OutilsAssistant
             'calendrier' => $this->calendrier($arguments, $membre),
             'disponibilites' => $this->disponibilites($arguments, $membre),
             'mes_reservations' => $this->mesReservations($membre),
-            'statistiques' => $this->statistiques($arguments),
+            'statistiques' => $this->statistiques($arguments, $membre),
             'reserver' => $this->reserver($arguments, $membre),
             'modifier' => $this->modifier($arguments, $membre),
             'annuler' => $this->annuler($arguments, $membre),
@@ -242,14 +246,22 @@ final class OutilsAssistant
      * @param  array<mixed>  $arguments
      * @return array<string, mixed>
      */
-    private function statistiques(array $arguments): array
+    private function statistiques(array $arguments, User $membre): array
     {
         $aujourdhui = CalendrierController::aujourdhui();
         $saisons = $this->statistiques->saisons($aujourdhui);
         $anneeSaison = Statistiques::anneeDeSaison($aujourdhui);
-        $vue = ($arguments['vue'] ?? 'saison') === 'annee' ? 'annee' : 'saison';
+        $vue = match ($arguments['vue'] ?? 'saison') {
+            'annee' => 'annee', 'tout' => 'tout', default => 'saison',
+        };
 
-        if ($vue === 'annee') {
+        if ($vue === 'tout') {
+            // US-703-P2 : de la première occupation connue jusqu'à aujourd'hui.
+            $fin = new DateTimeImmutable($aujourdhui->format('Y-m-d'));
+            $debut = $this->statistiques->premiereOccupation() ?? $fin;
+            $bornes = ['debut' => min($debut, $fin), 'fin' => $fin, 'approchee' => false];
+            $choisi = 'depuis le début';
+        } elseif ($vue === 'annee') {
             $annee = is_int($arguments['annee'] ?? null) ? $arguments['annee'] : (int) $aujourdhui->format('Y');
             if ($annee < 2000 || $annee > (int) $aujourdhui->format('Y')) {
                 throw new ErreurOutil('Année inconnue : choisissez une année passée ou l\'année en cours.');
@@ -274,6 +286,23 @@ final class OutilsAssistant
             'taux_occupation_nuits' => Statistiques::taux($p['nuits'], $p['jours']),
             'chiffres' => $p,
             'saisons' => $saisons,
+        ] + $this->parLignee($membre, $bornes['debut'], $bornes['fin']);
+    }
+
+    /**
+     * US-711 et US-712 (ADR 019) : seulement pour les comptes désignés, comme sur la page Statistiques.
+     *
+     * @return array<string, mixed>
+     */
+    private function parLignee(User $membre, DateTimeImmutable $debut, DateTimeImmutable $fin): array
+    {
+        if (! Gate::forUser($membre)->allows('statistiques-lignees')) {
+            return [];
+        }
+
+        return [
+            'par_lignee' => $this->parLignee->periode($debut, $fin),
+            'par_membre' => $this->parLignee->parMembre($debut, $fin),
         ];
     }
 

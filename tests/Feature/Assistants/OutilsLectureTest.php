@@ -33,6 +33,26 @@ it('US-1003-P1 renvoie les mêmes chiffres que la page Statistiques', function (
     expect($saison['periode'])->toBe($a.'-'.($a + 1));
 });
 
+it('US-1003-P1 vue « depuis le début », et chiffres par lignée pour le seul compte désigné, comme sur la page', function () {
+    reserverPour($this->bruno, ['2026-11-14-N'], 'ouverte', ['nombre_personnes' => 2]);
+    $this->travelTo('2026-11-20 10:00:00');
+
+    $tout = outilMcp($this->jeton, 'statistiques', ['vue' => 'tout'])['structuredContent'];
+    expect($tout)->toMatchArray(['vue' => 'tout', 'du' => '2026-11-14', 'au' => '2026-11-20'])
+        ->and($tout['chiffres']['nuits'])->toBe(1)
+        ->and($tout)->not->toHaveKey('par_lignee')->not->toHaveKey('par_membre');
+
+    config(['chamrousse.statistiques_lignees' => 'designe@example.test']);
+    $designe = User::factory()->create(['prenom' => 'Désigné', 'email' => 'designe@example.test']);
+    $jeton = connecterAssistant($designe)['access_token'];
+    $vu = outilMcp($jeton, 'statistiques', ['vue' => 'tout'])['structuredContent'];
+
+    expect($vu)->toHaveKeys(['par_lignee', 'par_membre'])
+        ->and(collect($vu['par_membre'])->sum('total'))->toBe(1)
+        ->and(json_encode($vu))->not->toContain('@example.test');
+    expect(outilMcp($this->jeton, 'statistiques', ['vue' => 'tout'])['structuredContent'])->not->toHaveKey('par_lignee');
+});
+
 it('US-1003-P2 renvoie l\'état de chaque journée et nuit, l\'auteur et le nombre de personnes', function () {
     reserverPour($this->bruno, ['2026-11-14-N'], 'exclusive', ['nombre_personnes' => 3]);
     mettreVacances('2026-11-20', '2026-11-22', 'Lignée Test');
