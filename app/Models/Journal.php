@@ -38,7 +38,8 @@ class Journal extends Model
             'action' => $action,
             'objet_type' => $objet ? class_basename($objet) : null,
             'objet_id' => $objet?->getKey(),
-            'details' => $details,
+            // US-1004-P4 : une action faite par un assistant IA le dit (« via »).
+            'details' => \Illuminate\Support\Facades\Context::has('journal_via') ? $details + ['via' => \Illuminate\Support\Facades\Context::get('journal_via')] : $details,
             'ip' => request()->ip(),
         ]);
     }

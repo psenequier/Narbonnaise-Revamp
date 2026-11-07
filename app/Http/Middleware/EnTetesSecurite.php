@@ -17,8 +17,12 @@ final class EnTetesSecurite
         /** @var Response $response */
         $response = $next($request);
 
+        // Page « Autoriser » d'un assistant IA (US-1001) : le formulaire redirige vers son adresse de retour.
+        $formulaire = $request->attributes->get('csp_form_action');
+        $formulaire = is_string($formulaire) && preg_match('#^https?://[a-z0-9.\-\[\]:]+$#', $formulaire) === 1 ? ' '.$formulaire : '';
+
         $h = $response->headers;
-        $h->set('Content-Security-Policy', "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; frame-ancestors 'none'; form-action 'self' https://accounts.google.com; base-uri 'none'");
+        $h->set('Content-Security-Policy', "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; frame-ancestors 'none'; form-action 'self' https://accounts.google.com{$formulaire}; base-uri 'none'");
         $h->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         $h->set('X-Content-Type-Options', 'nosniff');
         $h->set('Referrer-Policy', 'same-origin');

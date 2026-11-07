@@ -10,6 +10,10 @@ $app = Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: null, // remplacée par /sante, qui vérifie aussi la tâche planifiée
+        // Épique 10 : assistant IA connecté (MCP), hors du groupe « web » pour /mcp et OAuth.
+        then: function (): void {
+            Illuminate\Support\Facades\Route::group([], base_path('routes/assistants.php'));
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // Global : les en-têtes s'appliquent aussi aux pages d'erreur et aux 404 (ZAP 10038, 10063).
@@ -20,6 +24,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', \App\Http\Middleware\CompteActif::class);
         // US-910-P2 : les visites vérifient aussi que le planificateur tourne (après la réponse).
         $middleware->append(\App\Http\Middleware\SurveillancePlanificateur::class);
+        // US-1001-N1 : /mcp exige le jeton d'un assistant autorisé.
+        $middleware->alias(['auth.assistant' => \App\Http\Middleware\AuthentifierAssistant::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // A10 (OWASP 2025) : aucune trace technique n'est montrée aux membres.
