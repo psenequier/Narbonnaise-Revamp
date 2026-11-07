@@ -76,6 +76,7 @@ it('US-707-P3 remercie M. Caplain, cite la source et donne le lien', function ()
 
     $page = $this->actingAs($this->membre)->get('/meteo')->assertOk()->getContent();
     expect($page)->toContain('Bulletin rédigé par M. Caplain, que nous remercions')
+        ->and($page)->toMatch('#<p class="[^"]*\\bitalic\\b[^"]*" data-credit-caplain>Bulletin rédigé#')
         ->and($page)->toMatch('#<a href="http://mto38.free.fr/" target="_blank" rel="noopener noreferrer"[^>]*>mto38.free.fr</a>#');
 });
 
