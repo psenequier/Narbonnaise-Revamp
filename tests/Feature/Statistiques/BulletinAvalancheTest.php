@@ -40,9 +40,9 @@ it('US-708-P1 affiche les niveaux au-dessus et en dessous de la limite, la date 
     simulerBra();
 
     $this->actingAs($this->membre)->get('/meteo')->assertOk()
-        ->assertSee('Risque d\'avalanche · Belledonne')
+        ->assertSee('Risque d\'avalanche · Belledonne', false)
         ->assertSeeInOrder(['3 · Marqué', 'au-dessus de 2000 m', '2 · Limité', 'en dessous de 2000 m'])
-        ->assertSee('Bulletin du 18/12 à 16h00, valable jusqu\'au 19/12 à 16h00')
+        ->assertSee('Bulletin du 18/12 à 16h00, valable jusqu\'au 19/12 à 16h00', false)
         ->assertSee('Plaques à vent');
     Http::assertSent(fn (Request $r) => str_starts_with($r->url(), 'https://public-api.meteofrance.fr/public/DPBRA/v1/massif/BRA') && $r['id-massif'] === '8');
 });
@@ -60,13 +60,13 @@ it('US-708-P2 écrit chaque niveau en chiffre et en mot, avec l\'échelle europ�
     $page = $this->actingAs($this->membre)->get('/meteo')->assertOk()
         ->assertSeeInOrder(['1 Faible', '2 Limité', '3 Marqué', '4 Fort', '5 Très fort'])->getContent();
     expect($page)->toContain('data-picto-avalanche="3"')->toContain('fill="#FF9900"')
-        ->and($page)->toMatch('#<li class="[^"]*bg-\[\#FF9900\][^"]*outline-2[^"]*" aria-current="true"\s*>3 Marqué</li>#');
+        ->and($page)->toMatch('#<li class="[^"]*bg-\[\#FF9900\][^"]*outline-2[^"]*"\s+aria-current="true"\s*>3 Marqué</li>#');
 });
 
 it('US-708-P3 rappelle la lecture du bulletin complet et donne le lien configuré', function () {
     simulerBra();
 
-    $page = $this->actingAs($this->membre)->get('/meteo')->assertOk()->assertSee('Ne remplace pas la lecture du bulletin complet')->getContent();
+    $page = $this->actingAs($this->membre)->get('/meteo')->assertOk()->assertSee('Ne remplace pas la lecture du bulletin complet', false)->getContent();
     expect($page)->toContain('href="https://meteofrance.com/meteo-montagne/alpes-du-nord/risques-avalanche" target="_blank" rel="noopener noreferrer"');
 });
 
@@ -94,7 +94,7 @@ it('US-708-N1 affiche « Pas de bulletin d\'avalanche en ce moment » sans clé,
     simulerBra($cas === 'échu' ? braXml([], echeance: '2026-12-17T16:00:00') : ($cas === 'hors saison' ? '' : null), $cas === 'hors saison' ? 404 : 200);
 
     $this->actingAs($this->membre)->get('/meteo')->assertOk()
-        ->assertSee('Pas de bulletin d\'avalanche en ce moment')
+        ->assertSee('Pas de bulletin d\'avalanche en ce moment', false)
         ->assertSee('href="https://meteofrance.com/meteo-montagne/alpes-du-nord/risques-avalanche"', false);
 })->with(['sans clé', 'hors saison', 'échu']);
 
@@ -119,7 +119,7 @@ it('US-708-N2 garde le dernier bulletin non échu si le portail ne répond pas',
 it('US-708-N3 n\'affiche jamais une réponse illisible ou un niveau hors de 1 à 5', function (string $xml) {
     simulerBra($xml);
 
-    $this->actingAs($this->membre)->get('/meteo')->assertOk()->assertSee('Pas de bulletin d\'avalanche en ce moment')->assertDontSee('data-niveau=', false);
+    $this->actingAs($this->membre)->get('/meteo')->assertOk()->assertSee('Pas de bulletin d\'avalanche en ce moment', false)->assertDontSee('data-niveau=', false);
 })->with([
     'XML invalide' => '<BULLETINS_NEIGE_AVALANCHE><pas fermé',
     'niveau 7' => braXml(['RISQUE1' => '7']),
@@ -139,7 +139,7 @@ it('US-709-P1 montre la hauteur de neige par altitude, de la plus haute à la pl
 it('US-709-P2 affiche la limite d\'enneigement au nord et au sud', function () {
     simulerBra();
 
-    $this->actingAs($this->membre)->get('/meteo')->assertOk()->assertSee('1 100 m au nord · 1 300 m au sud');
+    $this->actingAs($this->membre)->get('/meteo')->assertOk()->assertSee('1 100 m au nord · 1 300 m au sud', false);
 });
 
 it('US-709-N1 affiche « – » pour une hauteur absente et « Donnée indisponible » sans enneigement', function () {
