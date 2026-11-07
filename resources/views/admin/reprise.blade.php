@@ -29,8 +29,16 @@
         @csrf
         <label class="flex flex-col font-bold">Date de la bascule<input type="date" name="date" required class="h-11 rounded-lg border border-bord px-2"></label>
         <label class="flex flex-col font-bold">Durée de la coupure<input name="duree" value="une nuit, de 22 h à 6 h" required maxlength="100" class="h-11 rounded-lg border border-bord px-2"></label>
-        <button class="h-11 rounded-lg border border-sapin px-3 font-bold text-sapin">Annoncer (au moins 7 jours avant)</button>
+        <button class="h-11 rounded-lg border border-sapin px-3 font-bold text-sapin">Envoyer l'annonce maintenant</button>
     </form>
+    <p class="text-sm text-gris">L'annonce part dès que vous cliquez : choisissez le moment (7 jours avant la bascule, de préférence). Les chiffres sont calculés depuis la dernière reprise, au moment de l'envoi.</p>
+    <details class="text-sm" open>
+        <summary class="cursor-pointer font-bold">Texte de l'annonce</summary>
+        <div class="mt-2 max-w-xl rounded-xl border border-bord bg-fond p-4 text-base leading-relaxed">
+            <p class="mb-3 text-sm text-gris">Objet : {{ \App\Mail\MessageSite::sujet('bascule.annonce') }}</p>
+            @include('emails._bascule-annonce-texte', ['d' => $annonce])
+        </div>
+    </details>
     <form method="POST" action="{{ route('admin.reprise.mise-en-service') }}">
         @csrf
         <button class="h-11 rounded-lg bg-sapin px-3 text-sm font-bold text-white">Jour J : envoyer la nouvelle adresse et les liens de mot de passe</button>

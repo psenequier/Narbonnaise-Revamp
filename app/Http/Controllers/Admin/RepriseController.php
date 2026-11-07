@@ -35,6 +35,9 @@ final class RepriseController
             'lignees' => Lignee::query()->orderBy('nom')->get(),
             'ouverte' => config('chamrousse.grr_reprise') === 'ouverte',
             'archives' => app(ExportBascule::class)->archives(),
+            // Aperçu de l'e-mail d'annonce, chiffres calculés depuis la base reprise.
+            'annonce' => app(\App\Domain\Reprise\AnnoncesBascule::class)
+                ->contenuAnnonce(null, 'une nuit, de 22 h à 6 h', DateTimeImmutable::createFromInterface(now('Europe/Paris'))),
             'propositions' => DB::table('reprise_propositions')->where('statut', 'en_attente')->orderBy('grr_entry_id')
                 ->get(['id', 'grr_entry_id', 'libelle', 'creneaux', 'lignee_id']),
         ]);
