@@ -25,6 +25,10 @@ final class Parametres
         'station.altitude' => '1650',
         'station.bulletin_neige' => 'https://www.chamrousse.com/ouverture-alpin-piste-remontee.html',
         'station.webcams' => 'https://www.chamrousse.com/webcams.html',
+        // Bulletin d'avalanche de Météo-France (US-708, US-709) : massif 8 = Belledonne.
+        'source.meteofrance_bra' => 'https://public-api.meteofrance.fr/public/DPBRA/v1/massif/BRA',
+        'station.massif_bra' => '8',
+        'station.bulletin_avalanche' => 'https://meteofrance.com/meteo-montagne/alpes-du-nord/risques-avalanche',
         // Dates d'ouverture et de fermeture du domaine, par saison (modifiables dans Paramètres).
         'station.ouverture.2026-2027' => '2026-12-05',
         'station.fermeture.2026-2027' => '2027-04-11',

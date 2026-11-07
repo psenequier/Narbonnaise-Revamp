@@ -31,7 +31,7 @@ function reponseMeteo(array $actuel = []): array
 
 function simulerMeteo(array $actuel = []): void
 {
-    Http::fake(['api.open-meteo.com/*' => Http::response(reponseMeteo($actuel))]);
+    Http::fake(['api.open-meteo.com/*' => Http::response(reponseMeteo($actuel)), 'mto38.free.fr/*' => Http::response('', 503)]);
 }
 
 it('US-704-P1 interroge Open-Meteo avec les coordonnées et l\'altitude configurées', function () {
@@ -57,11 +57,12 @@ it('US-704-P3 ne fait qu\'un appel pour deux visites dans la même heure', funct
     $this->actingAs($this->membre)->get('/meteo');
     $this->travel(20)->minutes();
     $this->actingAs($this->membre)->get('/meteo');
-    Http::assertSentCount(1);
+    $openMeteo = fn () => Http::recorded(fn ($r) => str_contains($r->url(), 'open-meteo'))->count();
+    expect($openMeteo())->toBe(1);
 
     $this->travel(50)->minutes();
     $this->actingAs($this->membre)->get('/meteo');
-    Http::assertSentCount(2);
+    expect($openMeteo())->toBe(2);
 });
 
 it('US-704-N1 garde la dernière valeur connue, avec son heure, si Open-Meteo échoue ou renvoie du JSON invalide', function (callable $panne) {
@@ -70,7 +71,7 @@ it('US-704-N1 garde la dernière valeur connue, avec son heure, si Open-Meteo é
 
     $this->travel(2)->hours();
     reinitialiserHttp();
-    Http::fake(['api.open-meteo.com/*' => $panne()]);
+    Http::fake(['api.open-meteo.com/*' => $panne(), 'mto38.free.fr/*' => Http::response('', 503)]);
     $this->actingAs($this->membre)->get('/meteo')->assertOk()->assertSee('−3 °C')->assertSee('à 09:40');
 })->with([
     'erreur 500' => fn () => fn () => Http::response('', 500),
@@ -79,7 +80,7 @@ it('US-704-N1 garde la dernière valeur connue, avec son heure, si Open-Meteo é
 ]);
 
 it('US-704-N2 affiche « Météo indisponible » sans aucune valeur connue', function () {
-    Http::fake(['api.open-meteo.com/*' => Http::response('', 503)]);
+    Http::fake(['api.open-meteo.com/*' => Http::response('', 503), 'mto38.free.fr/*' => Http::response('', 503)]);
 
     $this->actingAs($this->membre)->get('/meteo')->assertOk()->assertSee('Météo indisponible');
 });
