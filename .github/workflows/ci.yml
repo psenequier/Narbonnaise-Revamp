@@ -15,7 +15,9 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Jamais sur main : une fusion ne doit pas interrompre un déploiement en cours (envoi SFTP,
+  # migrations, reprise de GRR une nuit de répétition ou de bascule). Vu le 9 nov. 2026.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
   PHP_VERSION: "8.5"
