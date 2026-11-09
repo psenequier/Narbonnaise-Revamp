@@ -75,7 +75,7 @@ it('US-409-P1 emporte les réservations annulées de la saison supprimée', func
     app(\App\Domain\Reservations\ServiceReservation::class)->annuler($r, new DateTimeImmutable('2026-11-02 10:00:00'));
 
     $this->actingAs($this->admin)->delete("/admin/vacances/annees/{$annee->id}", ['confirmation' => '1'])->assertSessionHasNoErrors();
-    expect(DB::table('reservations')->whereKey($r->id)->exists())->toBeFalse();
+    expect(DB::table('reservations')->where('id', $r->id)->exists())->toBeFalse();
 });
 
 it('US-409-N2 ne supprime jamais une saison du calendrier officiel, ni une saison commencée', function () {

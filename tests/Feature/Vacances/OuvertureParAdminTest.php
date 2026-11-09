@@ -113,7 +113,7 @@ it('US-408-N4 refuse une autre année que celle proposée, et rien au-delà de l
     $this->actingAs($this->admin)->post('/admin/vacances/saisir', datesSaisies(['annee' => $annee]))
         ->assertSessionHasErrors(['saisie' => 'Seule l\'année 2027-2028 peut être saisie à la main.']);
     expect(AnneeScolaire::where('libelle', $annee)->exists())->toBeFalse();
-})->with(['2222-2223', '2028-2029', '2026-2027']);
+})->with(['2222-2223', '2028-2029', '2025-2026']);
 
 it('US-408-N4 ne propose plus de saisie quand l\'année en cours et les deux suivantes sont ouvertes', function () {
     foreach (['2026-2027', '2027-2028', '2028-2029'] as $l) {
