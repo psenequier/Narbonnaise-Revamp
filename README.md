@@ -155,7 +155,7 @@ Quota : le dépôt est public, les minutes GitHub Actions sur les runners standa
 | `SFTP_HOTE`, `SFTP_UTILISATEUR` | secret | accès SFTP de l'hébergement |
 | `SFTP_CLE` | secret | clé privée SSH dédiée au déploiement (clé publique déclarée chez OVH) |
 | `SFTP_EMPREINTE_HOTE` | secret | ligne `known_hosts` du serveur SFTP, relevée une fois à la main |
-| `SITE_URL` | variable | adresse du site en production (non écrite dans le dépôt) |
+| `SITE_URL` | secret (environnement production) | adresse du site en production (ni dans le dépôt ni dans les journaux) |
 | `DOSSIER_DISTANT` | variable | `narbonnaise-v2` |
 | `DEPLOIEMENT_ACTIF` | variable | `oui` pour activer le job de déploiement (à partir de T09) |
 | `SITE_SERVI` | variable | `non` jusqu'à la bascule (dépôt sans mise en service), puis `oui` |

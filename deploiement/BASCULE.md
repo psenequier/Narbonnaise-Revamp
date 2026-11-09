@@ -10,7 +10,7 @@ jamais modifiés par le nouveau site.
 
 ## Une fois, avant la première répétition (tâche T09)
 
-1. SFTP activé, clé de déploiement, secrets GitHub (`SFTP_*`, `SITE_URL`, `DOSSIER_DISTANT`).
+1. SFTP activé, clé de déploiement, secrets de l’environnement « production » (`SFTP_*`, `SITE_URL`), variable `DOSSIER_DISTANT`.
 2. `partage/.env` sur le serveur, en plus des réglages de base :
    - `GRR_PREFIXE=NAR_`
    - `GRR_AJUSTEMENTS=<login GRR de chaque admin>:admin,…,<login du compte partagé>:desactive`

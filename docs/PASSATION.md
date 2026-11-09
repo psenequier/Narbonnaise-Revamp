@@ -82,7 +82,7 @@ user stories à jour sont dans `contexte/` (privé). Changements :
 
 1. **T09 — premier déploiement en mode préparation**, avec Pascal (il a les accès) :
    accès SFTP OVH, clé de déploiement dédiée, secrets GitHub `SFTP_HOTE`, `SFTP_UTILISATEUR`,
-   `SFTP_CLE`, `SFTP_EMPREINTE_HOTE` ; variables `SITE_URL`, `DOSSIER_DISTANT`,
+   `SFTP_CLE`, `SFTP_EMPREINTE_HOTE`, `SITE_URL` ; variables `DOSSIER_DISTANT`,
    `DEPLOIEMENT_ACTIF=oui`, `SITE_SERVI=non`, `REPRISE_GRR=non` ; `partage/.env` sur le serveur
    (dont `GRR_PREFIXE`, `GRR_AJUSTEMENTS`, `LIGNEES`, `BACKUP_ARCHIVE_PASSWORD` d'au moins
    12 caractères). GRR reste servi. **Rien n'a encore tourné sur OVH.**
