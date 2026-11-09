@@ -36,9 +36,11 @@ jobs:
         run: |
           set +e
           mkdir -p rapports
-          composer update --no-interaction --no-progress > rapports/composer.txt 2>&1; echo "code $?" >> rapports/composer.txt
+          # Résolution volontaire des dépendances sans fichier lock : c'est le rôle de ce
+          # workflow (il recommite les lock produits), jamais utilisé pour la CI ni le déploiement.
+          composer update --no-interaction --no-progress > rapports/composer.txt 2>&1; echo "code $?" >> rapports/composer.txt # NOSONAR
           cp .env.example .env && php artisan key:generate > /dev/null
-          npm install --no-audit --no-fund > rapports/npm.txt 2>&1; echo "code $?" >> rapports/npm.txt
+          npm install --ignore-scripts --no-audit --no-fund > rapports/npm.txt 2>&1; echo "code $?" >> rapports/npm.txt # NOSONAR
           npm run build > rapports/build.txt 2>&1; echo "code $?" >> rapports/build.txt
           vendor/bin/pest --exclude-group=browser --colors=never > rapports/pest.txt 2>&1; echo "code $?" >> rapports/pest.txt
           vendor/bin/phpstan analyse --no-progress --error-format=raw --memory-limit=1G > rapports/phpstan.txt 2>&1; echo "code $?" >> rapports/phpstan.txt

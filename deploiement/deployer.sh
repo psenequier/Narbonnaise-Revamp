@@ -36,8 +36,9 @@ printf '%s\n' "$SFTP_CLE" > "$TMP/cle"
 printf '%s\n' "$SFTP_EMPREINTE_HOTE" > "$TMP/known_hosts"
 export LFTP_SSH="ssh -i $TMP/cle -o UserKnownHostsFile=$TMP/known_hosts -o StrictHostKeyChecking=yes"
 
+# SFTP passe par SSH (clé dédiée, empreinte du serveur vérifiée) : rien ne circule en clair.
 sftp_cmd() {
-  lftp -c "set sftp:connect-program \"$LFTP_SSH -a -x\"; open -u $SFTP_UTILISATEUR, sftp://$SFTP_HOTE; $*"
+  lftp -c "set sftp:connect-program \"$LFTP_SSH -a -x\"; open -u $SFTP_UTILISATEUR, sftp://$SFTP_HOTE; $*" # NOSONAR
 }
 
 # 1. Jeton de migration à usage unique : seule son empreinte part sur le serveur.
@@ -56,7 +57,7 @@ sftp_cmd "mkdir -p $DOSSIER_DISTANT/releases/$SHA; \
          --exclude-glob storage/ --exclude-glob .env ./ $DOSSIER_DISTANT/releases/$SHA/; \
   put $TMP/verrou/migration.verrou -o $DOSSIER_DISTANT/partage/storage/app/deploiement/migration.verrou"
 
-if [ "$SITE_SERVI" != "oui" ]; then
+if [[ "$SITE_SERVI" != "oui" ]]; then
   journal "Mode préparation : renommages seulement, le site sert encore GRR"
   sftp_cmd "rm -rf $DOSSIER_DISTANT/precedente; \
     mv $DOSSIER_DISTANT/actuelle $DOSSIER_DISTANT/precedente; \
@@ -93,7 +94,7 @@ arret_bascule() {
 # 5. Migrations par la route protégée (le verrou se supprime après usage). Avec la reprise,
 #    la route sauvegarde la base et exporte GRR (chiffrés, vérifiés) avant de migrer.
 journal "Migrations"
-if [ "$REPRISE_GRR" = "oui" ]; then
+if [[ "$REPRISE_GRR" = "oui" ]]; then
   journal "Reprise de GRR demandée : sauvegarde, export, migrations, import, contrôle"
   REPONSE="$(curl -fsS --max-time 600 -X POST -H "Authorization: Bearer $JETON" "$SITE_URL/_deploiement/migrer?reprise=1")" \
     || arret_bascule "La sauvegarde, l'export de GRR ou les migrations ont échoué."

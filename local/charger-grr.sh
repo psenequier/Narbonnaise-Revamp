@@ -16,12 +16,12 @@ cd "$(dirname "$0")/.."
 fichier="${1:-}"
 prefixe="${GRR_PREFIXE:-NAR_}"
 admin="${ADMIN:-}"
-if [ -n "$admin" ] && ! printf '%s' "$admin" | grep -Eq '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'; then
+if [[ -n "$admin" ]] && ! printf '%s' "$admin" | grep -Eq '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'; then
   echo "✘ ADMIN doit être une adresse e-mail." >&2
   exit 1
 fi
 
-if [ -z "$fichier" ] || [ ! -f "$fichier" ]; then
+if [[ -z "$fichier" ]] || [[ ! -f "$fichier" ]]; then
   echo "✘ Donner le chemin de la sauvegarde : bash local/charger-grr.sh contexte/<fichier>.sql.gz" >&2
   exit 1
 fi
@@ -55,7 +55,7 @@ lire | sed -E '/^(CREATE DATABASE|USE) /d' | docker compose exec -T mysql mysql 
 
 nombre=$(docker compose exec -T mysql mysql -N chamrousse -e \
   "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'chamrousse' AND table_name LIKE '$(printf '%s' "$prefixe" | sed 's/_/\\\\_/g')%'" | tr -d '[:space:]')
-if [ "${nombre:-0}" = "0" ]; then
+if [[ "${nombre:-0}" = "0" ]]; then
   echo "✘ Aucune table ${prefixe}… dans la sauvegarde. Préfixe différent ? Relancer avec GRR_PREFIXE=xxx_ devant la commande." >&2
   exit 1
 fi
@@ -72,10 +72,10 @@ docker compose exec -T site php artisan grr:importer
 echo "▶ Année scolaire en cours (et suivante si publiée) : dates officielles, puis ouverture"
 docker compose exec -T site php artisan vacances:verifier || echo "  ⚠ Source officielle injoignable : relancer plus tard « docker compose exec site php artisan vacances:verifier »"
 
-if [ -n "$admin" ]; then
+if [[ -n "$admin" ]]; then
   modifies=$(docker compose exec -T mysql mysql -N chamrousse -e \
     "UPDATE users SET role = 'admin', actif = 1 WHERE email = '${admin}'; SELECT ROW_COUNT();" | tr -d '[:space:]')
-  if [ "${modifies:-0}" = "0" ]; then
+  if [[ "${modifies:-0}" = "0" ]]; then
     echo "  ⚠ Aucun compte $admin modifié (adresse absente de GRR, ou déjà admin)."
   else
     echo "  $admin est admin (onglet « Admin » après connexion)."
