@@ -60,7 +60,9 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          vendor/bin/pest --ci --coverage --min=90 --exclude-group=browser --colors=never 2>&1 | tee pest.log || {
+          # Rapport Clover pour SonarCloud, produit une seule fois (MySQL 8.4).
+          vendor/bin/pest --ci --coverage --min=90 --exclude-group=browser --colors=never \
+            ${{ matrix.mysql == '8.4' && '--coverage-clover=coverage.xml' || '' }} 2>&1 | tee pest.log || {
             # Dépôt public : les journaux complets demandent un compte ; on remonte la fin en annotation.
             # Une annotation par test en échec (20 lignes de contexte), puis le bilan.
             grep -n "FAILED" pest.log | head -n 10 | cut -d: -f1 | while read -r n; do
@@ -69,6 +71,12 @@ jobs:
             echo "::error title=Pest::$(tail -n 40 pest.log | sed 's/%/%25/g' | tr '\n' '|' | sed 's/|/%0A/g')"
             exit 1
           }
+      - if: matrix.mysql == '8.4'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: couverture
+          path: coverage.xml
+          retention-days: 1
       - run: vendor/bin/phpstan analyse --no-progress
       - name: Chaque critère d'acceptation a son test
         # Non bloquant pendant le développement ; bloquant avec CRITERES_BLOQUANTS=oui (recette, T37).
@@ -107,6 +115,33 @@ jobs:
           sarif_file: semgrep.sarif
           category: semgrep
 
+  sonar:
+    # SonarCloud (gratuit pour un dépôt public). Analyse lancée par la CI : désactiver
+    # l'« Automatic Analysis » dans SonarCloud. Sans le secret SONAR_TOKEN (PR Dependabot,
+    # dépôt bifurqué, jeton pas encore créé), le job passe sans analyser.
+    # Porte qualité bloquante seulement avec la variable SONAR_BLOQUANT=oui.
+    needs: [tests]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - if: env.SONAR_TOKEN == ''
+        run: echo "::notice title=SonarCloud::secret SONAR_TOKEN absent, analyse non lancée"
+      - if: env.SONAR_TOKEN != ''
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # historique complet : « nouveau code » et auteurs des lignes
+      - if: env.SONAR_TOKEN != ''
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: couverture
+      - if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1
+        with:
+          args: >-
+            -Dsonar.qualitygate.wait=${{ vars.SONAR_BLOQUANT == 'oui' && 'true' || 'false' }}
+
   dependances:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -142,7 +177,7 @@ jobs:
           }
 
   interface:
-    needs: [tests, sast, dependances]
+    needs: [tests, sast, sonar, dependances]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     services:
