@@ -14,7 +14,12 @@ final class ProfilController
 {
     public function afficher(Request $request): View
     {
-        return view('profil', ['user' => $request->user()]);
+        return view('profil', [
+            'user' => $request->user(),
+            // US-1002-P1 : assistants connectés, ni retirés ni expirés.
+            'assistants' => \App\Models\AccesAssistant::query()->with('client')->where('user_id', (int) $request->user()?->id)
+                ->enCours()->orderByDesc('autorise_le')->get(),
+        ]);
     }
 
     /**

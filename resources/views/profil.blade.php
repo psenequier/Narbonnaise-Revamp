@@ -61,6 +61,8 @@
     @endif
 </section>
 
+@include('assistants.profil')
+
 <section class="{{ $carte }}" aria-labelledby="suppression">
     <h2 id="suppression" class="text-lg font-extrabold">Supprimer mon compte</h2>
     @if ($user->suppression_demandee_le !== null)

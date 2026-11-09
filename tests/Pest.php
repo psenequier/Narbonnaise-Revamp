@@ -211,3 +211,77 @@ function sommeGrr(): string
         \Illuminate\Support\Facades\DB::table('grr_room')->orderBy('id')->get(),
     ]));
 }
+
+/*
+ * Épique 10 : assistant IA connecté (MCP). Parcours OAuth complet, comme un vrai client :
+ * enregistrement, page « Autoriser », échange du code avec PKCE.
+ */
+const ASSISTANT_RETOUR = 'https://claude.ai/api/mcp/auth_callback';
+
+/** @return array{verificateur: string, defi: string} */
+function pkce(): array
+{
+    $verificateur = str_repeat('v', 20).bin2hex(random_bytes(16)); // 52 caractères autorisés
+    $defi = rtrim(strtr(base64_encode(hash('sha256', $verificateur, true)), '+/', '-_'), '=');
+
+    return ['verificateur' => $verificateur, 'defi' => $defi];
+}
+
+/** Enregistre un assistant (RFC 7591) ; renvoie la réponse décodée. */
+function enregistrerAssistant(string $nom = 'Claude', string $retour = ASSISTANT_RETOUR): array
+{
+    return test()->postJson('/oauth/enregistrer', ['client_name' => $nom, 'redirect_uris' => [$retour]])->assertCreated()->json();
+}
+
+/** Paramètres de la page « Autoriser ». */
+function demandeAutorisation(array $client, string $defi, array $autres = []): array
+{
+    return $autres + [
+        'response_type' => 'code', 'client_id' => $client['client_id'], 'redirect_uri' => $client['redirect_uris'][0],
+        'code_challenge' => $defi, 'code_challenge_method' => 'S256', 'state' => 'etat-42',
+    ];
+}
+
+/** Code reçu sur l'adresse de retour, après « Autoriser ». */
+function codeAutorise(\App\Models\User $membre, array $client, string $defi, bool $reservation = false): string
+{
+    $reponse = test()->actingAs($membre)->post('/oauth/autoriser', demandeAutorisation($client, $defi, array_filter([
+        'decision' => 'autoriser', 'reservation' => $reservation ? '1' : null,
+    ])));
+    $reponse->assertRedirect();
+    parse_str((string) parse_url((string) $reponse->headers->get('Location'), PHP_URL_QUERY), $parametres);
+
+    return (string) ($parametres['code'] ?? '');
+}
+
+/** Connecte un assistant au compte du membre ; renvoie les jetons et le client. */
+function connecterAssistant(\App\Models\User $membre, bool $reservation = false, string $nom = 'Claude'): array
+{
+    $client = enregistrerAssistant($nom);
+    $pkce = pkce();
+    $code = codeAutorise($membre, $client, $pkce['defi'], $reservation);
+    \Illuminate\Support\Facades\Auth::forgetGuards();
+
+    $jetons = test()->post('/oauth/jeton', [
+        'grant_type' => 'authorization_code', 'code' => $code, 'redirect_uri' => $client['redirect_uris'][0],
+        'client_id' => $client['client_id'], 'code_verifier' => $pkce['verificateur'],
+    ])->assertOk()->json();
+
+    return $jetons + ['client' => $client];
+}
+
+/** Message JSON-RPC envoyé à /mcp avec le jeton donné. */
+function appelMcp(string $jeton, string $methode, array $params = [], int $id = 1): \Illuminate\Testing\TestResponse
+{
+    \Illuminate\Support\Facades\Auth::forgetGuards();
+
+    return test()->withHeaders(['Authorization' => 'Bearer '.$jeton, 'Accept' => 'application/json, text/event-stream'])
+        ->postJson('/mcp', ['jsonrpc' => '2.0', 'id' => $id, 'method' => $methode, 'params' => $params === [] ? new stdClass : $params]);
+}
+
+/** Appel d'un outil ; renvoie le résultat MCP décodé (content, structuredContent, isError). */
+function outilMcp(string $jeton, string $outil, array $arguments = []): array
+{
+    return appelMcp($jeton, 'tools/call', ['name' => $outil, 'arguments' => $arguments === [] ? new stdClass : $arguments])
+        ->assertOk()->json('result');
+}

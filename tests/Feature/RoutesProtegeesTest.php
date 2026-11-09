@@ -15,6 +15,9 @@ const ROUTES_PUBLIQUES = [
     'livewire/livewire.js', 'livewire/livewire.min.js.map', 'livewire/livewire.min.js',
     'livewire/livewire.csp.min.js.map', 'livewire/livewire.csp.min.js',
     'storage/{path}',
+    // Épique 10 : découverte, enregistrement et jetons OAuth des assistants IA (ADR 020) ;
+    // /mcp exige le jeton d'un assistant (middleware « auth.assistant »).
+    '.well-known/oauth-protected-resource/{chemin?}', '.well-known/oauth-authorization-server', 'oauth/enregistrer', 'oauth/jeton',
 ];
 
 it('US-901-N2 exige une connexion sur toute route hors liste blanche', function () {

@@ -41,7 +41,7 @@ $trouves = [];
 $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($racine.'/tests'));
 foreach ($it as $f) {
     if ($f->isFile() && str_ends_with($f->getFilename(), 'Test.php')) {
-        preg_match_all('/\b(?:it|test)\(\s*[\'"](US-\d{3}-[PN]\d+)\b/', file_get_contents($f->getPathname()), $m);
+        preg_match_all('/\b(?:it|test)\(\s*[\'"](US-\d{3,4}-[PN]\d+)\b/', file_get_contents($f->getPathname()), $m);
         foreach ($m[1] as $id) {
             $trouves[$id] = true;
         }
