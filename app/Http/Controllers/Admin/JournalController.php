@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Affichage\LectureJournal;
 use App\Models\Journal;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 /** US-604 : consultation seule, avec filtres. Aucune route ne modifie le journal. */
@@ -30,11 +32,17 @@ final class JournalController
             ->paginate(100)
             ->withQueryString();
 
+        $auteurs = User::query()->orderBy('nom')->get(['id', 'prenom', 'nom'])->keyBy('id');
+
         return view('admin.journal', [
             'entrees' => $entrees,
+            // Une entrée par jour, à l'heure de Paris, pour titrer la liste jour par jour.
+            'parJour' => collect($entrees->items())->groupBy(fn (Journal $e): string => Carbon::parse($e->getAttribute('cree_le'))->timezone('Europe/Paris')->format('Y-m-d')),
+            'lecture' => new LectureJournal($auteurs, $entrees->items()),
             'filtres' => $filtres,
-            'auteurs' => User::query()->orderBy('nom')->get(['id', 'prenom', 'nom'])->keyBy('id'),
-            'types' => Journal::query()->distinct()->orderBy('action')->pluck('action'),
+            'auteurs' => $auteurs,
+            'types' => Journal::query()->distinct()->pluck('action')
+                ->mapWithKeys(fn ($a) => [(string) $a => LectureJournal::action((string) $a)])->sort(),
         ]);
     }
 }
