@@ -8,49 +8,12 @@ use Illuminate\Support\Facades\Mail;
 
 beforeEach(fn () => Mail::fake());
 
-it('US-405-P1 affiche les totaux exacts de créneaux attribués par lignée', function () {
-    $admin = adminAvec2fa();
-    creerCreneaux('2024-12-01', '2025-04-14'); // 135 jours, 270 créneaux
-    $ids = DB::table('creneaux')->orderBy('date')->orderBy('type')->pluck('id');
-    $lignees = collect(['Lignée Bleue' => 94, 'Lignée Rouge' => 96, 'Lignée Verte' => 78])
-        ->map(fn ($n, $nom) => [Lignee::create(['nom' => $nom, 'couleur' => '#2F6FB0'])->id, $n]);
-    $i = 0;
-    foreach ($lignees as [$id, $n]) {
-        foreach ($ids->slice($i, $n) as $creneau) {
-            DB::table('attributions')->insert(['creneau_id' => $creneau, 'lignee_id' => $id, 'saisie_par' => $admin->id]);
-        }
-        $i += $n;
-    }
-
-    $html = $this->actingAs($admin)->get('/admin/lignees')->assertOk()->getContent();
-
-    expect($html)->toMatch('/data-lignee="Lignée Bleue".*?data-total="94"/s')
-        ->toMatch('/data-lignee="Lignée Rouge".*?data-total="96"/s')
-        ->toMatch('/data-lignee="Lignée Verte".*?data-total="78"/s');
-});
-
-it('US-405-P1 n\'affiche plus le cumul sur l\'écran Vacances, seulement sur son écran', function () {
-    $admin = adminAvec2fa();
+it('n\'a plus d\'écran de cumul par lignée (retiré le 7 nov. 2026)', function () {
+    $admin = unAdmin();
     Lignee::create(['nom' => 'Lignée Bleue', 'couleur' => '#2F6FB0']);
 
-    $this->actingAs($admin)->get('/admin/vacances')->assertOk()->assertDontSee('aria-labelledby="cumul"', false);
-    $this->actingAs($admin)->get('/admin/lignees')->assertOk()->assertSee('aria-labelledby="cumul"', false);
-});
-
-it('US-405-N1 renvoie 403 à un membre non admin', function () {
-    $this->actingAs(User::factory()->create())->get('/admin/lignees')->assertForbidden();
-});
-
-it('US-405-N2 ne met aucun nom de personne dans le tableau', function () {
-    $admin = adminAvec2fa(['prenom' => 'Ada', 'nom' => 'Administratrice']);
-    User::factory()->create(['prenom' => 'Marc', 'nom' => 'Membre']);
-    Lignee::create(['nom' => 'Lignée Bleue', 'couleur' => '#2F6FB0']);
-
-    $html = $this->actingAs($admin)->get('/admin/lignees')->assertOk()->getContent();
-    preg_match('/<section[^>]*aria-labelledby="cumul".*?<\/section>/s', $html, $tableau);
-
-    expect($tableau[0])->toContain('Lignée Bleue')
-        ->not->toContain('Ada')->not->toContain('Administratrice')->not->toContain('Marc')->not->toContain('Membre');
+    $this->actingAs($admin)->get('/admin/lignees')->assertNotFound();
+    $this->actingAs($admin)->get('/admin/vacances')->assertOk()->assertDontSee('aria-labelledby="cumul"', false)->assertDontSee('Cumul par lignée');
 });
 
 it('US-406-P1 relance chacun des 3 admins le 1er septembre, le 1er octobre et le 15 octobre', function (string $jour) {
@@ -74,13 +37,13 @@ it('US-406-P2 affiche le bandeau admin tant qu\'il reste un créneau sans ligné
     $this->travelTo('2026-11-02 10:00:00');
     ouvrirAnnee2026();
 
-    $this->actingAs(adminAvec2fa())->get('/')->assertOk()->assertSee('data-bandeau="attributions"', false)->assertSee('64 créneau(x)');
+    $this->actingAs(unAdmin())->get('/')->assertOk()->assertSee('data-bandeau="attributions"', false)->assertSee('64 créneau(x)');
 });
 
 it('US-406-N1 n\'envoie aucun rappel et retire le bandeau quand tout est attribué', function () {
     $this->travelTo('2026-08-20 10:00:00');
     ouvrirAnnee2026();
-    $admin = adminAvec2fa();
+    $admin = unAdmin();
     $lignee = Lignee::create(['nom' => 'Lignée Bleue', 'couleur' => '#2F6FB0']);
     foreach (DB::table('creneaux')->whereNotNull('periode_id')->pluck('id') as $id) {
         DB::table('attributions')->insert(['creneau_id' => $id, 'lignee_id' => $lignee->id, 'saisie_par' => $admin->id]);

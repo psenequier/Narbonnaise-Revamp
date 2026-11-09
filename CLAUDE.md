@@ -56,8 +56,8 @@ composer criteres                      # critères d'acceptation sans test
 ```
 
 Comptes fictifs : `admin@example.test`, `membre@example.test`, mot de passe
-`Mot-de-passe-de-test-42!`. Double authentification facultative, y compris pour les admins
-(décision de Pascal du 7 nov. 2026 ; US-108-N1 retiré).
+`Mot-de-passe-de-test-42!`. Pas de double authentification, pour personne
+(décision de Pascal du 7 nov. 2026 ; US-108 retirée).
 
 ## Pièges déjà rencontrés
 

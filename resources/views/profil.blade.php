@@ -47,40 +47,6 @@
     </form>
 </section>
 
-<section class="{{ $carte }}" aria-labelledby="deuxfa">
-    <h2 id="deuxfa" class="text-lg font-extrabold">Double authentification</h2>
-    @if ($user->two_factor_confirmed_at)
-        <p class="text-sm">Activée. Un code de votre application vous sera demandé à chaque connexion.</p>
-        @if (session('status') === 'two-factor-authentication-confirmed')
-            <div class="flex flex-col gap-2 rounded-lg bg-fond p-4">
-                <p class="text-sm font-bold">Codes de secours, à conserver en lieu sûr (chacun ne sert qu'une fois) :</p>
-                <ul class="grid grid-cols-2 gap-1 font-mono text-sm">@foreach ($user->recoveryCodes() as $code)<li>{{ $code }}</li>@endforeach</ul>
-            </div>
-        @endif
-        @unless ($user->estAdmin())
-            <form method="POST" action="{{ route('two-factor.disable') }}">@csrf @method('DELETE')
-                <button type="submit" class="h-11 rounded-lg border border-bord px-4 font-bold">Désactiver</button>
-            </form>
-        @endunless
-    @elseif ($user->two_factor_secret)
-        <p class="text-sm">Scannez ce QR code avec votre application d'authentification, puis saisissez le code affiché.</p>
-        <img src="data:image/svg+xml;base64,{{ base64_encode($user->twoFactorQrCodeSvg()) }}" alt="QR code à scanner avec votre application d'authentification" class="w-48">
-        @foreach ($errors->confirmTwoFactorAuthentication->all() as $erreur)<p role="alert" class="text-sm text-erreur">{{ $erreur }}</p>@endforeach
-        <form method="POST" action="{{ route('two-factor.confirm') }}" class="flex items-end gap-3">
-            @csrf
-            <label class="flex flex-col gap-1 text-sm font-bold">Code à 6 chiffres
-                <input name="code" inputmode="numeric" autocomplete="one-time-code" required class="{{ $champ }}">
-            </label>
-            <button type="submit" class="{{ $bouton }}">Confirmer</button>
-        </form>
-    @else
-        <p class="text-sm">Ajoutez un code d'application (Google Authenticator, Microsoft Authenticator…) à votre mot de passe.</p>
-        <form method="POST" action="{{ route('two-factor.enable') }}">@csrf
-            <button type="submit" class="{{ $bouton }}">Activer</button>
-        </form>
-    @endif
-</section>
-
 <section class="{{ $carte }}" aria-labelledby="google">
     <h2 id="google" class="text-lg font-extrabold">Compte Google</h2>
     @error('google')<p role="alert" class="text-sm text-erreur">{{ $message }}</p>@enderror

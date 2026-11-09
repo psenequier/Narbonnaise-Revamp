@@ -15,16 +15,12 @@ return [
     'middleware' => ['web'],
     'limiters' => [
         'login' => 'login',
-        'two-factor' => 'two-factor',
     ],
     'views' => true,
     'features' => [
         Features::resetPasswords(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
-        Features::twoFactorAuthentication([
-            'confirm' => true,
-            'confirmPassword' => true,
-        ]),
+        // Double authentification supprimée pour tous (décision de Pascal du 7 nov. 2026, ADR 018).
     ],
 ];

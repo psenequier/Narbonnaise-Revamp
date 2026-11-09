@@ -31,26 +31,6 @@ function simulerFuites(array $divulgues = []): void
     });
 }
 
-/** Active et confirme la double authentification ; renvoie le secret TOTP. */
-function activerDoubleAuthentification(\App\Models\User $user, array $codesSecours = ['SECOURS-0001', 'SECOURS-0002']): string
-{
-    $secret = (new \PragmaRX\Google2FA\Google2FA)->generateSecretKey();
-    $user->forceFill([
-        'two_factor_secret' => encrypt($secret),
-        'two_factor_recovery_codes' => encrypt(json_encode($codesSecours)),
-        'two_factor_confirmed_at' => now(),
-    ])->save();
-
-    return $secret;
-}
-
-function codeTotp(string $secret, int $decalage = 0): string
-{
-    $g = new \PragmaRX\Google2FA\Google2FA;
-
-    return $g->oathTotp($secret, $g->getTimestamp() + $decalage);
-}
-
 /** Simule le retour de Google avec l'identité donnée. */
 function simulerGoogle(string $id, string $email, bool $verifiee = true): void
 {
@@ -174,12 +154,9 @@ function periode(string $nom): \App\Models\PeriodeVacances
     return \App\Models\PeriodeVacances::where('nom', $nom)->sole();
 }
 
-function adminAvec2fa(array $attributs = []): \App\Models\User
+function unAdmin(array $attributs = []): \App\Models\User
 {
-    $admin = \App\Models\User::factory()->admin()->create($attributs);
-    activerDoubleAuthentification($admin);
-
-    return $admin->fresh();
+    return \App\Models\User::factory()->admin()->create($attributs)->fresh();
 }
 
 /** Base GRR fictive au schéma 4.1.1 (tables temporaires, voir tests/Feature/Reprise). */

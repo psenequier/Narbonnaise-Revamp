@@ -98,9 +98,13 @@ user stories à jour sont dans `contexte/` (privé). Changements :
 
 ## Décisions du 7 novembre 2026
 
-- **Double authentification facultative**, y compris pour les admins : l'espace admin s'ouvre au
-  seul rôle admin (US-108-N1 retiré). Elle reste proposée dans le profil. À reporter dans l'ADR et
-  les user stories de `contexte/`.
+- **Double authentification supprimée pour tous** (US-108 retirée) : l'espace admin s'ouvre au
+  seul rôle admin ; plus de rubrique dans le profil, colonnes effacées par migration.
+- **Vue saison par défaut** du 1er octobre à la fermeture de la station, si l'année scolaire en
+  cours est ouverte (US-202-P6/P7) ; sinon la vue mois.
+- **Écran Cumul par lignée retiré** (US-405 retirée).
+- **Saisons** : nom donné automatiquement dans la saisie à la main (US-408-P3/N4) ; suppression
+  d'une saison créée à la main, pas commencée et vide (US-409).
 - **Lignées** : nom modifiable dans Admin → Lignées (ni ajout ni retrait ; plus de couleur par lignée). `LIGNEES`
   ne sert qu'au premier remplissage, au premier déploiement.
 - **Attributions GRR de la saison en cours** : appliquées d'office comme plages quand la lignée est

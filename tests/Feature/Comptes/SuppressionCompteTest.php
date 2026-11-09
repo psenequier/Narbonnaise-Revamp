@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
     $this->travelTo('2027-01-15 10:00:00');
-    $this->admin = adminAvec2fa(['prenom' => 'Ada', 'nom' => 'Admin', 'email' => 'ada@example.test']);
+    $this->admin = unAdmin(['prenom' => 'Ada', 'nom' => 'Admin', 'email' => 'ada@example.test']);
     $this->membre = User::factory()->create(['prenom' => 'Marc', 'nom' => 'Membre', 'email' => 'marc@example.test', 'google_id' => 'google-123']);
 });
 

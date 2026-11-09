@@ -59,7 +59,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('can:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::view('/', 'admin.accueil')->name('accueil');
         Route::get('/vacances', [VacancesController::class, 'index'])->name('vacances');
-        Route::get('/lignees', [VacancesController::class, 'cumul'])->name('cumul');
         Route::get('/lignees/modifier', [\App\Http\Controllers\Admin\LigneesController::class, 'index'])->name('lignees');
         Route::put('/lignees/{lignee}', [\App\Http\Controllers\Admin\LigneesController::class, 'modifier'])->whereNumber('lignee')->name('lignees.modifier');
         Route::post('/plages', [VacancesController::class, 'attribuer'])->name('plages.attribuer');
@@ -68,6 +67,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/periodes/{periode}', [VacancesController::class, 'corriger'])->name('periodes.corriger');
         Route::post('/vacances/relire', [VacancesController::class, 'relire'])->middleware('throttle:5,10')->name('vacances.relire');
         Route::post('/vacances/saisir', [VacancesController::class, 'saisir'])->name('vacances.saisir');
+        Route::delete('/vacances/annees/{annee}', [VacancesController::class, 'supprimer'])->whereNumber('annee')->name('vacances.supprimer');
         Route::post('/conflits/{reservation}', [VacancesController::class, 'arbitrer'])->name('conflits.arbitrer');
 
         Route::get('/utilisateurs', [UtilisateursController::class, 'index'])->name('utilisateurs');

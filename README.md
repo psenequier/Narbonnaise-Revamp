@@ -13,7 +13,7 @@ Documents de référence (privés, sur claude.ai) : PRD, ADR 001 à 016, user st
 | Laravel | 13 | ADR 002 |
 | Livewire, Blade, Tailwind 4 | 4.x | interface rendue côté serveur (ADR 003) |
 | MySQL | 8.0 en production, 8.4 testé en CI | base unique de l'offre Starter (ADR 004) |
-| Fortify, Socialite | 1.x, 5.x | connexion, double authentification facultative, Google sans création de compte (ADR 010) |
+| Fortify, Socialite | 1.x, 5.x | connexion (pas de double authentification), Google sans création de compte (ADR 010) |
 | Pest 5, Pest Browser, Larastan, Psalm, Semgrep, ZAP | — | tests et sécurité (ADR 013, ADR 016) |
 
 ## Installer en local
@@ -138,6 +138,7 @@ Réglages GitHub à activer à la création (T04) : règles de protection de `ma
 | --- | --- | --- |
 | `tests` (MySQL 8.0 et 8.4) | chaque PR et push | test en échec, couverture inférieure à 90 %, erreur Larastan, critère sans test |
 | `sast` | chaque PR | alerte Psalm (taint) ou Semgrep de gravité ERROR |
+| `sonar` | chaque PR et push, après `tests` | porte qualité SonarCloud non atteinte, seulement avec la variable `SONAR_BLOQUANT=oui` (sinon informatif) ; sans le secret `SONAR_TOKEN`, le job passe sans analyser |
 | `dependances` | chaque PR | vulnérabilité élevée Composer ou npm, secret détecté (Gitleaks), `.env` commis |
 | `interface` | après les trois précédents | parcours navigateur en échec, alerte ZAP passive moyenne ou plus |
 | `deploiement` | push sur `main`, après approbation d'un admin | test de fumée en échec, avec retour arrière automatique |
@@ -158,6 +159,8 @@ Quota : le dépôt est public, les minutes GitHub Actions sur les runners standa
 | `DOSSIER_DISTANT` | variable | `narbonnaise-v2` |
 | `DEPLOIEMENT_ACTIF` | variable | `oui` pour activer le job de déploiement (à partir de T09) |
 | `SITE_SERVI` | variable | `non` jusqu'à la bascule (dépôt sans mise en service), puis `oui` |
+
+Hors environnement (secrets et variables du dépôt) : `SONAR_TOKEN` (secret, jeton SonarCloud) et `SONAR_BLOQUANT` (variable, `oui` pour rendre la porte qualité bloquante). Réglages SonarCloud dans `sonar-project.properties`.
 
 Aucun identifiant de la base de production n'est confié à GitHub. Ils restent dans `partage/.env` sur le serveur.
 

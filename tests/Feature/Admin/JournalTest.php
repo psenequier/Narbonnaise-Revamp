@@ -13,7 +13,7 @@ beforeEach(function () {
     Mail::fake();
     Notification::fake();
     $this->travelTo('2026-11-02 10:00:00');
-    $this->admin = adminAvec2fa(['prenom' => 'Ada', 'nom' => 'Admin']);
+    $this->admin = unAdmin(['prenom' => 'Ada', 'nom' => 'Admin']);
     $this->membre = User::factory()->create(['prenom' => 'Marc', 'email' => 'marc@example.test']);
 });
 
@@ -92,19 +92,16 @@ it('US-604-N1 n\'offre aucune route qui modifie ou supprime le journal', functio
     $this->actingAs($this->admin)->put('/admin/journal')->assertStatus(405);
 });
 
-it('US-604-N2 ne contient aucun mot de passe, jeton ni code de double authentification', function () {
+it('US-604-N2 ne contient aucun mot de passe ni jeton', function () {
     simulerFuites();
-    // Mot de passe changé, lien de réinitialisation, invitation, double authentification
+    // Mot de passe changé, lien de réinitialisation, invitation, connexion
     $this->actingAs($this->membre)->put('/user/password', ['current_password' => MDP_TEST, 'password' => MDP_NOUVEAU, 'password_confirmation' => MDP_NOUVEAU]);
     $this->actingAs($this->admin)->post("/admin/utilisateurs/{$this->membre->id}/reinitialisation");
     $this->actingAs($this->admin)->post('/admin/utilisateurs', ['prenom' => 'Zoé', 'nom' => 'Nouvelle', 'email' => 'zoe@example.test', 'role' => 'membre']);
     auth()->logout();
-    $secret = activerDoubleAuthentification($this->membre->fresh());
     $this->post('/login', ['email' => 'marc@example.test', 'password' => MDP_NOUVEAU]);
-    $code = codeTotp($secret);
-    $this->post('/two-factor-challenge', ['code' => $code]);
 
-    $secrets = [MDP_TEST, MDP_NOUVEAU, $secret, $code];
+    $secrets = [MDP_TEST, MDP_NOUVEAU];
     Notification::assertSentTo($this->membre, Illuminate\Auth\Notifications\ResetPassword::class, function ($n) use (&$secrets) {
         $secrets[] = $n->token;
 

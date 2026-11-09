@@ -123,7 +123,14 @@ it('US-201-N2 renvoie 404 pour un mois hors limites ou mal formé', function (st
     $this->actingAs($this->alice)->get('/calendrier/'.$mois)->assertNotFound();
 })->with(['2026-13', 'abc', '2026-1', '1999-12', '2101-01', '2026-00']);
 
-it('US-202-P7 ouvre la vue saison pendant la saison de la station, la vue mois sinon', function (string $jour, string $attendu) {
+/** L'année scolaire indiquée, ouverte à la réservation. */
+function anneeOuverte(string $libelle): void
+{
+    DB::table('annees_scolaires')->insert(['libelle' => $libelle, 'debut' => substr($libelle, 0, 4).'-09-01', 'fin' => substr($libelle, 5, 4).'-08-31', 'ouverte' => true]);
+}
+
+it('US-202-P7 ouvre la vue saison du 1er octobre à la fermeture de la station si l\'année est ouverte, la vue mois sinon', function (string $jour, string $attendu) {
+    anneeOuverte('2026-2027');
     DB::table('parametres')->upsert([
         ['cle' => 'station.ouverture.2026-2027', 'valeur' => '2026-12-05'],
         ['cle' => 'station.fermeture.2026-2027', 'valeur' => '2027-04-11'],
@@ -132,16 +139,24 @@ it('US-202-P7 ouvre la vue saison pendant la saison de la station, la vue mois s
 
     $this->actingAs($this->alice)->get('/')->assertOk()->assertSee($attendu, false);
 })->with([
-    ['2026-12-04', 'data-mois="2026-12"'], ['2026-12-05', 'Saison 2026-2027'],
+    ['2026-09-30', 'data-mois="2026-09"'], ['2026-10-01', 'Saison 2026-2027'], ['2026-12-04', 'Saison 2026-2027'],
     ['2027-04-11', 'Saison 2026-2027'], ['2027-04-12', 'data-mois="2027-04"'],
 ]);
 
-it('US-202-P6 prend du 1er décembre au 30 avril si les dates de la station ne sont pas saisies', function () {
+it('US-202-P7 reste sur la vue mois tant que l\'année scolaire en cours n\'est pas ouverte', function () {
+    $this->travelTo('2026-12-15 10:00:00');
+    $this->actingAs($this->alice)->get('/')->assertOk()->assertSee('data-mois="2026-12"', false)->assertDontSee('Saison 2026-2027');
+});
+
+it('US-202-P6 s\'arrête au 30 avril si la fermeture de la station n\'est pas saisie', function () {
     // Saison 2027-2028 : aucune date de station saisie ni par défaut.
-    $this->travelTo('2027-12-01 10:00:00');
+    anneeOuverte('2027-2028');
+    $this->travelTo('2027-10-01 10:00:00');
     $this->actingAs($this->alice)->get('/')->assertOk()->assertSee('Saison 2027-2028');
-    $this->travelTo('2027-11-30 10:00:00');
-    $this->actingAs($this->alice)->get('/')->assertOk()->assertSee('data-mois="2027-11"', false);
+    $this->travelTo('2028-04-30 10:00:00');
+    $this->actingAs($this->alice)->get('/')->assertOk()->assertSee('Saison 2027-2028');
+    $this->travelTo('2028-05-01 10:00:00');
+    $this->actingAs($this->alice)->get('/')->assertOk()->assertSee('data-mois="2028-05"', false);
 });
 
 it('reste sur la vue du calendrier après une réservation faite depuis la pop-up', function () {

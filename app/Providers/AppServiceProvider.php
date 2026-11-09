@@ -23,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
         // Attrape en développement les accès paresseux et les attributs inconnus.
         Model::shouldBeStrict(! $this->app->isProduction());
 
-        // Espace admin : rôle admin et compte actif. La double authentification est facultative
-        // (décision de Pascal du 7 nov. 2026 ; elle reste proposée dans le profil).
+        // Espace admin : rôle admin et compte actif. Pas de double authentification
+        // (supprimée pour tous, décision de Pascal du 7 nov. 2026).
         Gate::define('admin', fn (User $user) => $user->actif && $user->estAdmin());
         // US-711-N1 (ADR 019) : seuls les comptes listés dans la configuration du serveur.
         Gate::define('statistiques-lignees', fn (User $user) => $user->actif && $user->supprime_le === null
@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
                 explode(',', (string) config('chamrousse.statistiques_lignees')),
             )), true));
 
-        // US-604-P1 : chaque connexion (mot de passe, Google, double authentification) est tracée.
+        // US-604-P1 : chaque connexion (mot de passe ou Google) est tracée.
         \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Login::class, function (\Illuminate\Auth\Events\Login $e) {
             if ($e->user instanceof User) {
                 \App\Models\Journal::ecrire('connexion', $e->user, ['rester_connecte' => $e->remember], auteur: $e->user->id);

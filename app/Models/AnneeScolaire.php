@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon $debut
  * @property \Illuminate\Support\Carbon $fin
  * @property bool $ouverte
+ * @property bool $creee_a_la_main
  * @property \Illuminate\Support\Carbon|null $ouverte_le
  */
 class AnneeScolaire extends Model
@@ -23,7 +24,7 @@ class AnneeScolaire extends Model
 
     protected function casts(): array
     {
-        return ['debut' => 'date', 'fin' => 'date', 'ouverte' => 'boolean', 'ouverte_le' => 'datetime'];
+        return ['debut' => 'date', 'fin' => 'date', 'ouverte' => 'boolean', 'creee_a_la_main' => 'boolean', 'ouverte_le' => 'datetime'];
     }
 
     /** @return HasMany<PeriodeVacances, $this> */

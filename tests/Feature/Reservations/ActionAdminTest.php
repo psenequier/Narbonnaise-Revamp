@@ -10,7 +10,6 @@ beforeEach(function () {
     $this->travelTo('2026-11-02 10:00:00');
     creerCreneaux('2026-11-01', '2026-11-30');
     $this->admin = User::factory()->admin()->create(['prenom' => 'Ada', 'nom' => 'Admin']);
-    activerDoubleAuthentification($this->admin);
     $this->alice = User::factory()->create(['email' => 'alice@example.test']);
     $this->resa = reserverPour($this->alice, ['2026-11-14-N']);
 });
