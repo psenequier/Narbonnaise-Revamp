@@ -16,8 +16,8 @@ use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 /**
- * Page « Autoriser » (US-1001-P2), après la connexion habituelle du site (mot de passe ou Google,
- * double authentification comprise). Un client ou une adresse de retour inconnus ne provoquent
+ * Page « Autoriser » (US-1001-P2), après la connexion habituelle du site (mot de passe ou Google).
+ * Un client ou une adresse de retour inconnus ne provoquent
  * jamais de redirection : la page d'erreur reste sur le site (US-1001-N2).
  */
 final class AutorisationController
