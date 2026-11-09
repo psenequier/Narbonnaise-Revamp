@@ -33,7 +33,7 @@
     @if (session('status') === 'password-updated')<p role="status" class="text-sm">Mot de passe modifié. Vos autres sessions ont été fermées.</p>@endif
     <form method="POST" action="{{ route('user-password.update') }}" class="flex flex-col gap-4">
         @csrf @method('PUT')
-        <input type="email" value="{{ $user->email }}" autocomplete="username" readonly hidden>
+        <label for="identifiant-profil" hidden>Adresse e-mail</label><input id="identifiant-profil" type="email" value="{{ $user->email }}" autocomplete="username" readonly hidden>
         <label class="flex flex-col gap-1 text-sm font-bold">Mot de passe actuel
             <input type="password" name="current_password" required autocomplete="current-password" class="{{ $champ }}">
         </label>

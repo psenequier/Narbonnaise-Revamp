@@ -6,10 +6,10 @@ cd /app
 
 echo "▶ Dépendances PHP et JavaScript (long la première fois)"
 composer install --no-interaction --no-progress
-npm ci --no-audit --no-fund
+npm ci --ignore-scripts --no-audit --no-fund
 npm run build
 
-if [ ! -f .env ]; then
+if [[ ! -f .env ]]; then
   cp .env.example .env
 fi
 # « php artisan serve » ne transmet pas les variables du conteneur à ses processus : on les écrit dans .env.
@@ -18,7 +18,7 @@ sed -i "s|^DB_HOST=.*|DB_HOST=${DB_HOST:-mysql}|; s|^APP_URL=.*|APP_URL=${APP_UR
 sed -i "s|^MAIL_MAILER=.*|MAIL_MAILER=smtp|; s|^MAIL_HOST=.*|MAIL_HOST=mailpit|; s|^MAIL_PORT=.*|MAIL_PORT=1025|; s|^MAIL_SCHEME=.*|MAIL_SCHEME=smtp|; s|^MAIL_USERNAME=.*|MAIL_USERNAME=|; s|^MAIL_PASSWORD=.*|MAIL_PASSWORD=|" .env
 grep -q '^APP_KEY=base64:' .env || php artisan key:generate --force
 
-if [ "${REINITIALISER:-non}" = "oui" ] || { [ ! -f storage/app/.donnees-fictives ] && [ ! -f storage/app/.donnees-grr ]; }; then
+if [[ "${REINITIALISER:-non}" = "oui" ]] || { [[ ! -f storage/app/.donnees-fictives ]] && [[ ! -f storage/app/.donnees-grr ]]; }; then
   echo "▶ Base remise à zéro avec les données fictives"
   php artisan migrate:fresh --seed --seeder=DonneesFictivesSeeder --force
   rm -f storage/app/.donnees-grr
@@ -33,7 +33,7 @@ php artisan vacances:verifier || echo "⚠ Calendrier scolaire officiel injoigna
 # Envoi de la boîte d'envoi toutes les minutes, vers Mailpit.
 ( while true; do php artisan emails:envoyer --max=150 > /dev/null 2>&1 || true; sleep 60; done ) &
 
-if [ -f storage/app/.donnees-grr ]; then
+if [[ -f storage/app/.donnees-grr ]]; then
   echo "✔ Site prêt avec la copie de la base GRR : http://localhost:8000  (e-mails : http://localhost:8025)"
 else
   echo "✔ Site prêt : http://localhost:8000  (admin@example.test ou membre@example.test, mot de passe Mot-de-passe-de-test-42!)"

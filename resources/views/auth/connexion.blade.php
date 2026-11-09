@@ -6,7 +6,7 @@
     @csrf
     <div class="flex flex-col gap-1.5">
         <label for="email" class="font-semibold">Adresse e-mail</label>
-        <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" class="champ-invite">
+        <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" class="champ-invite">
     </div>
     <div class="flex flex-col gap-1.5">
         <div class="flex items-baseline justify-between gap-3">
