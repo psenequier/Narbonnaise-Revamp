@@ -12,7 +12,6 @@ use App\Domain\Vacances\Attributions;
 use App\Domain\Vacances\Conflits;
 use App\Domain\Vacances\PeriodesScolaires;
 use App\Domain\Vacances\RefusVacances;
-use App\Domain\Vacances\SuiviAttributions;
 use App\Domain\Vacances\SuppressionAnnee;
 use App\Http\Controllers\CalendrierController;
 use App\Models\AnneeScolaire;
@@ -35,7 +34,6 @@ final class VacancesController
         private readonly Attributions $attributions,
         private readonly PeriodesScolaires $periodes,
         private readonly Conflits $conflits,
-        private readonly SuiviAttributions $suivi,
         private readonly Occupation $occupation,
         private readonly SuppressionAnnee $suppression,
     ) {}
