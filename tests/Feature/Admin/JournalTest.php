@@ -55,6 +55,39 @@ it('US-604-P1 trace connexion, réservations, attribution, paramètre et action 
     }
 });
 
+it('US-604-P1 affiche le journal en phrases lisibles, sans noms techniques', function () {
+    $lignee = Lignee::create(['nom' => 'Lignée Bleue', 'couleur' => '#2F6FB0']);
+    $ecrire = function (string $action, ?User $auteur, array $details, ?string $type = null, ?int $id = null) {
+        DB::table('journal')->insert([
+            'action' => $action, 'user_id' => $auteur?->id, 'objet_type' => $type, 'objet_id' => $id,
+            'details' => json_encode($details), 'cree_le' => '2026-11-01 09:30:00',
+        ]);
+    };
+    $ecrire('reservation.modifiee', $this->membre, [
+        'avant' => ['mode' => 'ouverte', 'nombre_personnes' => 2, 'creneaux' => ['2026-11-14-N']],
+        'apres' => ['mode' => 'ouverte', 'nombre_personnes' => 3, 'creneaux' => ['2026-11-14-N', '2026-11-15-J']],
+    ], 'Reservation', 12);
+    $ecrire('compte.desactive', $this->admin, ['avant' => ['actif' => true], 'apres' => ['actif' => false]], 'User', $this->membre->id);
+    $ecrire('plage.attribuee', $this->admin, ['lignee' => $lignee->id, 'creneaux' => 4], 'Plage', 3);
+    $ecrire('parametre.modifie', $this->admin, ['cle' => 'equite.delai_maximal_jours', 'avant' => '0', 'apres' => '90']);
+    $ecrire('grr.tables_supprimees', null, ['tables' => 7]);
+
+    $this->actingAs($this->admin)->get('/admin/journal')->assertOk()
+        ->assertSeeInOrder(['Dimanche 1 novembre 2026', '10:30', 'Réservation modifiée', 'réservation n° 12', 'par Marc'], false)
+        ->assertSee('Personnes : 2 → 3')
+        ->assertSee('Créneaux : sam. 14/11/2026 (nuit) → du sam. 14/11/2026 (nuit) au dim. 15/11/2026 (jour) (2 créneaux)')
+        ->assertSee('Compte désactivé')
+        ->assertSee('Actif : oui → non')
+        ->assertSee('Vacances attribuées à une lignée')
+        ->assertSee('Lignée : Lignée Bleue')
+        ->assertSee('Créneaux : 4 créneaux')
+        ->assertSee('Réservation au plus tôt (jours avant) : 0 → 90')
+        ->assertSee('par Système')
+        ->assertDontSeeText('reservation.modifiee')
+        ->assertDontSeeText('nombre_personnes')
+        ->assertDontSeeText('{"');
+});
+
 it('US-604-P2 filtre exactement par date, auteur et type', function () {
     $ecrire = function (string $action, ?User $auteur, string $quand) {
         DB::table('journal')->insert(['action' => $action, 'user_id' => $auteur?->id, 'cree_le' => $quand]);
