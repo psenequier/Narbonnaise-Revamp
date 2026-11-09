@@ -319,7 +319,7 @@ jobs:
           SFTP_UTILISATEUR: ${{ secrets.SFTP_UTILISATEUR }}
           SFTP_CLE: ${{ secrets.SFTP_CLE }}
           SFTP_EMPREINTE_HOTE: ${{ secrets.SFTP_EMPREINTE_HOTE }}
-          SITE_URL: ${{ vars.SITE_URL }}
+          SITE_URL: ${{ secrets.SITE_URL }} # secret : le domaine réel ne doit pas apparaître dans les journaux publics
           DOSSIER_DISTANT: ${{ vars.DOSSIER_DISTANT }}
           SITE_SERVI: ${{ vars.SITE_SERVI }} # « non » jusqu'à la bascule, puis « oui »
           REPRISE_GRR: ${{ vars.REPRISE_GRR }} # « oui » seulement les nuits de répétition et de bascule
