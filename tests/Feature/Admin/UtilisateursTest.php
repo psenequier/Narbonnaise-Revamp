@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Notification;
 beforeEach(function () {
     Notification::fake();
     $this->travelTo('2026-11-02 10:00:00');
-    $this->admin = adminAvec2fa(['prenom' => 'Ada', 'nom' => 'Admin']);
+    $this->admin = unAdmin(['prenom' => 'Ada', 'nom' => 'Admin']);
     $this->membre = User::factory()->create(['prenom' => 'Marc', 'nom' => 'Membre', 'email' => 'marc@example.test']);
 });
 
@@ -123,7 +123,7 @@ it('US-602-N1 refuse de désactiver ou rétrograder le dernier admin actif', fun
     expect($this->admin->fresh()->actif)->toBeTrue()
         ->and($this->admin->fresh()->role)->toBe('admin');
 
-    $second = adminAvec2fa();
+    $second = unAdmin();
     $this->actingAs($this->admin)->put("/admin/utilisateurs/{$second->id}/role", ['role' => 'membre'])->assertSessionHasNoErrors();
     expect($second->fresh()->role)->toBe('membre');
 });

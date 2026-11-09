@@ -14,6 +14,15 @@ beforeEach(function () {
     $this->membre = User::factory()->create(['email' => 'membre@example.test']);
 });
 
+/** L'année en cours, déjà ouverte : l'année proposée à la saisie est alors 2027-2028. */
+function anneeEnCoursOuverte(): AnneeScolaire
+{
+    $annee = AnneeScolaire::query()->create(['libelle' => '2026-2027', 'debut' => '2026-09-01', 'fin' => '2027-08-31']);
+    $annee->forceFill(['ouverte' => true])->save();
+
+    return $annee;
+}
+
 function datesSaisies(array $autres = []): array
 {
     return [
@@ -48,6 +57,7 @@ it('affiche une lecture en échec et propose la saisie à la main', function () 
 });
 
 it('US-408-P1 ouvre une année à partir de dates saisies à la main, marquées « manuelles »', function () {
+    anneeEnCoursOuverte();
     $this->actingAs($this->admin)->post('/admin/vacances/saisir', datesSaisies())
         ->assertRedirect('/admin/vacances?annee=2027-2028')->assertSessionHasNoErrors();
 
@@ -59,6 +69,7 @@ it('US-408-P1 ouvre une année à partir de dates saisies à la main, marquées 
 });
 
 it('US-408-N2 refuse une saisie dont la fin précède le début, ou hors de l\'année scolaire', function () {
+    anneeEnCoursOuverte();
     $this->actingAs($this->admin)->post('/admin/vacances/saisir', datesSaisies(['noel_dernier_jour' => '2027-12-10']))
         ->assertSessionHasErrors('saisie');
     $this->actingAs($this->admin)->post('/admin/vacances/saisir', datesSaisies(['hiver_dernier_jour' => '2028-09-10']))
@@ -77,4 +88,42 @@ it('réserve la relecture et la saisie aux admins', function () {
 it('dit aux membres qu\'une année s\'ouvre dès que les dates des vacances sont connues', function () {
     $this->actingAs($this->membre)->get('/calendrier/2027-11')->assertOk()
         ->assertSee('dès que les dates')->assertDontSee('quand les admins ont attribué');
+});
+
+it('US-408-P3 donne le nom de l\'année automatiquement : celle qui suit la dernière ouverte, sans champ à saisir', function () {
+    // Aucune année ouverte : l'année en cours.
+    $this->actingAs($this->admin)->get('/admin/vacances')->assertOk()
+        ->assertSee('data-nom-auto>2026-2027</span>', false)
+        ->assertSee('Enregistrer et ouvrir 2026-2027')
+        ->assertDontSee('pattern="\d{4}-\d{4}"', false);
+
+    anneeEnCoursOuverte();
+    $page = $this->actingAs($this->admin)->get('/admin/vacances')->assertOk()
+        ->assertSee('data-nom-auto>2027-2028</span>', false)
+        ->assertSee('<input type="hidden" name="annee" value="2027-2028">', false);
+    expect((string) $page->getContent())->not->toMatch('/<input(?![^>]*type="hidden")[^>]*name="annee"/');
+
+    $this->actingAs($this->admin)->post('/admin/vacances/saisir', datesSaisies())->assertSessionHasNoErrors();
+    $this->actingAs($this->admin)->get('/admin/vacances')->assertSee('data-nom-auto>2028-2029</span>', false);
+});
+
+it('US-408-N4 refuse une autre année que celle proposée, et rien au-delà de l\'année en cours + 2', function (string $annee) {
+    anneeEnCoursOuverte();
+
+    $this->actingAs($this->admin)->post('/admin/vacances/saisir', datesSaisies(['annee' => $annee]))
+        ->assertSessionHasErrors(['saisie' => 'Seule l\'année 2027-2028 peut être saisie à la main.']);
+    expect(AnneeScolaire::where('libelle', $annee)->exists())->toBeFalse();
+})->with(['2222-2223', '2028-2029', '2025-2026']);
+
+it('US-408-N4 ne propose plus de saisie quand l\'année en cours et les deux suivantes sont ouvertes', function () {
+    foreach (['2026-2027', '2027-2028', '2028-2029'] as $l) {
+        $a = AnneeScolaire::query()->create(['libelle' => $l, 'debut' => substr($l, 0, 4).'-09-01', 'fin' => substr($l, 5, 4).'-08-31']);
+        $a->forceFill(['ouverte' => true])->save();
+    }
+
+    $this->actingAs($this->admin)->get('/admin/vacances')->assertOk()
+        ->assertSee('aucune autre année ne peut être saisie')->assertDontSee('data-nom-auto', false);
+    $this->actingAs($this->admin)->post('/admin/vacances/saisir', datesSaisies(['annee' => '2029-2030']))
+        ->assertSessionHasErrors('saisie');
+    expect(AnneeScolaire::where('libelle', '2029-2030')->exists())->toBeFalse();
 });

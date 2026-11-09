@@ -18,7 +18,7 @@ beforeEach(function () {
     Mail::fake();
     $this->a = Lignee::create(['nom' => 'Lignée Bleue', 'couleur' => '#2F6FB0']);
     $this->b = Lignee::create(['nom' => 'Lignée Rouge', 'couleur' => '#B5651D']);
-    $this->admin = adminAvec2fa(['prenom' => 'Ada', 'nom' => 'Administratrice']);
+    $this->admin = unAdmin(['prenom' => 'Ada', 'nom' => 'Administratrice']);
     $this->membre = User::factory()->create(['prenom' => 'Marc', 'nom' => 'Membre', 'email' => 'membre@example.test']);
 });
 

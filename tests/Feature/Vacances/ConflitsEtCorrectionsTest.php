@@ -11,7 +11,7 @@ beforeEach(function () {
     Mail::fake();
     $this->travelTo('2026-11-02 10:00:00');
     ouvrirAnnee2026();
-    $this->admin = adminAvec2fa(['prenom' => 'Ada', 'nom' => 'Admin', 'email' => 'admin@example.test']);
+    $this->admin = unAdmin(['prenom' => 'Ada', 'nom' => 'Admin', 'email' => 'admin@example.test']);
     $this->membre = User::factory()->create(['prenom' => 'Marc', 'email' => 'membre@example.test']);
     $this->resa = reserverPour($this->membre, ['2026-12-15-N', '2026-12-16-J']);
     Mail::fake();

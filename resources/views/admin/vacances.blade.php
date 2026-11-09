@@ -16,6 +16,28 @@
     @endforelse
 </nav>
 
+{{-- US-409 : une année créée à la main par erreur se supprime, si rien n'y est réservé ni attribué. --}}
+@if ($annee !== null && $refusSuppression !== null)
+<section class="flex flex-col gap-2 rounded-2xl border border-bord bg-white p-5" data-suppression-saison>
+    <p class="text-sm"><strong>{{ $annee->libelle }}</strong> a été créée à la main.</p>
+    @if ($refusSuppression !== '')
+        <p class="text-sm text-gris" data-refus-suppression>Suppression impossible. {{ $refusSuppression }}</p>
+    @else
+        <details @if ($errors->has('suppression') || $errors->has('confirmation')) open @endif>
+            <summary class="flex h-11 w-fit cursor-pointer items-center rounded-lg border border-erreur px-3 font-bold text-erreur">Supprimer la saison {{ $annee->libelle }}</summary>
+            <form method="POST" action="{{ route('admin.vacances.supprimer', $annee) }}" class="mt-2 flex flex-col gap-2">
+                @csrf
+                @method('DELETE')
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="confirmation" value="1" required class="h-5 w-5">
+                    Je confirme : la saison {{ $annee->libelle }}, ses vacances et ses créneaux disparaissent du calendrier.</label>
+                <button type="submit" class="h-11 self-start rounded-lg bg-erreur px-3 font-bold text-white">Supprimer définitivement</button>
+            </form>
+        </details>
+    @endif
+    <p class="text-xs text-gris">Possible pour une saison créée à la main, pas encore commencée, sans réservation ni attribution.</p>
+</section>
+@endif
+
 {{-- Calendrier scolaire : dernière lecture, relecture immédiate, saisie à la main (7 nov. 2026). --}}
 <section class="flex flex-col gap-3 rounded-2xl border border-bord bg-white p-5" aria-labelledby="calendrier-scolaire" data-calendrier-scolaire>
     <h2 id="calendrier-scolaire" class="text-lg font-extrabold">Calendrier scolaire officiel</h2>
@@ -38,11 +60,17 @@
             <button type="submit" class="h-11 rounded-lg border border-bord px-3 font-bold">Relire le calendrier maintenant</button>
         </form>
     </div>
-    <details @if ($errors->has('saisie') || old('annee')) open @endif>
+    @if ($anneeASaisir === null)
+        <p class="text-sm text-gris" data-saisie-manuelle>L'année en cours et les deux suivantes sont ouvertes : aucune autre année ne peut être saisie à la main.</p>
+    @else
+    <details @if ($errors->has('saisie')) open @endif data-saisie-manuelle>
         <summary class="cursor-pointer text-sm underline">Saisir les dates d'une année à la main (si la source est muette)</summary>
         <form method="POST" action="{{ route('admin.vacances.saisir') }}" class="mt-2 flex flex-col gap-3">
             @csrf
-            <label class="flex w-40 flex-col text-xs font-bold">Année scolaire<input name="annee" value="{{ old('annee', $anneeASaisir) }}" required pattern="\d{4}-\d{4}" placeholder="2027-2028" class="{{ $champ }}"></label>
+            {{-- US-408-P3 : le nom est donné par le site, il ne se saisit pas. --}}
+            <input type="hidden" name="annee" value="{{ $anneeASaisir }}">
+            <p class="flex flex-wrap items-center gap-2 text-xs font-bold">Année scolaire <span class="rounded-lg bg-sapin-clair px-3 py-1.5 text-base font-extrabold text-sapin" data-nom-auto>{{ $anneeASaisir }}</span></p>
+            <p class="text-xs text-gris">Nom donné automatiquement : l'année qui suit la dernière ouverte. Il ne se saisit pas.</p>
             <div class="flex flex-wrap gap-2">
                 <label class="flex flex-col text-xs font-bold">Noël, première nuit<input type="date" name="noel_premiere_nuit" value="{{ old('noel_premiere_nuit') }}" required class="{{ $champ }}"></label>
                 <label class="flex flex-col text-xs font-bold">Noël, dernier jour<input type="date" name="noel_dernier_jour" value="{{ old('noel_dernier_jour') }}" required class="{{ $champ }}"></label>
@@ -52,9 +80,10 @@
                 <label class="flex flex-col text-xs font-bold">Février, dernier jour<input type="date" name="hiver_dernier_jour" value="{{ old('hiver_dernier_jour') }}" required class="{{ $champ }}"></label>
             </div>
             <p class="text-xs text-gris">Les dates saisies sont marquées « corrigées à la main » : la source officielle ne les écrasera pas, un écart vous sera signalé. L'année s'ouvre à la réservation et les membres sont prévenus.</p>
-            <button type="submit" class="h-11 self-start rounded-lg bg-sapin px-3 font-bold text-white">Enregistrer et ouvrir l'année</button>
+            <button type="submit" class="h-11 self-start rounded-lg bg-sapin px-3 font-bold text-white">Enregistrer et ouvrir {{ $anneeASaisir }}</button>
         </form>
     </details>
+    @endif
 </section>
 
 @if ($conflits->isNotEmpty())
