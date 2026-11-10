@@ -23,7 +23,10 @@ services:
       - "127.0.0.1:8025:8025"
 
   site:
-    build: local
+    build:
+      context: local
+      args:
+        UID_SITE: ${UID_SITE:-1000}
     depends_on:
       mysql:
         condition: service_healthy

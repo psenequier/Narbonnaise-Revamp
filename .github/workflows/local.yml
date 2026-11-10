@@ -15,7 +15,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - run: docker compose up -d --build
+      # Le conteneur tourne avec l'uid du propriétaire du dépôt cloné (pas root).
+      - run: UID_SITE=$(id -u) docker compose up -d --build
       - name: Attendre la page de connexion (15 min au plus)
         run: timeout 900 bash -c 'until curl -s -o /dev/null http://localhost:8000/login; do sleep 5; done'
       - name: Données fictives chargées, page de connexion servie
