@@ -175,6 +175,7 @@ racine FTP/
       public/.ovhconfig      PHP 8.5, stable64 (livré avec chaque version)
     precedente/              version de retour arrière
     releases/<sha>/
+    releases/corbeille-*     anciennes versions, effacées en fin de déploiement
     partage/.env
     partage/storage/
 ```
@@ -199,11 +200,12 @@ Avant la bascule (`SITE_SERVI=non`), le script envoie la version et la range dan
 
 Après la bascule (`SITE_SERVI=oui`), `deploiement/deployer.sh` enchaîne ces étapes :
 
-1. Il envoie la version dans `releases/<sha>/`.
-2. Il met le site en maintenance et bascule : `actuelle` devient `precedente`, puis la nouvelle version devient `actuelle`.
+1. Il envoie la version dans `releases/<sha>/`, en ne transférant que les fichiers changés quand il trouve sur le serveur une version complète avec son manifeste (`precedente/`, sinon une version restée dans `releases/`).
+2. Il met le site en maintenance et bascule : l'ancienne `precedente` part à la corbeille (`releases/corbeille-…`), `actuelle` devient `precedente`, puis la nouvelle version devient `actuelle`. Ce ne sont que des renommages : effacer une version fichier par fichier en SFTP prend plus d'un quart d'heure.
 3. Il lance les migrations par `POST /_deploiement/migrer`, avec un jeton à usage unique dont seule l'empreinte est déposée sur le serveur.
 4. Il lève la maintenance et fait le test de fumée : `/sante`, puis les en-têtes CSP et HSTS de `/login`.
-5. Si le test échoue, il fait le renommage inverse. Les migrations ne sont jamais annulées automatiquement. Elles doivent donc rester compatibles avec la version précédente.
+5. Une fois la version en place (dans les deux modes), il efface la corbeille pendant 8 minutes au plus ; ce qui reste est effacé au déploiement suivant.
+6. Si le test échoue, il fait le renommage inverse. Les migrations ne sont jamais annulées automatiquement. Elles doivent donc rester compatibles avec la version précédente.
 
 Premier déploiement, à faire à la main une seule fois (les noms réels des lignées vont dans `LIGNEES` du `.env` de production) :
 

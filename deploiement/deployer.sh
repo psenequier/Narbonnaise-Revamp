@@ -6,6 +6,8 @@
 #   releases/<sha>/   versions envoyées
 #   actuelle/         version servie (le domaine pointe sur actuelle/public)
 #   precedente/       version de retour arrière
+#   releases/corbeille-*  anciennes versions écartées, effacées à la fin (supprimer une version
+#                     fichier par fichier en SFTP prend plus de dix minutes : jamais au milieu)
 #   partage/.env, partage/storage/   jamais écrasés
 #
 # Deux modes (variable SITE_SERVI de l'environnement GitHub « production ») :
@@ -37,8 +39,9 @@ printf '%s\n' "$SFTP_EMPREINTE_HOTE" > "$TMP/known_hosts"
 export LFTP_SSH="ssh -i $TMP/cle -o UserKnownHostsFile=$TMP/known_hosts -o StrictHostKeyChecking=yes"
 
 # SFTP passe par SSH (clé dédiée, empreinte du serveur vérifiée) : rien ne circule en clair.
+# DELAI=<secondes> sftp_cmd … : commande interrompue au-delà du délai (nettoyage seulement).
 sftp_cmd() {
-  lftp -c "set sftp:connect-program \"$LFTP_SSH -a -x\"; open -u $SFTP_UTILISATEUR, sftp://$SFTP_HOTE; $*" # NOSONAR
+  ${DELAI:+timeout "$DELAI"} lftp -c "set sftp:connect-program \"$LFTP_SSH -a -x\"; open -u $SFTP_UTILISATEUR, sftp://$SFTP_HOTE; $*" # NOSONAR
 }
 
 # 1. Jeton de migration à usage unique : seule son empreinte part sur le serveur.
@@ -49,6 +52,14 @@ printf '%s' "$JETON" | sha256sum | cut -d' ' -f1 > "$TMP/verrou/migration.verrou
 # 2. Sauvegarde de la base avant toute chose (spatie/laravel-backup via la cron ou l'admin).
 journal "Vérification de la sauvegarde du jour"
 curl -fsS "$SITE_URL/sante" > /dev/null || journal "Avertissement : /sante ne répond pas avant déploiement"
+
+# Effacement des versions écartées, après la mise en place : limité à 8 minutes, il reprend au
+# déploiement suivant s'il n'a pas fini. Un échec ici ne fait jamais échouer le déploiement.
+nettoyer() {
+  journal "Nettoyage des anciennes versions (8 minutes au plus)"
+  DELAI=480 sftp_cmd "glob -a rm -rf $DOSSIER_DISTANT/releases/corbeille-*" > /dev/null 2>&1 \
+    || journal "Nettoyage inachevé : il reprendra au prochain déploiement"
+}
 
 # 3. Envoi de la version dans releases/<sha>/, sans .env ni storage/.
 #    Sans SSH, l'envoi complet se fait fichier par fichier (une vingtaine de minutes). Quand la
@@ -61,18 +72,30 @@ manifeste() {
     ! -path './storage/*' ! -name .env ! -name "$MANIFESTE" -print0 | LC_ALL=C sort -z | xargs -0 sha256sum
 }
 manifeste > "$TMP/manifeste.nouveau"
-sftp_cmd "get $DOSSIER_DISTANT/precedente/$MANIFESTE -o $TMP/manifeste.base" > /dev/null 2>&1 || true
+# Base : precedente/, sinon une version complète restée dans releases/ (envoi interrompu
+# après le dépôt du manifeste). Ni la corbeille ni une version en échec ne servent de base.
+BASE=""
+for candidat in precedente $(sftp_cmd "cls -1 $DOSSIER_DISTANT/releases/" 2> /dev/null \
+    | sed 's#/*$##; s#.*/##' | grep -Ev '^(corbeille-|$)|-echec$' || true); do
+  [[ "$candidat" = precedente ]] || candidat="releases/$candidat"
+  if sftp_cmd "get $DOSSIER_DISTANT/$candidat/$MANIFESTE -o $TMP/manifeste.base" > /dev/null 2>&1 \
+     && [[ -s "$TMP/manifeste.base" ]]; then
+    BASE="$candidat"
+    break
+  fi
+  rm -f "$TMP/manifeste.base"
+done
 
-if [[ -s "$TMP/manifeste.base" ]]; then
+if [[ -n "$BASE" ]]; then
   # Chemins nouveaux ou modifiés (empreinte différente), puis chemins disparus.
   LC_ALL=C comm -13 <(LC_ALL=C sort "$TMP/manifeste.base") <(LC_ALL=C sort "$TMP/manifeste.nouveau") \
     | cut -c67- > "$TMP/a-envoyer"
   LC_ALL=C comm -23 <(cut -c67- "$TMP/manifeste.base" | LC_ALL=C sort) <(cut -c67- "$TMP/manifeste.nouveau" | LC_ALL=C sort) \
     > "$TMP/a-retirer"
-  journal "Envoi de la version $SHA : $(wc -l < "$TMP/a-envoyer") fichiers changés, $(wc -l < "$TMP/a-retirer") retirés"
+  journal "Envoi de la version $SHA à partir de $BASE : $(wc -l < "$TMP/a-envoyer") fichiers changés, $(wc -l < "$TMP/a-retirer") retirés"
   {
     echo "set cmd:fail-exit yes"
-    echo "mv $DOSSIER_DISTANT/precedente $DOSSIER_DISTANT/releases/$SHA"
+    [[ "$BASE" = "releases/$SHA" ]] || echo "mv $DOSSIER_DISTANT/$BASE $DOSSIER_DISTANT/releases/$SHA"
     echo "rm -f $DOSSIER_DISTANT/releases/$SHA/$MANIFESTE"
     while IFS= read -r f; do echo "rm -f \"$DOSSIER_DISTANT/releases/$SHA/${f#./}\""; done < "$TMP/a-retirer"
     while IFS= read -r f; do dirname "${f#./}"; done < "$TMP/a-envoyer" | LC_ALL=C sort -u \
@@ -82,6 +105,8 @@ if [[ -s "$TMP/manifeste.base" ]]; then
   sftp_cmd "source $TMP/envoi.lftp"
 else
   journal "Envoi de la version $SHA (complet : pas de manifeste sur le serveur)"
+  # Un envoi complet interrompu laisse un dossier partiel : on le met à la corbeille.
+  sftp_cmd "mv $DOSSIER_DISTANT/releases/$SHA $DOSSIER_DISTANT/releases/corbeille-envoi-$SHA-$(date -u +%s)" > /dev/null 2>&1 || true
   sftp_cmd "mkdir -p $DOSSIER_DISTANT/releases/$SHA; \
     mirror -R --parallel=4 --exclude-glob .git/ --exclude-glob node_modules/ --exclude-glob tests/ \
            --exclude-glob storage/ --exclude-glob .env ./ $DOSSIER_DISTANT/releases/$SHA/"
@@ -92,11 +117,12 @@ sftp_cmd "put $TMP/manifeste.nouveau -o $DOSSIER_DISTANT/releases/$SHA/$MANIFEST
 
 if [[ "$SITE_SERVI" != "oui" ]]; then
   journal "Mode préparation : renommages seulement, le site sert encore GRR"
-  sftp_cmd "rm -rf $DOSSIER_DISTANT/precedente; \
+  sftp_cmd "mv $DOSSIER_DISTANT/precedente $DOSSIER_DISTANT/releases/corbeille-$SHA-$(date -u +%s); \
     mv $DOSSIER_DISTANT/actuelle $DOSSIER_DISTANT/precedente; \
     mv $DOSSIER_DISTANT/releases/$SHA $DOSSIER_DISTANT/actuelle; \
     rm -f $DOSSIER_DISTANT/partage/storage/app/deploiement/migration.verrou"
   journal "Version $SHA déposée dans $DOSSIER_DISTANT/actuelle (non servie)"
+  nettoyer
   exit 0
 fi
 
@@ -104,7 +130,7 @@ fi
 journal "Bascule"
 : > "$TMP/down"
 sftp_cmd "put $TMP/down -o $DOSSIER_DISTANT/partage/storage/framework/down; \
-  rm -rf $DOSSIER_DISTANT/precedente; \
+  mv $DOSSIER_DISTANT/precedente $DOSSIER_DISTANT/releases/corbeille-$SHA-$(date -u +%s); \
   mv $DOSSIER_DISTANT/actuelle $DOSSIER_DISTANT/precedente; \
   mv $DOSSIER_DISTANT/releases/$SHA $DOSSIER_DISTANT/actuelle"
 
@@ -148,6 +174,7 @@ for tentative in 1 2 3; do
      && curl -fsSI "$SITE_URL/login" | grep -qi '^content-security-policy:' \
      && curl -fsSI "$SITE_URL/login" | grep -qi '^strict-transport-security:'; then
     journal "Version $SHA en production"
+    nettoyer
     exit 0
   fi
   sleep 10

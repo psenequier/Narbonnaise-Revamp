@@ -10,13 +10,16 @@ beforeEach(function () {
     $this->bin = sys_get_temp_dir().'/faux-bin-'.bin2hex(random_bytes(4));
     mkdir($this->bin);
     $this->journal = $this->bin.'/lftp.log';
-    // Faux lftp : note la commande ; rend le manifeste de precedente/ s'il est fourni ;
+    // Faux lftp : note la commande ; liste releases/ (FAUX_RELEASES) ; rend le manifeste du
+    // dossier FAUX_MANIFESTE_DE (precedente par défaut) s'il est fourni ;
     // recopie dans le journal le script d'envoi incrémental (« source »).
     file_put_contents($this->bin.'/lftp', <<<'SH'
         #!/usr/bin/env bash
         printf '%s\n' "$2" >> "$FAUX_JOURNAL"
+        if [[ "$2" == *"cls -1 "* ]]; then printf '%b' "${FAUX_RELEASES:-}"; fi
         if [[ "$2" == *"get "*" -o "* ]]; then
           [ -n "${FAUX_MANIFESTE:-}" ] || exit 1
+          [[ "$2" == *"${FAUX_MANIFESTE_DE:-precedente}/"* ]] || exit 1
           cible="${2##* -o }"; cible="${cible%%;*}"
           printf '%s' "$FAUX_MANIFESTE" > "$cible"
         fi
@@ -51,11 +54,13 @@ afterEach(function () {
 });
 
 /** @return array{code: int, sortie: string, journal: string} */
-function deployer(object $test, string $siteServi, string $repriseGrr, string $migrer, int $codeMigrer = 0, string $manifeste = ''): array
+function deployer(object $test, string $siteServi, string $repriseGrr, string $migrer, int $codeMigrer = 0, string $manifeste = '', string $manifesteDe = 'precedente', string $releases = ''): array
 {
     $r = Process::path(base_path())->env([
         'PATH' => $test->bin.':'.getenv('PATH'),
         'FAUX_MANIFESTE' => $manifeste,
+        'FAUX_MANIFESTE_DE' => $manifesteDe,
+        'FAUX_RELEASES' => $releases,
         'FAUX_JOURNAL' => $test->journal,
         'FAUX_MIGRER' => $migrer,
         'FAUX_MIGRER_CODE' => (string) $codeMigrer,
@@ -153,4 +158,29 @@ it('n\'envoie que les fichiers changés en partant de precedente/ quand son mani
         ->and($r['journal'])->toContain('put "./composer.json" -o "narbonnaise-v2/releases/abcdef123456/composer.json"')
         ->and($r['journal'])->toContain('rm -f "narbonnaise-v2/releases/abcdef123456/ancien-fichier.php"')
         ->and($r['journal'])->toContain('mv narbonnaise-v2/releases/abcdef123456 narbonnaise-v2/actuelle');
+});
+
+it('reprend comme base une version complète restée dans releases/ quand precedente/ n\'a pas de manifeste', function () {
+    $base = str_repeat('0', 64)."  ./composer.json\n";
+    $releases = 'narbonnaise-v2/releases/corbeille-x/\nnarbonnaise-v2/releases/df341881b374/\n';
+    $r = deployer($this, 'non', 'non', '', 0, $base, 'releases/df341881b374', $releases);
+
+    expect($r['code'])->toBe(0)
+        ->and($r['sortie'])->toContain('à partir de releases/df341881b374')
+        ->and($r['journal'])->not->toContain('mirror -R')
+        ->and($r['journal'])->not->toContain('get narbonnaise-v2/releases/corbeille-x/')
+        ->and($r['journal'])->toContain('mv narbonnaise-v2/releases/df341881b374 narbonnaise-v2/releases/abcdef123456');
+});
+
+it('n\'efface jamais une version pendant les renommages : précédente mise à la corbeille, effacée en dernier avec un délai', function () {
+    foreach ([['non', 'non', ''], ['oui', 'non', '{"migre":true}']] as [$servi, $reprise, $reponse]) {
+        @unlink($this->journal);
+        $r = deployer($this, $servi, $reprise, $reponse);
+
+        expect($r['code'])->toBe(0)
+            ->and($r['journal'])->not->toContain('rm -rf narbonnaise-v2/precedente')
+            ->and($r['journal'])->toMatch('#mv narbonnaise-v2/precedente narbonnaise-v2/releases/corbeille-abcdef123456-\d+; *mv narbonnaise-v2/actuelle narbonnaise-v2/precedente#')
+            ->and($r['sortie'])->toContain('Nettoyage des anciennes versions')
+            ->and(substr($r['journal'], -200))->toContain('glob -a rm -rf narbonnaise-v2/releases/corbeille-*');
+    }
 });
