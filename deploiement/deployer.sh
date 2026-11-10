@@ -69,7 +69,8 @@ fi
 
 # 4. Bascule : maintenance, puis renommages (atomiques côté serveur).
 journal "Bascule"
-sftp_cmd "put /dev/null -o $DOSSIER_DISTANT/partage/storage/framework/down; \
+: > "$TMP/down"
+sftp_cmd "put $TMP/down -o $DOSSIER_DISTANT/partage/storage/framework/down; \
   rm -rf $DOSSIER_DISTANT/precedente; \
   mv $DOSSIER_DISTANT/actuelle $DOSSIER_DISTANT/precedente; \
   mv $DOSSIER_DISTANT/releases/$SHA $DOSSIER_DISTANT/actuelle"
