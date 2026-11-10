@@ -51,10 +51,43 @@ journal "Vérification de la sauvegarde du jour"
 curl -fsS "$SITE_URL/sante" > /dev/null || journal "Avertissement : /sante ne répond pas avant déploiement"
 
 # 3. Envoi de la version dans releases/<sha>/, sans .env ni storage/.
-journal "Envoi de la version $SHA"
-sftp_cmd "mkdir -p $DOSSIER_DISTANT/releases/$SHA; \
-  mirror -R --parallel=4 --exclude-glob .git/ --exclude-glob node_modules/ --exclude-glob tests/ \
-         --exclude-glob storage/ --exclude-glob .env ./ $DOSSIER_DISTANT/releases/$SHA/; \
+#    Sans SSH, l'envoi complet se fait fichier par fichier (une vingtaine de minutes). Quand la
+#    version de retour (precedente/) porte son manifeste (empreinte de chaque fichier), on la
+#    reprend comme base et on n'envoie que les fichiers changés ; precedente/ est recréée plus
+#    bas à partir d'actuelle/, le retour arrière reste possible.
+MANIFESTE=.manifeste-deploiement
+manifeste() {
+  find . -type f ! -path './.git/*' ! -path './node_modules/*' ! -path './tests/*' \
+    ! -path './storage/*' ! -name .env ! -name "$MANIFESTE" -print0 | LC_ALL=C sort -z | xargs -0 sha256sum
+}
+manifeste > "$TMP/manifeste.nouveau"
+sftp_cmd "get $DOSSIER_DISTANT/precedente/$MANIFESTE -o $TMP/manifeste.base" > /dev/null 2>&1 || true
+
+if [[ -s "$TMP/manifeste.base" ]]; then
+  # Chemins nouveaux ou modifiés (empreinte différente), puis chemins disparus.
+  LC_ALL=C comm -13 <(LC_ALL=C sort "$TMP/manifeste.base") <(LC_ALL=C sort "$TMP/manifeste.nouveau") \
+    | cut -c67- > "$TMP/a-envoyer"
+  LC_ALL=C comm -23 <(cut -c67- "$TMP/manifeste.base" | LC_ALL=C sort) <(cut -c67- "$TMP/manifeste.nouveau" | LC_ALL=C sort) \
+    > "$TMP/a-retirer"
+  journal "Envoi de la version $SHA : $(wc -l < "$TMP/a-envoyer") fichiers changés, $(wc -l < "$TMP/a-retirer") retirés"
+  {
+    echo "set cmd:fail-exit yes"
+    echo "mv $DOSSIER_DISTANT/precedente $DOSSIER_DISTANT/releases/$SHA"
+    echo "rm -f $DOSSIER_DISTANT/releases/$SHA/$MANIFESTE"
+    while IFS= read -r f; do echo "rm -f \"$DOSSIER_DISTANT/releases/$SHA/${f#./}\""; done < "$TMP/a-retirer"
+    while IFS= read -r f; do dirname "${f#./}"; done < "$TMP/a-envoyer" | LC_ALL=C sort -u \
+      | while IFS= read -r d; do echo "mkdir -p \"$DOSSIER_DISTANT/releases/$SHA/$d\""; done
+    while IFS= read -r f; do echo "put \"$f\" -o \"$DOSSIER_DISTANT/releases/$SHA/${f#./}\""; done < "$TMP/a-envoyer"
+  } > "$TMP/envoi.lftp"
+  sftp_cmd "source $TMP/envoi.lftp"
+else
+  journal "Envoi de la version $SHA (complet : pas de manifeste sur le serveur)"
+  sftp_cmd "mkdir -p $DOSSIER_DISTANT/releases/$SHA; \
+    mirror -R --parallel=4 --exclude-glob .git/ --exclude-glob node_modules/ --exclude-glob tests/ \
+           --exclude-glob storage/ --exclude-glob .env ./ $DOSSIER_DISTANT/releases/$SHA/"
+fi
+# Le manifeste n'est déposé qu'une fois la version complète : il sert de base au prochain envoi.
+sftp_cmd "put $TMP/manifeste.nouveau -o $DOSSIER_DISTANT/releases/$SHA/$MANIFESTE; \
   put $TMP/verrou/migration.verrou -o $DOSSIER_DISTANT/partage/storage/app/deploiement/migration.verrou"
 
 if [[ "$SITE_SERVI" != "oui" ]]; then

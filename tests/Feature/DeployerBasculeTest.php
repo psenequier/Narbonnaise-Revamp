@@ -10,7 +10,21 @@ beforeEach(function () {
     $this->bin = sys_get_temp_dir().'/faux-bin-'.bin2hex(random_bytes(4));
     mkdir($this->bin);
     $this->journal = $this->bin.'/lftp.log';
-    file_put_contents($this->bin.'/lftp', "#!/usr/bin/env bash\nprintf '%s\\n' \"\$2\" >> \"\$FAUX_JOURNAL\"\n");
+    // Faux lftp : note la commande ; rend le manifeste de precedente/ s'il est fourni ;
+    // recopie dans le journal le script d'envoi incrémental (« source »).
+    file_put_contents($this->bin.'/lftp', <<<'SH'
+        #!/usr/bin/env bash
+        printf '%s\n' "$2" >> "$FAUX_JOURNAL"
+        if [[ "$2" == *"get "*" -o "* ]]; then
+          [ -n "${FAUX_MANIFESTE:-}" ] || exit 1
+          cible="${2##* -o }"; cible="${cible%%;*}"
+          printf '%s' "$FAUX_MANIFESTE" > "$cible"
+        fi
+        if [[ "$2" == *"source "* ]]; then
+          script="${2##*source }"; script="${script%%;*}"
+          cat "$script" >> "$FAUX_JOURNAL"
+        fi
+        SH);
     file_put_contents($this->bin.'/curl', <<<'SH'
         #!/usr/bin/env bash
         url=""; entetes=0
@@ -37,10 +51,11 @@ afterEach(function () {
 });
 
 /** @return array{code: int, sortie: string, journal: string} */
-function deployer(object $test, string $siteServi, string $repriseGrr, string $migrer, int $codeMigrer = 0): array
+function deployer(object $test, string $siteServi, string $repriseGrr, string $migrer, int $codeMigrer = 0, string $manifeste = ''): array
 {
     $r = Process::path(base_path())->env([
         'PATH' => $test->bin.':'.getenv('PATH'),
+        'FAUX_MANIFESTE' => $manifeste,
         'FAUX_JOURNAL' => $test->journal,
         'FAUX_MIGRER' => $migrer,
         'FAUX_MIGRER_CODE' => (string) $codeMigrer,
@@ -115,4 +130,27 @@ it('US-805-N4 n\'écrit jamais hors du dossier du nouveau site, ni dans la confi
         $lignes = array_filter(file(base_path($fichier)) ?: [], fn ($l) => ! str_starts_with(ltrim($l), '#'));
         expect(implode('', $lignes))->not->toContain('ovhconfig');
     }
+});
+
+it('envoie toute la version quand precedente/ n\'a pas de manifeste, puis dépose le manifeste', function () {
+    $r = deployer($this, 'non', 'non', '');
+
+    expect($r['code'])->toBe(0)
+        ->and($r['sortie'])->toContain('complet : pas de manifeste')
+        ->and($r['journal'])->toContain('mirror -R')
+        ->and($r['journal'])->toContain('-o narbonnaise-v2/releases/abcdef123456/.manifeste-deploiement');
+});
+
+it('n\'envoie que les fichiers changés en partant de precedente/ quand son manifeste existe', function () {
+    // Base : composer.json avec une autre empreinte, un fichier disparu depuis.
+    $base = str_repeat('0', 64)."  ./composer.json\n".str_repeat('1', 64)."  ./ancien-fichier.php\n";
+    $r = deployer($this, 'non', 'non', '', 0, $base);
+
+    expect($r['code'])->toBe(0)
+        ->and($r['sortie'])->toContain('fichiers changés')
+        ->and($r['journal'])->not->toContain('mirror -R')
+        ->and($r['journal'])->toContain('mv narbonnaise-v2/precedente narbonnaise-v2/releases/abcdef123456')
+        ->and($r['journal'])->toContain('put "./composer.json" -o "narbonnaise-v2/releases/abcdef123456/composer.json"')
+        ->and($r['journal'])->toContain('rm -f "narbonnaise-v2/releases/abcdef123456/ancien-fichier.php"')
+        ->and($r['journal'])->toContain('mv narbonnaise-v2/releases/abcdef123456 narbonnaise-v2/actuelle');
 });
