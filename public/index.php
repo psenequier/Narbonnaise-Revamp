@@ -10,8 +10,9 @@ header_remove('X-Powered-By');
 
 // Maintenance pendant un déploiement (deploiement/deployer.sh) : seule la
 // route de migration reste accessible, elle est protégée par son jeton.
+require __DIR__.'/../bootstrap/maintenance.php';
 $down = __DIR__.'/../../partage/storage/framework/down';
-if (is_file($down) && ($_SERVER['REQUEST_URI'] ?? '') !== '/_deploiement/migrer') {
+if (chamrousse_bloque_par_maintenance($down, (string) ($_SERVER['REQUEST_URI'] ?? ''))) {
     http_response_code(503);
     header('Retry-After: 120');
     header('Content-Type: text/html; charset=utf-8');
