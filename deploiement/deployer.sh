@@ -86,6 +86,22 @@ for candidat in precedente $(sftp_cmd "cls -1 $DOSSIER_DISTANT/releases/" 2> /de
   rm -f "$TMP/manifeste.base"
 done
 
+# Dossiers des fichiers à envoyer qui n'existent pas dans la base (ni la racine, ni un parent
+# d'un fichier de la base).
+nouveaux_dossiers() {
+  awk 'NR == FNR {
+         n = split(substr($0, 67), p, "/"); d = p[1]
+         for (i = 2; i < n; i++) { existe[d] = 1; d = d "/" p[i] }
+         if (n > 1) existe[d] = 1
+         next
+       }
+       {
+         n = split($0, p, "/"); d = p[1]
+         for (i = 2; i < n; i++) d = d "/" p[i]
+         if (n > 1 && !(d in existe) && !(d in vu)) { vu[d] = 1; sub(/^\.\//, "", d); if (d != ".") print d }
+       }' "$TMP/manifeste.base" "$TMP/a-envoyer" | LC_ALL=C sort -u
+}
+
 if [[ -n "$BASE" ]]; then
   # Chemins nouveaux ou modifiés (empreinte différente), puis chemins disparus.
   LC_ALL=C comm -13 <(LC_ALL=C sort "$TMP/manifeste.base") <(LC_ALL=C sort "$TMP/manifeste.nouveau") \
@@ -98,8 +114,9 @@ if [[ -n "$BASE" ]]; then
     [[ "$BASE" = "releases/$SHA" ]] || echo "mv $DOSSIER_DISTANT/$BASE $DOSSIER_DISTANT/releases/$SHA"
     echo "rm -f $DOSSIER_DISTANT/releases/$SHA/$MANIFESTE"
     while IFS= read -r f; do echo "rm -f \"$DOSSIER_DISTANT/releases/$SHA/${f#./}\""; done < "$TMP/a-retirer"
-    while IFS= read -r f; do dirname "${f#./}"; done < "$TMP/a-envoyer" | LC_ALL=C sort -u \
-      | while IFS= read -r d; do echo "mkdir -p \"$DOSSIER_DISTANT/releases/$SHA/$d\""; done
+    # Seulement les dossiers absents de la base : sur OVH, « mkdir -p » d'un dossier existant
+    # échoue (vu le 10 nov. avec la racine « . »), ce qui arrête l'envoi.
+    nouveaux_dossiers | while IFS= read -r d; do echo "mkdir -p \"$DOSSIER_DISTANT/releases/$SHA/$d\""; done
     while IFS= read -r f; do echo "put \"$f\" -o \"$DOSSIER_DISTANT/releases/$SHA/${f#./}\""; done < "$TMP/a-envoyer"
   } > "$TMP/envoi.lftp"
   sftp_cmd "source $TMP/envoi.lftp"
