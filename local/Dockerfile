@@ -12,3 +12,8 @@ COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
  && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 WORKDIR /app
+
+# Utilisateur ordinaire plutôt que root (uid 1000 : celui du premier compte sous Linux ; sur Mac,
+# Docker Desktop donne de toute façon l'accès au dossier monté).
+RUN useradd --create-home --uid 1000 site
+USER site

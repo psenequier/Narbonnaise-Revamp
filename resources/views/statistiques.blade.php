@@ -15,6 +15,12 @@
     $hauteur = 200;
     $moyenne = $p['nuits'] === 0 ? '0' : number_format($p['nuitees_personnes'] / $p['nuits'], 1, ',', ' ');
     $choix = 'h-11 rounded-lg border border-bord-fort bg-white px-3 text-sm font-semibold';
+    // Onglets de période : tout est calculé ici, les balises n'ont ni directive Blade ni guillemet
+    // imbriqué (l'analyse HTML de SonarCloud s'y perdait).
+    $onglets = [];
+    foreach (['saison' => [route('statistiques'), 'Saison station'], 'annee' => [route('statistiques', ['vue' => 'annee']), 'Année civile'], 'tout' => [route('statistiques', ['vue' => 'tout']), 'Depuis le début']] as $cle => [$lien, $nom]) {
+        $onglets[] = [$lien, $nom, $vue === $cle ? 'page' : 'false', $vue === $cle ? 'bg-white font-bold' : 'font-semibold text-texte-2'];
+    }
 @endphp
 @section('contenu')
 <div class="flex flex-wrap items-center gap-3" data-statistiques>
@@ -33,9 +39,9 @@
         </p>
     </div>
     <nav aria-label="Période" class="flex max-w-full overflow-x-auto rounded-[10px] bg-bord p-[3px] text-sm">
-        <a href="{{ route('statistiques') }}" @if ($vue === 'saison') aria-current="page" @endif class="flex min-h-11 items-center whitespace-nowrap rounded-lg px-2.5 sm:px-3.5 {{ $vue === 'saison' ? 'bg-white font-bold' : 'font-semibold text-texte-2' }}">Saison station</a>
-        <a href="{{ route('statistiques', ['vue' => 'annee']) }}" @if ($vue === 'annee') aria-current="page" @endif class="flex min-h-11 items-center whitespace-nowrap rounded-lg px-2.5 sm:px-3.5 {{ $vue === 'annee' ? 'bg-white font-bold' : 'font-semibold text-texte-2' }}">Année civile</a>
-        <a href="{{ route('statistiques', ['vue' => 'tout']) }}" @if ($vue === 'tout') aria-current="page" @endif class="flex min-h-11 items-center whitespace-nowrap rounded-lg px-2.5 sm:px-3.5 {{ $vue === 'tout' ? 'bg-white font-bold' : 'font-semibold text-texte-2' }}">Depuis le début</a>
+        @foreach ($onglets as [$lien, $nom, $courant, $etat])
+            <a href="{{ $lien }}" aria-current="{{ $courant }}" class="flex min-h-11 items-center whitespace-nowrap rounded-lg px-2.5 sm:px-3.5 {{ $etat }}">{{ $nom }}</a>
+        @endforeach
     </nav>
     @unless ($vue === 'tout')
     <form method="GET" action="{{ route('statistiques') }}" class="flex items-center gap-2">
