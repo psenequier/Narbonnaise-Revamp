@@ -184,3 +184,15 @@ it('n\'efface jamais une version pendant les renommages : précédente mise à l
             ->and(substr($r['journal'], -200))->toContain('glob -a rm -rf narbonnaise-v2/releases/corbeille-*');
     }
 });
+
+it('ne crée en envoi incrémental que les dossiers absents de la base, jamais la racine', function () {
+    // Base : composer.json et app/ existent ; tests/Unit n'est pas envoyé, deploiement/ est absent.
+    $base = str_repeat('0', 64)."  ./composer.json\n".str_repeat('0', 64)."  ./app/Models/User.php\n";
+    $r = deployer($this, 'non', 'non', '', 0, $base);
+
+    expect($r['code'])->toBe(0)
+        ->and($r['journal'])->not->toContain('mkdir -p "narbonnaise-v2/releases/abcdef123456/."')
+        ->and($r['journal'])->not->toContain('mkdir -p "narbonnaise-v2/releases/abcdef123456/app/Models"')
+        ->and($r['journal'])->toContain('mkdir -p "narbonnaise-v2/releases/abcdef123456/deploiement"')
+        ->and($r['journal'])->toContain('put "./composer.json" -o "narbonnaise-v2/releases/abcdef123456/composer.json"');
+});
