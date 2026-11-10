@@ -13,7 +13,8 @@ RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
  && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 WORKDIR /app
 
-# Utilisateur ordinaire plutôt que root (uid 1000 : celui du premier compte sous Linux ; sur Mac,
-# Docker Desktop donne de toute façon l'accès au dossier monté).
-RUN useradd --create-home --uid 1000 site
+# Utilisateur ordinaire plutôt que root. Sous Linux, son uid doit être celui du propriétaire du
+# dossier monté (UID_SITE, 1000 par défaut : le premier compte) ; sur Mac, peu importe.
+ARG UID_SITE=1000
+RUN useradd --create-home --uid "$UID_SITE" site
 USER site
