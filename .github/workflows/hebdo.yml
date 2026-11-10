@@ -30,7 +30,7 @@ jobs:
         with: { php-version: "8.5", extensions: "pdo_mysql" }
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 22 }
-      - run: composer install --no-interaction --prefer-dist --no-progress && npm ci && npm run build
+      - run: composer install --no-interaction --prefer-dist --no-progress && npm ci --ignore-scripts && npm run build
       - run: |
           cp .env.ci .env && php artisan key:generate
           php artisan migrate --seed --seeder=DonneesFictivesSeeder --force
@@ -52,7 +52,7 @@ jobs:
       - run: composer audit --locked
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 22 }
-      - run: npm ci && npm audit --audit-level=high
+      - run: npm ci --ignore-scripts && npm audit --audit-level=high
 
   temoin:
     # La branche « temoin » contient des failles volontaires (injection SQL,

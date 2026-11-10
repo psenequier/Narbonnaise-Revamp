@@ -5,7 +5,7 @@
 <form method="POST" action="{{ route('password.email') }}" class="flex flex-col gap-4">
     @csrf
     <label class="flex flex-col gap-1 text-sm font-bold">Adresse e-mail
-        <input type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" class="h-11 rounded-lg border border-bord px-3 font-normal">
+        <input type="email" name="email" value="{{ old('email') }}" required autocomplete="username" class="h-11 rounded-lg border border-bord px-3 font-normal">
     </label>
     <button type="submit" class="h-11 rounded-lg bg-sapin font-bold text-white">Envoyer le lien</button>
     <a href="{{ route('login') }}" class="text-sm text-sapin underline">Retour à la connexion</a>

@@ -19,7 +19,8 @@ use Throwable;
  */
 final class BulletinCaplain
 {
-    public const URL = 'http://mto38.free.fr/';
+    // Page personnelle servie en HTTP : contenu public, seul le texte est gardé puis échappé.
+    public const URL = 'http://mto38.free.fr/'; // NOSONAR
 
     public const RELECTURE_SECONDES = 1800;
 
