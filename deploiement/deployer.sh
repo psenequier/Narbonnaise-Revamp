@@ -63,7 +63,7 @@ manifeste() {
 manifeste > "$TMP/manifeste.nouveau"
 sftp_cmd "get $DOSSIER_DISTANT/precedente/$MANIFESTE -o $TMP/manifeste.base" > /dev/null 2>&1 || true
 
-if [ -s "$TMP/manifeste.base" ]; then
+if [[ -s "$TMP/manifeste.base" ]]; then
   # Chemins nouveaux ou modifiés (empreinte différente), puis chemins disparus.
   LC_ALL=C comm -13 <(LC_ALL=C sort "$TMP/manifeste.base") <(LC_ALL=C sort "$TMP/manifeste.nouveau") \
     | cut -c67- > "$TMP/a-envoyer"
