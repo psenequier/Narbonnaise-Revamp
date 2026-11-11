@@ -30,11 +30,14 @@ beforeEach(function () {
         SH);
     file_put_contents($this->bin.'/curl', <<<'SH'
         #!/usr/bin/env bash
-        url=""; entetes=0
+        url=""; entetes=0; agent=""; precedent=""
         for a in "$@"; do
-          case "$a" in http*) url="$a" ;; -*I*) entetes=1 ;; esac
+          [ "$precedent" = "-A" ] && agent="$a"
+          case "$a" in http*) url="$a" ;; -A) ;; -*I*) entetes=1 ;; esac
+          precedent="$a"
         done
         printf 'curl %s\n' "$url" >> "$FAUX_JOURNAL"
+        printf 'agent %s\n' "$agent" >> "$FAUX_JOURNAL"
         case "$url" in
           */_deploiement/migrer*) printf '%s' "$FAUX_MIGRER"; exit "${FAUX_MIGRER_CODE:-0}" ;;
         esac
@@ -195,4 +198,15 @@ it('ne crée en envoi incrémental que les dossiers absents de la base, jamais l
         ->and($r['journal'])->not->toContain('mkdir -p "narbonnaise-v2/releases/abcdef123456/app/Models"')
         ->and($r['journal'])->toContain('mkdir -p "narbonnaise-v2/releases/abcdef123456/deploiement"')
         ->and($r['journal'])->toContain('put "./composer.json" -o "narbonnaise-v2/releases/abcdef123456/composer.json"');
+});
+
+it('ne s\'annonce jamais comme « curl » auprès du site : l\'hébergement répond 403', function () {
+    $r = deployer($this, 'oui', 'non', '{"migre":true}');
+
+    preg_match_all('/^agent (.*)$/m', $r['journal'], $agents);
+    expect($r['code'])->toBe(0)
+        ->and($agents[1])->not->toBeEmpty();
+    foreach ($agents[1] as $agent) {
+        expect($agent)->toStartWith('Mozilla/5.0')->not->toContain('curl');
+    }
 });
