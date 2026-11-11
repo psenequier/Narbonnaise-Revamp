@@ -32,6 +32,11 @@ trap 'rm -rf "$TMP"' EXIT
 
 journal() { printf '[%s] %s\n' "$(date -u +%H:%M:%S)" "$*"; }
 
+# L'hébergement OVH répond 403 à toute requête qui s'annonce comme « curl » (vu le 11 nov.
+# 2026, depuis GitHub comme depuis un poste) : on s'annonce donc comme un navigateur.
+AGENT_HTTP="Mozilla/5.0"  # valeur vérifiée depuis un poste : 503 attendu au lieu de 403
+curl() { command curl -A "$AGENT_HTTP" "$@"; }
+
 # Clé SFTP et hôte connu : pas de confiance aveugle à la première connexion.
 install -m 600 /dev/null "$TMP/cle"
 printf '%s\n' "$SFTP_CLE" > "$TMP/cle"
