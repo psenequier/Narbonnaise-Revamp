@@ -85,3 +85,12 @@ it('US-907-N3 la migration passe aussi la maintenance quand le fichier down est 
         @unlink($down);
     }
 });
+
+it('US-907-N3 la migration ne dépend ni des sessions ni du cache, absents avant la première migration', function () {
+    $route = app('router')->getRoutes()->match(Illuminate\Http\Request::create('/_deploiement/migrer', 'POST'));
+    $middlewares = app('router')->gatherRouteMiddleware($route);
+
+    expect($middlewares)->not->toContain(Illuminate\Session\Middleware\StartSession::class)
+        ->and(implode(' ', $middlewares))->not->toContain('ThrottleRequests')
+        ->and($middlewares)->not->toContain(App\Http\Middleware\CompteActif::class);
+});
