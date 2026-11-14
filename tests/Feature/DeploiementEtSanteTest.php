@@ -58,3 +58,30 @@ it('US-907-N3 accepte aussi le jeton dans l\'en-tête de secours, qu\'OVH transm
     $this->postJson('/_deploiement/migrer', [], ['X-Jeton-Deploiement' => 'jeton-secours'])->assertOk()->assertJson(['migre' => true]);
     $this->postJson('/_deploiement/migrer', [], ['X-Jeton-Deploiement' => 'jeton-secours'])->assertNotFound();
 });
+
+it('US-907-N3 la migration passe la maintenance posée par la bascule (fichier down de deployer.sh)', function () {
+    poserVerrou('jeton-bascule');
+    $down = storage_path('framework/down');
+    file_put_contents($down, '{"except":["_deploiement/migrer"],"redirect":null,"retry":120,"refresh":null,"secret":null,"status":503,"template":null}');
+
+    try {
+        $this->postJson('/_deploiement/migrer', [], ['Authorization' => 'Bearer jeton-bascule'])
+            ->assertOk()->assertJson(['migre' => true]);
+        $this->get('/login')->assertStatus(503);
+    } finally {
+        @unlink($down);
+    }
+});
+
+it('US-907-N3 la migration passe aussi la maintenance quand le fichier down est vide', function () {
+    poserVerrou('jeton-vide');
+    $down = storage_path('framework/down');
+    file_put_contents($down, '');
+
+    try {
+        $this->postJson('/_deploiement/migrer', [], ['Authorization' => 'Bearer jeton-vide'])
+            ->assertOk()->assertJson(['migre' => true]);
+    } finally {
+        @unlink($down);
+    }
+});

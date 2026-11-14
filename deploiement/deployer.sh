@@ -152,7 +152,8 @@ fi
 
 # 4. Bascule : maintenance, puis renommages (atomiques côté serveur).
 journal "Bascule"
-: > "$TMP/down"
+# Contenu au format de « php artisan down » : Laravel lit ce fichier et échoue s'il est vide.
+printf '%s' '{"except":["_deploiement/migrer"],"redirect":null,"retry":120,"refresh":null,"secret":null,"status":503,"template":null}' > "$TMP/down"
 sftp_cmd "put $TMP/down -o $DOSSIER_DISTANT/partage/storage/framework/down; \
   mv $DOSSIER_DISTANT/precedente $DOSSIER_DISTANT/releases/corbeille-$SHA-$(date -u +%s); \
   mv $DOSSIER_DISTANT/actuelle $DOSSIER_DISTANT/precedente; \
