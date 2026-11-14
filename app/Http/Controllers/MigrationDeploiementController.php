@@ -25,13 +25,16 @@ final class MigrationDeploiementController
 {
     public const VERROU = 'deploiement/migration.verrou';
 
+    /** En-tête de secours : l'hébergement OVH ne transmet pas « Authorization » à PHP (vu le 14 nov. 2026). */
+    public const ENTETE_JETON = 'X-Jeton-Deploiement';
+
     public function __invoke(Request $request): JsonResponse
     {
         $verrou = storage_path('app/'.self::VERROU);
         abort_unless(is_file($verrou), 404);
 
         $attendu = trim((string) file_get_contents($verrou));
-        $fourni = (string) $request->bearerToken();
+        $fourni = (string) ($request->bearerToken() ?: $request->headers->get(self::ENTETE_JETON, ''));
 
         // Le verrou contient l'empreinte SHA-256 du jeton, jamais le jeton lui-même.
         if ($attendu === '' || ! hash_equals($attendu, hash('sha256', $fourni))) {
