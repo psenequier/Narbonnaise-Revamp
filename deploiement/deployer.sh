@@ -36,6 +36,8 @@ journal() { printf '[%s] %s\n' "$(date -u +%H:%M:%S)" "$*"; }
 # 2026, depuis GitHub comme depuis un poste) : on s'annonce donc comme un navigateur.
 AGENT_HTTP="Mozilla/5.0"  # valeur vérifiée depuis un poste : 503 attendu au lieu de 403
 curl() { command curl -A "$AGENT_HTTP" "$@"; }
+# Son pare-feu refuse aussi (403) un POST sans corps, d'où « -d » sur l'appel de migration
+# (vérifié le 14 nov. 2026 : 403 sans corps, réponse normale avec « -d a=1 »).
 
 # Clé SFTP et hôte connu : pas de confiance aveugle à la première connexion.
 install -m 600 /dev/null "$TMP/cle"
@@ -178,13 +180,13 @@ arret_bascule() {
 journal "Migrations"
 if [[ "$REPRISE_GRR" = "oui" ]]; then
   journal "Reprise de GRR demandée : sauvegarde, export, migrations, import, contrôle"
-  REPONSE="$(curl -sS --fail-with-body --max-time 600 -X POST -H "Authorization: Bearer $JETON" -H "X-Jeton-Deploiement: $JETON" "$SITE_URL/_deploiement/migrer?reprise=1")" \
+  REPONSE="$(curl -sS --fail-with-body --max-time 600 -X POST -d deploiement=1 -H "Authorization: Bearer $JETON" -H "X-Jeton-Deploiement: $JETON" "$SITE_URL/_deploiement/migrer?reprise=1")" \
     || arret_bascule "La sauvegarde, l'export de GRR ou les migrations ont échoué. Réponse du site : ${REPONSE:0:300}"
   journal "Réponse : $REPONSE"
   printf '%s' "$REPONSE" | grep -q '"valide":true' \
     || arret_bascule "Le contrôle de la reprise n'est pas validé (réponse ci-dessus)."
 else
-  REPONSE="$(curl -sS --fail-with-body --max-time 600 -X POST -H "Authorization: Bearer $JETON" -H "X-Jeton-Deploiement: $JETON" "$SITE_URL/_deploiement/migrer")" || retour_arriere
+  REPONSE="$(curl -sS --fail-with-body --max-time 600 -X POST -d deploiement=1 -H "Authorization: Bearer $JETON" -H "X-Jeton-Deploiement: $JETON" "$SITE_URL/_deploiement/migrer")" || retour_arriere
   journal "Réponse : $REPONSE"
 fi
 

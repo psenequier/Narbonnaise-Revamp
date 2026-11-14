@@ -30,14 +30,16 @@ beforeEach(function () {
         SH);
     file_put_contents($this->bin.'/curl', <<<'SH'
         #!/usr/bin/env bash
-        url=""; entetes=0; agent=""; precedent=""
+        url=""; entetes=0; agent=""; precedent=""; corps=""
         for a in "$@"; do
           [ "$precedent" = "-A" ] && agent="$a"
-          case "$a" in http*) url="$a" ;; -A) ;; -*I*) entetes=1 ;; esac
+          [ "$precedent" = "-d" ] && corps="$a"
+          case "$a" in http*) url="$a" ;; -A|-d) ;; -*I*) entetes=1 ;; esac
           precedent="$a"
         done
         printf 'curl %s\n' "$url" >> "$FAUX_JOURNAL"
         printf 'agent %s\n' "$agent" >> "$FAUX_JOURNAL"
+        printf 'corps %s\n' "$corps" >> "$FAUX_JOURNAL"
         case "$url" in
           */_deploiement/migrer*) printf '%s' "$FAUX_MIGRER"; exit "${FAUX_MIGRER_CODE:-0}" ;;
         esac
@@ -209,4 +211,11 @@ it('ne s\'annonce jamais comme « curl » auprès du site : l\'hébergement rép
     foreach ($agents[1] as $agent) {
         expect($agent)->toStartWith('Mozilla/5.0')->not->toContain('curl');
     }
+});
+
+it('envoie un corps avec l\'appel de migration : le pare-feu de l\'hébergement refuse un POST vide', function () {
+    $r = deployer($this, 'oui', 'oui', '{"migre":true,"reprise":{"valide":true}}');
+
+    expect($r['code'])->toBe(0)
+        ->and($r['journal'])->toMatch('#curl https://site\.exemple\.test/_deploiement/migrer\?reprise=1\nagent [^\n]+\ncorps \S+#');
 });
