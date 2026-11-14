@@ -20,6 +20,10 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->append(EnTetesSecurite::class);
         // OVH mutualisé : le site est derrière les frontaux OVH
         $middleware->trustProxies(at: '*');
+        // Pendant la bascule, partage/storage/framework/down est posé (deployer.sh) : la route de
+        // migration doit passer aussi la maintenance de Laravel, pas seulement celle de
+        // public/index.php (500 vu le 14 nov. 2026 : fichier down vide, data() renvoyait null).
+        $middleware->preventRequestsDuringMaintenance(except: ['_deploiement/migrer']);
         // US-602-P1 : un compte désactivé est déconnecté à la requête suivante.
         $middleware->appendToGroup('web', \App\Http\Middleware\CompteActif::class);
         // US-910-P2 : les visites vérifient aussi que le planificateur tourne (après la réponse).
