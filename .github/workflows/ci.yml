@@ -23,7 +23,45 @@ env:
   PHP_VERSION: "8.5"
 
 jobs:
+  verification:
+    # Sur main, ne pas rejouer toute la chaîne quand exactement le même contenu (même arbre git)
+    # l'a déjà passée en entier : en général la PR qui vient d'être fusionnée, si elle était à
+    # jour de main, ou un passage précédent sur main (relance à la main un soir de répétition).
+    # La preuve est l'artefact « ci-teste-<arbre> », déposé à la fin du job interface quand tout
+    # est vert. Seuls les artefacts produits dans ce dépôt comptent (pas ceux d'une bifurcation).
+    # Sinon, ou ailleurs que sur main, tout est rejoué comme avant.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      deja_teste: ${{ steps.arbre.outputs.deja_teste }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: arbre
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUR_MAIN: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+        run: |
+          arbre=$(git rev-parse 'HEAD^{tree}')
+          deja=false
+          if [ "$SUR_MAIN" = true ]; then
+            n=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=ci-teste-$arbre" \
+              --jq "[.artifacts[] | select(.expired == false and .workflow_run.head_repository_id == .workflow_run.repository_id)] | length" \
+              || echo 0)
+            if [ "${n:-0}" -gt 0 ]; then
+              deja=true
+              echo "::notice title=Tests déjà passés::Contenu identique (arbre $arbre) déjà testé en entier : tests sautés, déploiement direct."
+            fi
+          fi
+          echo "deja_teste=$deja" >> "$GITHUB_OUTPUT"
+
   tests:
+    needs: [verification]
+    if: needs.verification.outputs.deja_teste != 'true'
     name: tests (MySQL ${{ matrix.mysql }})
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -85,6 +123,8 @@ jobs:
         run: php scripts/verifier-criteres.php --lot=MVP ${{ vars.CRITERES_BLOQUANTS == 'oui' && '' || '--non-bloquant' }}
 
   sast:
+    needs: [verification]
+    if: needs.verification.outputs.deja_teste != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -147,6 +187,8 @@ jobs:
             -Dsonar.qualitygate.wait=${{ vars.SONAR_BLOQUANT == 'oui' && 'true' || 'false' }}
 
   dependances:
+    needs: [verification]
+    if: needs.verification.outputs.deja_teste != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -292,12 +334,33 @@ jobs:
             tests/Browser/Screenshots
             storage/logs
           retention-days: 7
+      # Preuve que ce contenu exact a passé toute la chaîne (voir le job verification).
+      - name: Marquer ce contenu comme testé
+        run: |
+          mkdir -p "$RUNNER_TEMP/teste"
+          arbre=$(git rev-parse 'HEAD^{tree}')
+          echo "$arbre" > "$RUNNER_TEMP/teste/arbre"
+          echo "ARBRE_TESTE=$arbre" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ci-teste-${{ env.ARBRE_TESTE }}
+          path: ${{ runner.temp }}/teste/arbre
+          retention-days: 30
+          overwrite: true
 
   deploiement:
     # Activé quand le premier déploiement est préparé (T09) : variable DEPLOIEMENT_ACTIF=oui.
     # Relançable à la main (Actions → ci → Run workflow) les nuits de répétition et de bascule.
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && vars.DEPLOIEMENT_ACTIF == 'oui'
-    needs: [interface]
+    # Déploie si toute la chaîne vient de passer, ou si elle a été sautée parce que ce contenu
+    # exact était déjà testé (job verification).
+    if: >-
+      !cancelled() && github.ref == 'refs/heads/main'
+      && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      && vars.DEPLOIEMENT_ACTIF == 'oui'
+      && needs.verification.result == 'success'
+      && (needs.interface.result == 'success'
+          || (needs.interface.result == 'skipped' && needs.verification.outputs.deja_teste == 'true'))
+    needs: [verification, interface]
     runs-on: ubuntu-24.04
     # Premier envoi complet (vendor/ compris) en SFTP fichier par fichier : plus long que les suivants.
     timeout-minutes: 45

@@ -34,9 +34,9 @@ jamais modifiés par le nouveau site.
 | Heure | Action | Qui |
 |---|---|---|
 | 22 h 00 | Prévenir les membres : site indisponible jusqu'à minuit | admin |
-| 22 h 05 | OVH → Hébergement → Multisite : dossier racine `narbonnaise-v2/actuelle/public`. GRR n'est plus servi : plus aucune réservation possible (N3) | Pascal |
+| 22 h 05 | En SFTP (OVH refuse de changer le dossier racine dans « Mes sites ») : `rename www www-grr` puis `symlink narbonnaise-v2/actuelle/public www`, **avant** d'approuver le déploiement. Vérifier que l'adresse du site affiche la page de maintenance. GRR n'est plus servi : plus aucune réservation possible (N3). Retour : `rm www` puis `rename www-grr www` | Pascal |
 | 22 h 10 | Variables du dépôt : `SITE_SERVI=oui`, `REPRISE_GRR=oui` | Pascal |
-| 22 h 12 | Actions → ci → Run workflow sur `main`, approuver l'environnement « production » | Pascal |
+| 22 h 12 | Actions → ci → Run workflow sur `main` (ou fusion d'une PR), approuver l'environnement « production ». Si ce contenu exact a déjà passé toute la CI (PR à jour de main, ou passage précédent), les tests sont sautés et le déploiement attend l'approbation tout de suite | Pascal |
 | 22 h 15 | Le job enchaîne, et s'arrête à la première erreur (P1) : maintenance, envoi, **sauvegarde complète** puis **export GRR (SQL et CSV)**, chiffrés en AES-256 et relus, migrations, import, contrôle, puis **ouverture de l'année scolaire** (dates officielles de Noël et février, relues à chaque déploiement) | – |
 | 22 h 25 | Journal du job : `"reprise":{"valide":true,…},"annees_ouvertes":["2026-2027"]`. Si le job affiche **« Bascule arrêtée »** : retour arrière ci-dessous (N1). Si `annees_ouvertes` est vide (source officielle injoignable), relancer le job plus tard : la reprise se refait sans doublon | Pascal |
 | 22 h 30 | Se connecter avec son ancien mot de passe GRR | admins |
