@@ -17,9 +17,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/sante', SanteController::class)->name('sante');
 
+// Hors du groupe « web » : la route est appelée avant les migrations, quand les tables des
+// sessions et du cache (pilotes « database ») n'existent pas encore (500 vu le 14 nov. 2026).
+// Pas de limitation de débit non plus (elle passe par le cache) : le jeton à usage unique de
+// 256 bits et le fichier verrou, absent hors déploiement (404), suffisent.
 Route::post('/_deploiement/migrer', MigrationDeploiementController::class)
-    ->withoutMiddleware([VerifyCsrfToken::class])
-    ->middleware('throttle:3,60');
+    ->withoutMiddleware(['web', VerifyCsrfToken::class]);
 
 // Activation d'un compte invité (US-104) : le lien porte un jeton à usage unique.
 Route::middleware(['guest', 'throttle:10,1'])->group(function () {
