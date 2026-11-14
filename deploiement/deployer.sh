@@ -169,7 +169,7 @@ retour_arriere() {
 # maintenance et l'admin remet le dossier racine sur www, où GRR, intact, est de nouveau servi.
 # Aucune étape ne touche au fichier de configuration PHP de la racine du compte (US-805-N4).
 arret_bascule() {
-  echo "::error title=Bascule arrêtée::$1 Le site reste en maintenance. Retour arrière : OVH → Multisite → dossier racine www (GRR est de nouveau servi), puis variables SITE_SERVI=non et REPRISE_GRR=non."
+  echo "::error title=Bascule arrêtée::$1 Le site reste en maintenance. Retour arrière : dossier racine www (OVH → Mes sites, ou en SFTP « rm www » puis « rename www-grr www » si un lien a été posé ; GRR est de nouveau servi), puis variables SITE_SERVI=non et REPRISE_GRR=non."
   exit 1
 }
 
@@ -178,13 +178,13 @@ arret_bascule() {
 journal "Migrations"
 if [[ "$REPRISE_GRR" = "oui" ]]; then
   journal "Reprise de GRR demandée : sauvegarde, export, migrations, import, contrôle"
-  REPONSE="$(curl -fsS --max-time 600 -X POST -H "Authorization: Bearer $JETON" "$SITE_URL/_deploiement/migrer?reprise=1")" \
-    || arret_bascule "La sauvegarde, l'export de GRR ou les migrations ont échoué."
+  REPONSE="$(curl -sS --fail-with-body --max-time 600 -X POST -H "Authorization: Bearer $JETON" -H "X-Jeton-Deploiement: $JETON" "$SITE_URL/_deploiement/migrer?reprise=1")" \
+    || arret_bascule "La sauvegarde, l'export de GRR ou les migrations ont échoué. Réponse du site : ${REPONSE:0:300}"
   journal "Réponse : $REPONSE"
   printf '%s' "$REPONSE" | grep -q '"valide":true' \
     || arret_bascule "Le contrôle de la reprise n'est pas validé (réponse ci-dessus)."
 else
-  REPONSE="$(curl -fsS --max-time 600 -X POST -H "Authorization: Bearer $JETON" "$SITE_URL/_deploiement/migrer")" || retour_arriere
+  REPONSE="$(curl -sS --fail-with-body --max-time 600 -X POST -H "Authorization: Bearer $JETON" -H "X-Jeton-Deploiement: $JETON" "$SITE_URL/_deploiement/migrer")" || retour_arriere
   journal "Réponse : $REPONSE"
 fi
 

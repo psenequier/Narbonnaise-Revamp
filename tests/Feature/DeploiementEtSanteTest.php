@@ -50,3 +50,11 @@ it('US-910-P2 signale un planificateur muet depuis plus de 2 heures', function (
     cache()->forever('planificateur.dernier_passage', now()->subMinutes(30));
     $this->getJson('/sante')->assertOk();
 });
+
+it('US-907-N3 accepte aussi le jeton dans l\'en-tête de secours, qu\'OVH transmet quand il retire Authorization', function () {
+    poserVerrou('jeton-secours');
+    $this->postJson('/_deploiement/migrer', [], ['X-Jeton-Deploiement' => 'faux'])->assertForbidden();
+
+    $this->postJson('/_deploiement/migrer', [], ['X-Jeton-Deploiement' => 'jeton-secours'])->assertOk()->assertJson(['migre' => true]);
+    $this->postJson('/_deploiement/migrer', [], ['X-Jeton-Deploiement' => 'jeton-secours'])->assertNotFound();
+});
