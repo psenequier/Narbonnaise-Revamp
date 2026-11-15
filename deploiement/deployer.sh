@@ -194,8 +194,18 @@ fi
 # 6. Fin de maintenance et test de fumée.
 sftp_cmd "rm -f $DOSSIER_DISTANT/partage/storage/framework/down"
 journal "Test de fumée"
+# /sante répond 503 tant que la tâche planifiée OVH n'a jamais tourné (premier déploiement,
+# répétition) : seuls la base et le cache sont bloquants, le planificateur est signalé.
+# Vu le 15 nov. 2026 : reprise réussie, puis retour arrière pour cette seule raison.
+sante_ok() {
+  local sante
+  sante="$(curl -sS --max-time 30 "$SITE_URL/sante" 2> /dev/null || true)"
+  printf '%s' "$sante" | grep -q '"base":true' && printf '%s' "$sante" | grep -q '"cache":true' || return 1
+  printf '%s' "$sante" | grep -q '"planificateur":true' \
+    || journal "Avertissement : la tâche planifiée OVH n'a pas encore tourné (/sante) ; à vérifier"
+}
 for tentative in 1 2 3; do
-  if curl -fsS "$SITE_URL/sante" > /dev/null \
+  if sante_ok \
      && curl -fsSI "$SITE_URL/login" | grep -qi '^content-security-policy:' \
      && curl -fsSI "$SITE_URL/login" | grep -qi '^strict-transport-security:'; then
     journal "Version $SHA en production"
