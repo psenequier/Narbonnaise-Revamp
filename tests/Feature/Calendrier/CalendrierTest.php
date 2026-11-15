@@ -334,7 +334,7 @@ it('US-205-N1 ne propose aucune réservation sur ces dates et refuse une requêt
 
 it('repère la ligne Jour et la ligne Nuit dans la vue mois, une fois par semaine', function () {
     $html = $this->actingAs($this->alice)->get('/calendrier/2026-11')->assertOk()
-        ->assertSee('☀ Jour = ligne du haut', false)->getContent();
+        ->assertSee('data-legende-jour-nuit', false)->assertSee('= ligne du haut', false)->getContent();
 
     expect(substr_count($html, 'data-reperes-jour-nuit'))->toBeGreaterThanOrEqual(5)
         ->and(substr_count($html, '☾ Nuit'))->toBe(substr_count($html, 'data-reperes-jour-nuit') + 1);

@@ -36,9 +36,15 @@ final class Redirection
         return $this->reglage() !== '' ? 'admin' : 'serveur';
     }
 
-    /** Applique la redirection à la configuration, avant la création du premier envoi. */
+    /**
+     * Applique le réglage d'un admin à la configuration, avant la création du premier envoi.
+     * Sans réglage, `mail.to` reste tel que config/mail.php l'a lu (MAIL_REDIRIGER_VERS).
+     */
     public function appliquer(): void
     {
+        if ($this->reglage() === '') {
+            return;
+        }
         $adresse = $this->adresse();
         config(['mail.to' => $adresse === null ? null : ['address' => $adresse, 'name' => 'Test (e-mail redirigé)']]);
     }
