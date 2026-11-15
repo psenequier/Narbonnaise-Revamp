@@ -95,7 +95,7 @@ final class PeriodesScolaires
                 }
             }
         } finally {
-            $ouvertes = $this->ouvertesEnAttente;
+            $ouvertes = $this->ouvertesEnAttente ?? [];
             $this->ouvertesEnAttente = null;
             $this->annonces->ouvertures($ouvertes);
         }
