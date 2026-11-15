@@ -14,5 +14,7 @@ declare(strict_types=1);
 $redirection = trim((string) env('MAIL_REDIRIGER_VERS', ''));
 
 return [
+    // Valeur du serveur ; un admin peut la remplacer sur l'écran E-mails (App\Domain\Emails\Redirection).
+    'rediriger_vers' => $redirection,
     'to' => $redirection === '' ? null : ['address' => $redirection, 'name' => 'Test (e-mail redirigé)'],
 ];

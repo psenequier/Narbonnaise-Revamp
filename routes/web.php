@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\EmailsController;
 use App\Http\Controllers\Admin\JournalController;
 use App\Http\Controllers\Admin\RepriseController;
 use App\Http\Controllers\Admin\UtilisateursController;
@@ -84,6 +85,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/utilisateurs/{user}/supprimer', [UtilisateursController::class, 'supprimer'])->name('utilisateurs.supprimer');
         Route::post('/utilisateurs/{user}/reinitialisation', [UtilisateursController::class, 'reinitialisation'])->name('utilisateurs.reinitialisation');
 
+        // E-mails : redirection pendant les essais, e-mail de test, derniers envois.
+        Route::get('/emails', [EmailsController::class, 'index'])->name('emails');
+        Route::put('/emails/redirection', [EmailsController::class, 'redirection'])->name('emails.redirection');
+        Route::post('/emails/test', [EmailsController::class, 'test'])->middleware('throttle:5,10')->name('emails.test');
+
         // Journal : lecture seule (US-604-N1).
         Route::get('/journal', JournalController::class)->name('journal');
 
@@ -92,6 +98,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/reprise/propositions/{proposition}', [RepriseController::class, 'valider'])->whereNumber('proposition')->name('reprise.valider');
         Route::get('/reprise/archives/{fichier}', [RepriseController::class, 'archive'])->where('fichier', '[a-z0-9-]+\\.zip')->name('reprise.archive');
         Route::post('/reprise/annonce', [RepriseController::class, 'annoncer'])->name('reprise.annoncer');
+        Route::put('/reprise/annonce/texte', [RepriseController::class, 'texteAnnonce'])->name('reprise.annonce-texte');
         Route::post('/reprise/mise-en-service', [RepriseController::class, 'mettreEnService'])->name('reprise.mise-en-service');
         // Vacances et attributions, utilisateurs, paramètres, journal : lot MVP 2.
     });

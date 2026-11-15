@@ -8,6 +8,7 @@
         ['admin.lignees', 'Lignées', 'Nom des lignées'],
         ['admin.utilisateurs', 'Utilisateurs', 'Invitations, désactivation, rôles, réinitialisation'],
         ['admin.journal', 'Journal des actions', 'Qui a fait quoi, quand'],
+        ['admin.emails', 'E-mails', 'Redirection pendant les essais, e-mail de test, derniers envois'],
         ['admin.reprise', 'Reprise de GRR', 'Rapport de contrôle, attributions à valider'],
     ];
 @endphp

@@ -35,6 +35,8 @@ final class RepriseController
             // Aperçu de l'e-mail d'annonce, chiffres calculés depuis la base reprise.
             'annonce' => app(\App\Domain\Reprise\AnnoncesBascule::class)
                 ->contenuAnnonce(null, 'une nuit, de 22 h à 6 h', DateTimeImmutable::createFromInterface(now('Europe/Paris'))),
+            'annonceParDefaut' => app(\App\Domain\Reprise\AnnoncesBascule::class)
+                ->texteParDefaut(DateTimeImmutable::createFromInterface(now('Europe/Paris'))),
             'propositions' => DB::table('reprise_propositions')->where('statut', 'en_attente')->orderBy('grr_entry_id')
                 ->get(['id', 'grr_entry_id', 'libelle', 'creneaux', 'lignee_id']),
         ]);
@@ -69,6 +71,22 @@ final class RepriseController
         }
 
         return back()->with('status', "Annonce envoyée à {$n} membre(s).");
+    }
+
+    /** Texte de l'annonce écrit par un admin ; « Revenir au texte d'origine » le vide. Tracé au journal. */
+    public function texteAnnonce(Request $request, \App\Domain\Parametres $parametres): RedirectResponse
+    {
+        $valide = $request->validate([
+            'texte' => ['nullable', 'string', 'max:10000'],
+            'origine' => ['nullable', 'in:1'],
+        ]);
+        $texte = $request->has('origine') ? '' : trim(str_replace("\r\n", "\n", (string) ($valide['texte'] ?? '')));
+        /** @var \App\Models\User $admin */
+        $admin = $request->user();
+        $parametres->modifier('bascule.annonce_texte', $texte, $admin);
+
+        return redirect(route('admin.reprise').'#annonces')
+            ->with('status', $texte === '' ? 'Texte d\'origine rétabli.' : 'Texte de l\'annonce enregistré.');
     }
 
     /** US-806-P2 : messages du jour J, une seule fois. */

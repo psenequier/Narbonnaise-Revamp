@@ -133,3 +133,38 @@ it('envoie les annonces depuis l\'écran admin, la mise en service une seule foi
     expect(Mail::sent(MessageSite::class, fn ($m) => $m->gabarit === 'bascule.annonce'))->toHaveCount(1)
         ->and(pour('ancien-md5@example.test')->where('gabarit', 'bascule.reinitialiser'))->toHaveCount(1);
 });
+
+it('envoie le texte d\'annonce modifié par un admin, avec la date et la durée, sans HTML', function () {
+    $admin = unAdmin();
+    $this->actingAs($admin)->put('/admin/reprise/annonce/texte', ['texte' => "Bonjour à tous,\n\nBascule le {date}, coupure {duree}.\n<b>pas de HTML</b>"])
+        ->assertRedirect();
+
+    $this->artisan('bascule:annoncer 2026-12-12 --duree="une nuit"')->assertSuccessful();
+
+    $texte = Mail::sent(MessageSite::class, fn ($m) => $m->gabarit === 'bascule.annonce')->sole()->render();
+    expect($texte)->toContain('Bonjour à tous,')->toContain('Bascule le samedi 12 décembre 2026, coupure une nuit.')
+        ->toContain('&lt;b&gt;pas de HTML&lt;/b&gt;')->not->toContain('le Glaude')
+        ->and(DB::table('journal')->where('action', 'parametre.modifie')->exists())->toBeTrue();
+});
+
+it('revient au texte d\'origine de l\'annonce, qui demande d\'ajouter l\'adresse d\'envoi aux contacts', function () {
+    $admin = unAdmin();
+    $this->actingAs($admin)->put('/admin/reprise/annonce/texte', ['texte' => 'Texte libre']);
+    $this->actingAs($admin)->put('/admin/reprise/annonce/texte', ['texte' => 'Texte libre', 'origine' => '1']);
+
+    $this->artisan('bascule:annoncer 2026-12-12')->assertSuccessful();
+
+    $texte = Mail::sent(MessageSite::class, fn ($m) => $m->gabarit === 'bascule.annonce')->sole()->render();
+    expect($texte)->toContain('le Glaude')->not->toContain('Texte libre')
+        ->toContain((string) config('mail.from.address'))->toContain('spams');
+});
+
+it('préremplit la zone de modification avec le texte d\'origine en texte brut', function () {
+    $this->actingAs(unAdmin())->get('/admin/reprise')->assertOk()
+        ->assertSee('Modifier le texte de l\'annonce', false)
+        ->assertSee('{date}')->assertSee('{duree}');
+});
+
+it('refuse la modification du texte de l\'annonce à un membre', function () {
+    $this->actingAs($this->actif)->put('/admin/reprise/annonce/texte', ['texte' => 'x'])->assertForbidden();
+});

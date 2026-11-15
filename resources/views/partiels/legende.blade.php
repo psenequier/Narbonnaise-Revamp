@@ -8,6 +8,7 @@
     <li class="flex items-center gap-1.5"><span class="case-attente size-4 rounded border" aria-hidden="true"></span>{{ $E::Attente->libelle() }}</li>
     <li class="flex items-center gap-1.5"><span class="case-ferme size-4 rounded border" aria-hidden="true"></span>{{ $E::Ferme->libelle() }}</li>
     <li class="flex items-center gap-1.5"><span class="case-pas-ouvert size-4 rounded border" aria-hidden="true"></span>{{ $E::PasOuvert->libelle() }}</li>
+    <li class="hidden items-center gap-1.5 min-[600px]:flex" data-legende-jour-nuit><strong>☀ Jour</strong> = ligne du haut, <strong>☾ Nuit</strong> = ligne du bas</li>
     @isset($station)
         <li class="flex items-center gap-1.5"><span class="size-4 rounded border-2 border-station" aria-hidden="true"></span>Ouverture / fermeture station</li>
     @endisset

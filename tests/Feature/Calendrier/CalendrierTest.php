@@ -331,3 +331,20 @@ it('US-205-N1 ne propose aucune réservation sur ces dates et refuse une requêt
     expect(DB::table('reservations')->count())->toBe(0);
 });
 
+
+it('repère la ligne Jour et la ligne Nuit dans la vue mois, une fois par semaine', function () {
+    $html = $this->actingAs($this->alice)->get('/calendrier/2026-11')->assertOk()
+        ->assertSee('☀ Jour = ligne du haut', false)->getContent();
+
+    expect(substr_count($html, 'data-reperes-jour-nuit'))->toBeGreaterThanOrEqual(5)
+        ->and(substr_count($html, '☾ Nuit'))->toBe(substr_count($html, 'data-reperes-jour-nuit') + 1);
+});
+
+it('repère la ligne Jour et la ligne Nuit dans la vue saison, une fois par mois', function () {
+    creerCreneaux('2026-12-01', '2027-04-30');
+
+    $html = $this->actingAs($this->alice)->get('/saison/2026-2027')->assertOk()->getContent();
+
+    expect(substr_count($html, 'data-reperes-jour-nuit'))->toBe(5)
+        ->and($html)->toContain('☀ Jour')->toContain('☾ Nuit')->toContain('Ligne du haut (☀ Jour)');
+});

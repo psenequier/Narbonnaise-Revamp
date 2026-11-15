@@ -25,6 +25,13 @@ final class PeriodesScolaires
 
     public const CONSULTATION = 'vacances.consultation';
 
+    /**
+     * Années ouvertes pendant une synchronisation, annoncées ensemble à la fin (un seul e-mail).
+     *
+     * @var list<AnneeScolaire>|null
+     */
+    private ?array $ouvertesEnAttente = null;
+
     public function __construct(
         private readonly SourceCalendrierScolaire $source,
         private readonly CalculPeriodes $calcul,
@@ -77,12 +84,20 @@ final class PeriodesScolaires
     public function synchroniser(DateTimeImmutable $aujourdhui): array
     {
         $echecs = [];
-        foreach (self::anneesSuivies($aujourdhui) as $libelle) {
-            try {
-                $this->synchroniserAnnee($libelle);
-            } catch (SourceEnEchec $e) {
-                $echecs[] = "{$libelle} : {$e->getMessage()}";
+        // Les années ouvertes pendant cette lecture sont annoncées ensemble, en un seul e-mail.
+        $this->ouvertesEnAttente = [];
+        try {
+            foreach (self::anneesSuivies($aujourdhui) as $libelle) {
+                try {
+                    $this->synchroniserAnnee($libelle);
+                } catch (SourceEnEchec $e) {
+                    $echecs[] = "{$libelle} : {$e->getMessage()}";
+                }
             }
+        } finally {
+            $ouvertes = $this->ouvertesEnAttente;
+            $this->ouvertesEnAttente = null;
+            $this->annonces->ouvertures($ouvertes);
         }
         if ($echecs !== []) {
             $this->annonces->alerterAdmins('admin.source_vacances', 'Le calendrier scolaire officiel n\'a pas pu être lu. Rien n\'a été modifié.', $echecs);
@@ -250,7 +265,11 @@ final class PeriodesScolaires
             Journal::ecrire('annee.ouverte', $annee);
         });
 
-        $this->annonces->ouverture($annee);
+        if ($this->ouvertesEnAttente !== null) {
+            $this->ouvertesEnAttente[] = $annee;
+        } else {
+            $this->annonces->ouverture($annee);
+        }
 
         return true;
     }

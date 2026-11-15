@@ -60,6 +60,17 @@ printf '%s' "$JETON" | sha256sum | cut -d' ' -f1 > "$TMP/verrou/migration.verrou
 journal "Vérification de la sauvegarde du jour"
 curl -fsS "$SITE_URL/sante" > /dev/null || journal "Avertissement : /sante ne répond pas avant déploiement"
 
+# Fichier de maintenance au format de « php artisan down » : Laravel le lit et échoue s'il est vide.
+printf '%s' '{"except":["_deploiement/migrer"],"redirect":null,"retry":120,"refresh":null,"secret":null,"status":503,"template":null}' > "$TMP/down"
+
+# Nuits de répétition et de bascule : le lien vers le nouveau site est posé avant l'approbation ;
+# sans maintenance, l'ancienne version resterait visible (et utilisable) pendant tout l'envoi
+# (vu le 15 nov. 2026). On la pose donc dès maintenant.
+if [[ "$SITE_SERVI" = "oui" && "$REPRISE_GRR" = "oui" ]]; then
+  journal "Maintenance posée avant l'envoi (nuit de répétition ou de bascule)"
+  sftp_cmd "put $TMP/down -o $DOSSIER_DISTANT/partage/storage/framework/down"
+fi
+
 # Effacement des versions écartées, après la mise en place : limité à 8 minutes, il reprend au
 # déploiement suivant s'il n'a pas fini. Un échec ici ne fait jamais échouer le déploiement.
 nettoyer() {
@@ -152,8 +163,6 @@ fi
 
 # 4. Bascule : maintenance, puis renommages (atomiques côté serveur).
 journal "Bascule"
-# Contenu au format de « php artisan down » : Laravel lit ce fichier et échoue s'il est vide.
-printf '%s' '{"except":["_deploiement/migrer"],"redirect":null,"retry":120,"refresh":null,"secret":null,"status":503,"template":null}' > "$TMP/down"
 sftp_cmd "put $TMP/down -o $DOSSIER_DISTANT/partage/storage/framework/down; \
   mv $DOSSIER_DISTANT/precedente $DOSSIER_DISTANT/releases/corbeille-$SHA-$(date -u +%s); \
   mv $DOSSIER_DISTANT/actuelle $DOSSIER_DISTANT/precedente; \

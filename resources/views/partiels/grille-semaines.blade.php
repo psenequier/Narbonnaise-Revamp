@@ -4,13 +4,22 @@
      $cleJour : aujourd'hui (« Y-m-d ») ; $legende : titre du tableau pour les lecteurs d'écran. --}}
 @php($jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'])
     {{-- Écran large : grille du mois. --}}
-    <div class="hidden overflow-x-auto rounded-[14px] border border-bord bg-white min-[600px]:block">
-        <table class="w-full min-w-[640px] table-fixed border-collapse">
+    <div class="grille-mois hidden overflow-x-auto rounded-[14px] border border-bord bg-white min-[600px]:block">
+        <table class="w-full min-w-[700px] table-fixed border-collapse">
             <caption class="sr-only">{{ $legende }}</caption>
-            <thead><tr class="border-b border-bord">@foreach ($jours as $j)<th scope="col" class="px-3 py-2.5 text-left text-xs font-bold tracking-wider text-gris uppercase">{{ $j }}</th>@endforeach</tr></thead>
+            <thead><tr class="border-b border-bord"><th scope="col" class="w-16"><span class="sr-only">Créneau</span></th>@foreach ($jours as $j)<th scope="col" class="px-3 py-2.5 text-left text-xs font-bold tracking-wider text-gris uppercase">{{ $j }}</th>@endforeach</tr></thead>
             <tbody>
             @foreach ($semaines as $semaine)
                 <tr>
+                    {{-- Repères de la ligne du haut (journée) et du bas (nuit), demande du 15 nov. 2026. --}}
+                    <th scope="row" class="border-r border-b border-bord-doux p-2 align-top font-normal" data-reperes-jour-nuit>
+                        <div class="flex flex-col gap-[5px] text-xs font-bold text-gris" aria-hidden="true">
+                            <span class="h-5"></span>
+                            <span class="flex h-10 items-center whitespace-nowrap">☀ Jour</span>
+                            <span class="flex h-10 items-center whitespace-nowrap">☾ Nuit</span>
+                        </div>
+                        <span class="sr-only">Semaine du {{ $semaine[0]->format('d/m') }}</span>
+                    </th>
                 @foreach ($semaine as $jour)
                     @php($d = $jour->format('Y-m-d'))
                     @php($horsMois = ! $dansVue($jour))
