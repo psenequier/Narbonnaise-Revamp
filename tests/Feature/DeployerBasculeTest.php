@@ -42,6 +42,7 @@ beforeEach(function () {
         printf 'corps %s\n' "$corps" >> "$FAUX_JOURNAL"
         case "$url" in
           */_deploiement/migrer*) printf '%s' "$FAUX_MIGRER"; exit "${FAUX_MIGRER_CODE:-0}" ;;
+          */sante) printf '%s' "$FAUX_SANTE"; exit 0 ;;
         esac
         if [ "$entetes" = 1 ]; then printf 'content-security-policy: x\nstrict-transport-security: y\n'; else printf 'ok'; fi
         SH);
@@ -59,9 +60,10 @@ afterEach(function () {
 });
 
 /** @return array{code: int, sortie: string, journal: string} */
-function deployer(object $test, string $siteServi, string $repriseGrr, string $migrer, int $codeMigrer = 0, string $manifeste = '', string $manifesteDe = 'precedente', string $releases = ''): array
+function deployer(object $test, string $siteServi, string $repriseGrr, string $migrer, int $codeMigrer = 0, string $manifeste = '', string $manifesteDe = 'precedente', string $releases = '', string $sante = ''): array
 {
     $r = Process::path(base_path())->env([
+        'FAUX_SANTE' => $sante !== '' ? $sante : '{"base":true,"cache":true,"planificateur":true}',
         'PATH' => $test->bin.':'.getenv('PATH'),
         'FAUX_MANIFESTE' => $manifeste,
         'FAUX_MANIFESTE_DE' => $manifesteDe,
@@ -218,4 +220,19 @@ it('envoie un corps avec l\'appel de migration : le pare-feu de l\'hébergement 
 
     expect($r['code'])->toBe(0)
         ->and($r['journal'])->toMatch('#curl https://site\.exemple\.test/_deploiement/migrer\?reprise=1\nagent [^\n]+\ncorps \S+#');
+});
+
+it('US-805-P1 ne revient pas en arrière quand seule la tâche planifiée n\'a pas encore tourné (/sante en 503) : simple avertissement', function () {
+    $r = deployer($this, 'oui', 'oui', '{"migre":true,"reprise":{"valide":true}}', sante: '{"base":true,"cache":true,"planificateur":false}');
+
+    expect($r['code'])->toBe(0)
+        ->and($r['sortie'])->toContain('tâche planifiée OVH')->toContain('en production')
+        ->and($r['journal'])->not->toContain('-echec');
+});
+
+it('revient en arrière quand la base ne répond pas au test de fumée', function () {
+    $r = deployer($this, 'oui', 'non', '{"migre":true}', sante: '{"base":false,"cache":true,"planificateur":true}');
+
+    expect($r['code'])->toBe(1)
+        ->and($r['journal'])->toContain('-echec');
 });
