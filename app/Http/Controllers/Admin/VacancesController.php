@@ -44,7 +44,8 @@ final class VacancesController
         $libelle = (string) $request->query('annee', (string) ($annees->firstWhere('ouverte', true)->libelle ?? $annees->first()->libelle ?? ''));
         $annee = $annees->firstWhere('libelle', $libelle);
 
-        $periodes = $annee ? $annee->periodes()->with('plages.lignee')->orderBy('premiere_nuit')->get() : collect();
+        // Saison masquée : ses vacances ne s'affichent que dans le formulaire de réouverture.
+        $periodes = $annee !== null && ! $annee->masquee ? $annee->periodes()->with('plages.lignee')->orderBy('premiere_nuit')->get() : collect();
         // Chaque période en semaines complètes, comme la vue mois : les créneaux se cliquent pour attribuer (7 nov.).
         $semaines = [];
         $affichages = [];
