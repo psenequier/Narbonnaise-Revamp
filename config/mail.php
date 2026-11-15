@@ -14,6 +14,10 @@ declare(strict_types=1);
 $redirection = trim((string) env('MAIL_REDIRIGER_VERS', ''));
 
 return [
+    // Envoi par la fonction mail() de PHP, choisi par MAIL_MAILER=php_mail (hébergement OVH).
+    'mailers' => [
+        'php_mail' => ['transport' => 'php_mail'],
+    ],
     // Valeur du serveur ; un admin peut la remplacer sur l'écran E-mails (App\Domain\Emails\Redirection).
     'rediriger_vers' => $redirection,
     'to' => $redirection === '' ? null : ['address' => $redirection, 'name' => 'Test (e-mail redirigé)'],

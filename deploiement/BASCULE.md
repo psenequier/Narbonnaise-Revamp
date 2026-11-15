@@ -136,3 +136,10 @@ le déploiement suivant renvoie alors tous les fichiers (environ 15 minutes au l
   puis « Re-run failed jobs ».
 - **Journal du serveur** : `partage/storage/logs/laravel-AAAA-MM-JJ.log`, à lire en SFTP (`get`).
 - **E-mails en spam** : prévenir les membres (annonce) et ajouter l'adresse d'envoi aux contacts.
+- **E-mails perdus depuis l'hébergement** (15 nov. au soir) : en SMTP (`ssl0.ovh.net` ou
+  `smtp.mail.ovh.net`), OVH accepte l'e-mail du site puis le perd sans erreur ; le même message
+  envoyé depuis un ordinateur arrive dans la boîte de réception Gmail. `sendmail` est refusé
+  (« Process failed »). Le site envoie donc par la fonction `mail()` de PHP, comme GRR :
+  `MAIL_MAILER=php_mail` dans `partage/.env` (l'adresse d'expédition doit être d'un domaine
+  rattaché à l'hébergement). Suivi : OVH → Hébergements → Plus → Scripts e-mail (compteurs,
+  « E-mails en erreur »).
