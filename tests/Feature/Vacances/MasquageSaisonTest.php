@@ -108,8 +108,8 @@ it('rouvre une saison masquée avec les dates de Noël et de février obligatoir
         ->and(creneauxDe2027())->toBe(732)
         ->and($noel->premiere_nuit->format('Y-m-d'))->toBe('2027-12-18')
         ->and($noel->manuelle)->toBeTrue()
-        // Noël : du 18 déc. (nuit) au 3 janv. (jour) = 33 créneaux, tous en attente (aucune lignée).
-        ->and(DB::table('creneaux')->where('periode_id', $noel->id)->count())->toBe(33)
+        // Noël : du 18 déc. (nuit) au 3 janv. (jour) = 16 nuits et 16 jours, 32 créneaux, tous en attente (aucune lignée).
+        ->and(DB::table('creneaux')->where('periode_id', $noel->id)->count())->toBe(32)
         ->and(DB::table('attributions')->count())->toBe(0);
 
     $this->actingAs($this->admin)->get('/admin/vacances?annee=2027-2028')->assertOk()->assertSee('En attente');
@@ -120,7 +120,7 @@ it('refuse de masquer une saison avec une réservation active, ou une saison com
     reserverPour($this->membre, ['2027-10-09N', '2027-10-10J']);
 
     $this->actingAs($this->admin)->get('/admin/vacances?annee=2027-2028')->assertOk()
-        ->assertSee('Masquage impossible. 1 réservation : annulez-les ou retirez-les d\'abord.', false)
+        ->assertSee('Masquage impossible. 1 réservation : annulez-les ou retirez-les d\'abord.')
         ->assertDontSee('Masquer la saison 2027-2028');
     $this->actingAs($this->admin)->post("/admin/vacances/annees/{$annee->id}/masquer", ['confirmation_masquage' => '1'])
         ->assertSessionHasErrors('masquage');
