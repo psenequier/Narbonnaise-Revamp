@@ -53,7 +53,7 @@ it('affiche une lecture en échec et propose la saisie à la main', function () 
         ->assertRedirect('/admin/vacances')->assertSessionHasErrors('source');
 
     $this->actingAs($this->admin)->get('/admin/vacances')
-        ->assertSee('en échec')->assertSee('Saisir les dates d\'une année à la main', false);
+        ->assertSee('en échec')->assertSee('Ouvrir la saison 2026-2027 à la main', false);
 });
 
 it('US-408-P1 ouvre une année à partir de dates saisies à la main, marquées « manuelles »', function () {

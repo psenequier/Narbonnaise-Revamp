@@ -72,6 +72,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/vacances/relire', [VacancesController::class, 'relire'])->middleware('throttle:5,10')->name('vacances.relire');
         Route::post('/vacances/saisir', [VacancesController::class, 'saisir'])->name('vacances.saisir');
         Route::delete('/vacances/annees/{annee}', [VacancesController::class, 'supprimer'])->whereNumber('annee')->name('vacances.supprimer');
+        Route::post('/vacances/annees/{annee}/masquer', [VacancesController::class, 'masquer'])->whereNumber('annee')->name('vacances.masquer');
         Route::post('/conflits/{reservation}', [VacancesController::class, 'arbitrer'])->name('conflits.arbitrer');
 
         Route::get('/utilisateurs', [UtilisateursController::class, 'index'])->name('utilisateurs');

@@ -10,7 +10,7 @@
 <nav class="flex flex-wrap gap-2" aria-label="Années scolaires">
     @forelse ($annees as $a)
         <a href="{{ route('admin.vacances', ['annee' => $a->libelle]) }}" class="flex min-h-11 items-center rounded-lg border px-3 {{ $annee?->is($a) ? 'border-sapin bg-sapin-clair font-bold' : 'border-bord bg-white' }}">
-            {{ $a->libelle }} {{ $a->ouverte ? '' : '(pas encore ouverte)' }}</a>
+            {{ $a->libelle }} {{ $a->ouverte ? '' : ($a->masquee ? '(masquée)' : '(pas encore ouverte)') }}</a>
     @empty
         <p class="text-sm text-gris">Aucune année connue : relisez le calendrier scolaire ou saisissez les dates à la main ci-dessous.</p>
     @endforelse
@@ -38,6 +38,29 @@
 </section>
 @endif
 
+{{-- 15 nov. 2026 : une saison ouverte pas encore commencée se masque (fermée à la réservation). --}}
+@if ($annee !== null && $refusMasquage !== null)
+<section class="flex flex-col gap-2 rounded-2xl border border-bord bg-white p-5" data-masquage-saison>
+    <p class="text-sm"><strong>{{ $annee->libelle }}</strong> est ouverte à la réservation et n'a pas encore commencé.</p>
+    @if ($refusMasquage !== '')
+        <p class="text-sm text-gris" data-refus-masquage>Masquage impossible. {{ $refusMasquage }}</p>
+    @else
+        <details @if ($errors->has('masquage') || $errors->has('confirmation_masquage')) open @endif>
+            <summary class="flex h-11 w-fit cursor-pointer items-center rounded-lg border border-bord px-3 font-bold">Masquer la saison {{ $annee->libelle }}</summary>
+            <form method="POST" action="{{ route('admin.vacances.masquer', $annee) }}" class="mt-2 flex flex-col gap-2">
+                @csrf
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="confirmation_masquage" value="1" required class="h-5 w-5">
+                    Je confirme : la saison {{ $annee->libelle }} n'est plus réservable et ses créneaux disparaissent du calendrier.</label>
+                <button type="submit" class="h-11 self-start rounded-lg bg-sapin px-3 font-bold text-white">Masquer la saison</button>
+            </form>
+        </details>
+    @endif
+    <p class="text-xs text-gris">Possible pour une saison pas encore commencée, sans réservation ni attribution. La relecture du calendrier officiel ne la rouvre pas : pour la rouvrir, saisissez les dates de Noël et de février ci-dessous.</p>
+</section>
+@elseif ($annee !== null && $annee->masquee)
+<p class="rounded-2xl border border-bord bg-white p-5 text-sm" data-saison-masquee><strong>{{ $annee->libelle }}</strong> est masquée : elle n'est pas réservable. Pour la rouvrir, saisissez les dates de Noël et de février ci-dessous.</p>
+@endif
+
 {{-- Calendrier scolaire : dernière lecture, relecture immédiate, saisie à la main (7 nov. 2026). --}}
 <section class="flex flex-col gap-3 rounded-2xl border border-bord bg-white p-5" aria-labelledby="calendrier-scolaire" data-calendrier-scolaire>
     <h2 id="calendrier-scolaire" class="text-lg font-extrabold">Calendrier scolaire officiel</h2>
@@ -63,8 +86,8 @@
     @if ($anneeASaisir === null)
         <p class="text-sm text-gris" data-saisie-manuelle>L'année en cours et les deux suivantes sont ouvertes : aucune autre année ne peut être saisie à la main.</p>
     @else
-    <details @if ($errors->has('saisie')) open @endif data-saisie-manuelle>
-        <summary class="cursor-pointer text-sm underline">Saisir les dates d'une année à la main (si la source est muette)</summary>
+    <details @if ($errors->has('saisie') || ($annee !== null && $annee->masquee && $annee->libelle === $anneeASaisir)) open @endif data-saisie-manuelle>
+        <summary class="cursor-pointer text-sm underline">Ouvrir la saison {{ $anneeASaisir }} à la main : dates de Noël et de février</summary>
         <form method="POST" action="{{ route('admin.vacances.saisir') }}" class="mt-2 flex flex-col gap-3">
             @csrf
             {{-- US-408-P3 : le nom est donné par le site, il ne se saisit pas. --}}
@@ -72,14 +95,14 @@
             <p class="flex flex-wrap items-center gap-2 text-xs font-bold">Année scolaire <span class="rounded-lg bg-sapin-clair px-3 py-1.5 text-base font-extrabold text-sapin" data-nom-auto>{{ $anneeASaisir }}</span></p>
             <p class="text-xs text-gris">Nom donné automatiquement : l'année qui suit la dernière ouverte. Il ne se saisit pas.</p>
             <div class="flex flex-wrap gap-2">
-                <label class="flex flex-col text-xs font-bold">Noël, première nuit<input type="date" name="noel_premiere_nuit" value="{{ old('noel_premiere_nuit') }}" required class="{{ $champ }}"></label>
-                <label class="flex flex-col text-xs font-bold">Noël, dernier jour<input type="date" name="noel_dernier_jour" value="{{ old('noel_dernier_jour') }}" required class="{{ $champ }}"></label>
+                <label class="flex flex-col text-xs font-bold">Noël, première nuit<input type="date" name="noel_premiere_nuit" value="{{ old('noel_premiere_nuit', $datesASaisir['noel_premiere_nuit'] ?? '') }}" required class="{{ $champ }}"></label>
+                <label class="flex flex-col text-xs font-bold">Noël, dernier jour<input type="date" name="noel_dernier_jour" value="{{ old('noel_dernier_jour', $datesASaisir['noel_dernier_jour'] ?? '') }}" required class="{{ $champ }}"></label>
             </div>
             <div class="flex flex-wrap gap-2">
-                <label class="flex flex-col text-xs font-bold">Février, première nuit<input type="date" name="hiver_premiere_nuit" value="{{ old('hiver_premiere_nuit') }}" required class="{{ $champ }}"></label>
-                <label class="flex flex-col text-xs font-bold">Février, dernier jour<input type="date" name="hiver_dernier_jour" value="{{ old('hiver_dernier_jour') }}" required class="{{ $champ }}"></label>
+                <label class="flex flex-col text-xs font-bold">Février, première nuit<input type="date" name="hiver_premiere_nuit" value="{{ old('hiver_premiere_nuit', $datesASaisir['hiver_premiere_nuit'] ?? '') }}" required class="{{ $champ }}"></label>
+                <label class="flex flex-col text-xs font-bold">Février, dernier jour<input type="date" name="hiver_dernier_jour" value="{{ old('hiver_dernier_jour', $datesASaisir['hiver_dernier_jour'] ?? '') }}" required class="{{ $champ }}"></label>
             </div>
-            <p class="text-xs text-gris">Les dates saisies sont marquées « corrigées à la main » : la source officielle ne les écrasera pas, un écart vous sera signalé. L'année s'ouvre à la réservation et les membres sont prévenus.</p>
+            <p class="text-xs text-gris">Les quatre dates sont obligatoires. Les créneaux de Noël et de février sont mis en attente d'attribution ; le reste de l'année s'ouvre à la réservation et les membres sont prévenus. Les dates saisies sont marquées « corrigées à la main » : la source officielle ne les écrasera pas, un écart vous sera signalé.</p>
             <button type="submit" class="h-11 self-start rounded-lg bg-sapin px-3 font-bold text-white">Enregistrer et ouvrir {{ $anneeASaisir }}</button>
         </form>
     </details>
