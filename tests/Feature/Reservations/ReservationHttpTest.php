@@ -76,12 +76,12 @@ it('US-301-N6 refuse une fin antérieure au début, ou aucun créneau coché', f
     expect(Reservation::count())->toBe(0);
 });
 
-it('US-301-N7 affiche échappés un commentaire et des invités contenant du HTML', function () {
+it('US-301-N7 affiche échappé un commentaire contenant du HTML, et ignore un champ invités envoyé', function () {
     $piege = '<img src=x onerror=alert(1)>';
     $this->actingAs($this->alice)->post('/reservations', demandeHttp(autres: ['commentaire' => $piege, 'invites' => $piege]))
         ->assertSessionHasNoErrors();
 
-    expect(Reservation::sole()->commentaire)->toBe($piege);
+    expect(Reservation::sole()->commentaire)->toBe($piege)->and(Reservation::sole()->invites)->toBeNull();
     $this->actingAs($this->bruno)->get('/jour/2026-11-14')
         ->assertSee('&lt;img src=x onerror=alert(1)&gt;', false)
         ->assertDontSee($piege, false);
@@ -284,4 +284,16 @@ it('montre sur l\'écran de réservation le réservant, le nombre et le commenta
 
     expect($html)->toContain('data-reservants')->toContain('Week-end entre amis')->toContain('data-infobulle=')
         ->toMatch('/>5<\/span>/')->not->toContain('Invité Secret');
+});
+
+it('ne propose plus le champ « Invités extérieurs » et garde l\'ancienne valeur à la modification', function () {
+    $this->actingAs($this->alice)->get('/reserver?debut=2026-11-14&fin=2026-11-15')->assertOk()
+        ->assertDontSee('Invités extérieurs')->assertDontSee('name="invites"', false);
+    $this->actingAs($this->alice)->get('/calendrier/2026-11')->assertOk()->assertDontSee('name="invites"', false);
+
+    $r = reserverPour($this->alice, ['2026-11-14-N'], options: ['invites' => 'Ancien invité']);
+    $this->actingAs($this->alice)->get("/reservations/{$r->id}/modifier")->assertOk()->assertDontSee('Ancien invité');
+    $this->actingAs($this->alice)->put("/reservations/{$r->id}", demandeHttp(autres: ['invites' => 'Nouveau']))->assertSessionHasNoErrors();
+
+    expect($r->fresh()?->invites)->toBe('Ancien invité');
 });

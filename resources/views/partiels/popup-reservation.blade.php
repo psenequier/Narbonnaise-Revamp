@@ -35,9 +35,6 @@
             <textarea name="commentaire" rows="3" maxlength="200" placeholder="Ex. : arrivée tard le vendredi soir" class="rounded-[10px] border border-bord-fort px-3 py-2.5 text-sm font-medium">{{ old('commentaire') }}</textarea>
             <span class="text-xs font-medium text-gris">Affiché dans le calendrier, coupé par « … » s'il est trop long. 200 caractères au plus.</span>
         </label>
-        <label class="flex flex-col gap-1.5 text-sm font-bold">Invités extérieurs (facultatif)
-            <input type="text" name="invites" value="{{ old('invites') }}" maxlength="500" placeholder="Noms des invités hors famille" class="rounded-[10px] border border-bord-fort px-3 py-2.5 text-sm font-medium">
-        </label>
         <a href="#" hidden data-lien-dates class="text-sm font-bold text-sapin underline">Changer les dates</a>
     </form>
     {{-- Boutons côte à côte : l'annulation (édition seulement) a son propre formulaire, posé par le script. --}}
