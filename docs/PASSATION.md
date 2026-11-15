@@ -74,7 +74,7 @@ user stories à jour sont dans `contexte/` (privé). Changements :
   plutôt qu'Alpine, formulaire classique plutôt que Livewire : écarts à l'ADR 017 signalés à
   Pascal). Après « Réserver », on reste sur la vue ; en cas de refus, la pop-up se rouvre.
 - **Mes réservations dans la pop-up** (6 nov.) : un clic sur un créneau d'une de mes réservations
-  ouvre la pop-up en édition (type, personnes, commentaire, invités ; lien vers la page de
+  ouvre la pop-up en édition (type, personnes, commentaire ; lien vers la page de
   modification pour changer les dates). Bouton « Annuler la réservation », comme dans « Mes
   réservations », dans la pop-up et sur l'écran de modification, sur la même ligne que les autres
   boutons (confirmation visible sans défiler). Les créneaux des autres restent refusés.
@@ -88,7 +88,7 @@ user stories à jour sont dans `contexte/` (privé). Changements :
   se réserve plus, côté navigateur et serveur. « Me joindre » est retiré. Critères retirés :
   US-204-P2, US-301-P2, US-304, US-305-N4, US-502 ; ajouté : US-301-N9. US-308-P1 est à réécrire
   dans les specs (le test vérifie maintenant qu'une seule réservation est créée).
-- **Commentaire** visible de tous, 200 caractères au plus ; invités masqués aux autres membres.
+- **Commentaire** visible de tous, 200 caractères au plus. Champ « Invités extérieurs » retiré le 15 nov. 2026 (colonne `invites` gardée, plus affichée).
 - **Charte n° 3 « Alpage »** (6 nov., remplace « Sorbet », PR suivante) : forêt `#1F4D3A`,
   ciel `#A8D3E6` pour les réservations ouvertes, lichen `#23302A` pour les exclusives, Nunito Sans
   servie par le site ; branches prairie ●, rhododendron ■, génépi ▲ (texte lichen dessus) ;
