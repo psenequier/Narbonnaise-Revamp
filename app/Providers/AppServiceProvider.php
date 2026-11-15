@@ -35,7 +35,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Redirection des e-mails pendant les essais : réglage de l'écran Admin → E-mails, sinon
         // MAIL_REDIRIGER_VERS. Appliquée juste avant le premier envoi de la requête.
-        $this->app->afterResolving('mail.manager', function (): void {
+        // Envoi par mail() de PHP (MAIL_MAILER=php_mail) : voir App\Domain\Emails\TransportMailPhp.
+        $this->app->afterResolving('mail.manager', function (\Illuminate\Mail\MailManager $mails): void {
+            $mails->extend('php_mail', fn () => new \App\Domain\Emails\TransportMailPhp);
             app(\App\Domain\Emails\Redirection::class)->appliquer();
         });
 
