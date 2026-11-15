@@ -136,6 +136,10 @@ user stories à jour sont dans `contexte/` (privé). Changements :
 - **Écran Cumul par lignée retiré** (US-405 retirée).
 - **Saisons** : nom donné automatiquement dans la saisie à la main (US-408-P3/N4) ; suppression
   d'une saison créée à la main, pas commencée et vide (US-409).
+- **Masquer une saison** (15 nov.) : Admin → Vacances, une saison ouverte pas encore commencée,
+  sans réservation ni attribution, se masque (créneaux retirés du calendrier, vacances gardées).
+  La relecture du calendrier officiel ne la rouvre plus ; un admin la rouvre par « Ouvrir la saison
+  … à la main », les quatre dates de Noël et de février obligatoires, créneaux en attente d'attribution.
 - **Lignées** : nom modifiable dans Admin → Lignées (ni ajout ni retrait ; plus de couleur par lignée). `LIGNEES`
   ne sert qu'au premier remplissage, au premier déploiement.
 - **Attributions GRR de la saison en cours** : appliquées d'office comme plages quand la lignée est

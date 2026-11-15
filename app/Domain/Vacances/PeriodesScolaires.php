@@ -240,11 +240,14 @@ final class PeriodesScolaires
         $this->ouvrirSiPossible($annee->refresh());
     }
 
-    /** US-402 : l'année n'ouvre que lorsque Noël et février sont connus ; relancer ne crée aucun doublon. */
+    /**
+     * US-402 : l'année n'ouvre que lorsque Noël et février sont connus ; relancer ne crée aucun doublon.
+     * Une saison masquée par un admin (15 nov. 2026) ne se rouvre qu'à la main ($par), jamais à la relecture.
+     */
     public function ouvrirSiPossible(AnneeScolaire $annee, ?User $par = null): bool
     {
         $periodes = $annee->periodes()->whereIn('nom', self::NOMS)->get();
-        if ($annee->ouverte || $periodes->count() !== count(self::NOMS)) {
+        if ($annee->ouverte || $periodes->count() !== count(self::NOMS) || ($annee->masquee && $par === null)) {
             return false;
         }
 
@@ -261,7 +264,7 @@ final class PeriodesScolaires
             foreach ($periodes as $p) {
                 $this->appliquer($p);
             }
-            $annee->forceFill(['ouverte' => true, 'ouverte_le' => now(), 'ouverte_par' => $par?->id])->save();
+            $annee->forceFill(['ouverte' => true, 'masquee' => false, 'ouverte_le' => now(), 'ouverte_par' => $par?->id])->save();
             Journal::ecrire('annee.ouverte', $annee);
         });
 

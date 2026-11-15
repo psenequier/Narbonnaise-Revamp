@@ -49,6 +49,7 @@ final class VacancesController
         $semaines = [];
         $affichages = [];
         $aujourdhui = CalendrierController::aujourdhui();
+        $anneeASaisir = PeriodesScolaires::anneeASaisir($aujourdhui);
         foreach ($periodes as $p) {
             $premiere = new DateTimeImmutable($p->premiere_nuit->format('Y-m-d'), CalendrierController::paris());
             $dernier = new DateTimeImmutable($p->dernier_jour->format('Y-m-d'), CalendrierController::paris());
@@ -71,9 +72,14 @@ final class VacancesController
             'symboles' => CalendrierController::symbolesLignees(),
             'consultation' => PeriodesScolaires::derniereConsultation(),
             // US-408-P3 : nom de l'année donné automatiquement, jamais saisi.
-            'anneeASaisir' => PeriodesScolaires::anneeASaisir($aujourdhui),
+            'anneeASaisir' => $anneeASaisir,
             // US-409 : bouton de suppression (ou sa raison) pour une année créée à la main.
             'refusSuppression' => $annee !== null && $annee->creee_a_la_main ? ($this->suppression->refus($annee, $aujourdhui) ?? '') : null,
+            // 15 nov. 2026 : masquer une saison ouverte pas encore commencée (bouton, ou sa raison).
+            'refusMasquage' => $annee !== null && $annee->ouverte && $annee->debut->format('Y-m-d') > $aujourdhui->format('Y-m-d')
+                ? ($this->suppression->refusMasquage($annee, $aujourdhui) ?? '') : null,
+            // Dates déjà connues de l'année à ouvrir (saison masquée ou source partielle), proposées dans le formulaire.
+            'datesASaisir' => self::datesConnues($annees->firstWhere('libelle', $anneeASaisir)),
             'conflits' => Reservation::query()->actives()->whereNotNull('en_conflit_le')->with('user:id,prenom,nom', 'creneaux')->get(),
         ]);
     }
@@ -182,6 +188,33 @@ final class VacancesController
         }
 
         return redirect()->route('admin.vacances')->with('status', "Saison {$annee->libelle} supprimée.");
+    }
+
+    /** 15 nov. 2026 : masque une saison ouverte pas encore commencée, après confirmation. */
+    public function masquer(Request $request, AnneeScolaire $annee): RedirectResponse
+    {
+        $request->validate(['confirmation_masquage' => ['accepted']], ['confirmation_masquage.accepted' => 'Cochez la case pour confirmer le masquage.']);
+
+        try {
+            $this->suppression->masquer($annee, $this->admin($request), CalendrierController::aujourdhui());
+        } catch (RefusVacances $e) {
+            return back()->withErrors(['masquage' => $e->getMessage()]);
+        }
+
+        return redirect()->route('admin.vacances', ['annee' => $annee->libelle])
+            ->with('status', "Saison {$annee->libelle} masquée : elle n'est plus réservable. Pour la rouvrir, saisissez les dates de Noël et de février.");
+    }
+
+    /** @return array<string, string> */
+    private static function datesConnues(?AnneeScolaire $annee): array
+    {
+        $dates = [];
+        foreach ($annee?->periodes()->get() ?? [] as $p) {
+            $dates[$p->nom.'_premiere_nuit'] = $p->premiere_nuit->format('Y-m-d');
+            $dates[$p->nom.'_dernier_jour'] = $p->dernier_jour->format('Y-m-d');
+        }
+
+        return $dates;
     }
 
     /** US-407-P2 : maintenir ou annuler une réservation en conflit, avec un motif. */

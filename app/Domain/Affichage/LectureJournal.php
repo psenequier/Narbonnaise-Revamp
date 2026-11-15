@@ -42,6 +42,7 @@ final class LectureJournal
         'periode.corrigee' => 'Période de vacances corrigée',
         'annee.ouverte' => 'Saison ouverte aux réservations',
         'annee.supprimee' => 'Saison supprimée',
+        'annee.masquee' => 'Saison masquée (fermée à la réservation)',
         'vacances.consultation' => 'Calendrier scolaire consulté',
         'parametre.modifie' => 'Paramètre modifié',
         'email.test' => 'E-mail de test envoyé',
