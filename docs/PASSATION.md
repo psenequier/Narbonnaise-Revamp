@@ -1,7 +1,38 @@
-# Passation — état du projet au 6 novembre 2026
+# Passation — état du projet au 15 novembre 2026
 
 Note de reprise pour une nouvelle session (Claude Code ou autre). Les règles permanentes sont
 dans `CLAUDE.md` ; ce fichier dit où on en est. À mettre à jour à chaque étape importante.
+
+## Où on en est au 15 novembre 2026
+
+- **Déploiement (T09)** en place depuis le 10 novembre. Bascule par lien SFTP (`www` → nouveau
+  site), OVH refusant de changer le dossier racine : voir `deploiement/BASCULE.md`.
+- **Première répétition réussie le 15 novembre** (PR #59 à #62 : POST sans corps refusé par OVH,
+  fichier de maintenance, migration hors groupe `web`, tâche planifiée absente = avertissement).
+  Reprise : comptes, réservations et propositions d'attribution, sans rejet. Retour à GRR ensuite.
+- **E-mails** : remis à OVH sans erreur mais classés en spam chez Gmail (mail-tester 10/10,
+  SPF, DKIM, DMARC `p=none`). Diagnostic à poursuivre à la prochaine répétition avec l'écran
+  Admin → E-mails (redirection vers une adresse mail-tester, e-mail de test).
+- **PR du 15 novembre** (après la répétition) :
+  - écran **Admin → E-mails** : redirection des essais modifiable (paramètre `emails.redirection`,
+    sinon `MAIL_REDIRIGER_VERS`), e-mail de test, 30 derniers envois avec leur erreur ;
+  - un seul e-mail « année ouverte » quand plusieurs années s'ouvrent d'un coup ;
+  - **annonce de la bascule** : texte modifiable sur l'écran Reprise (`bascule.annonce_texte`,
+    `{date}` et `{duree}`), et phrase « ajoutez l'adresse à vos contacts, regardez vos spams » ;
+  - **maintenance posée dès le début du déploiement** les nuits de répétition et de bascule ;
+  - **calendrier** : repères « ☀ Jour » et « ☾ Nuit » à gauche des deux lignes de créneaux,
+    dans les vues mois (colonne à gauche de chaque semaine) et saison (sous le nom du mois),
+    et dans la légende (ordinateur seulement ; sur téléphone, J et N sont côte à côte).
+
+### Reste à faire avant la bascule
+
+1. **T10** : tâche planifiée OVH (`narbonnaise-v2/actuelle/artisan schedule:run`, PHP 8.5, toutes
+   les heures), puis constater deux passages (`/sante`).
+2. **E-mails en spam** : diagnostic mail-tester depuis le site pendant une répétition ; l'annonce
+   demande aux membres d'ajouter l'adresse d'envoi à leurs contacts.
+3. **Deuxième répétition vers le 9 décembre** (une autre vers le 23 novembre si besoin), avec recette
+   des trois admins et, au choix de Pascal, envoi de l'annonce (redirection coupée le temps de l'envoi).
+4. **Bascule les 12-13 décembre**.
 
 ## Fait et fusionné dans `main`
 
@@ -78,7 +109,7 @@ user stories à jour sont dans `contexte/` (privé). Changements :
   répétitions (liste dans `deploiement/BASCULE.md`) ;
 - quelques-uns en calendrier et réservation (US-201, 202, 203, 303, 304, 306), US-101, 403, 601.
 
-## Prochaines étapes, dans l'ordre
+## Prochaines étapes, dans l'ordre (état du 6 novembre, voir plus haut pour la suite)
 
 1. **T09 — premier déploiement en mode préparation**, avec Pascal (il a les accès) :
    accès SFTP OVH, clé de déploiement dédiée, secrets GitHub `SFTP_HOTE`, `SFTP_UTILISATEUR`,

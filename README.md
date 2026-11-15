@@ -184,13 +184,13 @@ racine FTP/
 
 - **Un seul site sur Starter.** L'offre n'autorise qu'un site, donc un seul dossier racine pour tous les domaines (aujourd'hui `www`, GRR). OVH n'applique un `.ovhconfig` qu'à la racine du compte ou dans le dossier racine du site ; un sous-dossier reste dans la version de la racine (vérifié le 27/10/2026). GRR en 7.4 et la nouvelle application en 8.5 ne peuvent donc pas être servies en même temps : **bascule en une fois** (ADR 004 révisé).
 - **Ne jamais modifier le `.ovhconfig` de la racine** (GRR, PHP 7.4, `stable64`). Le passer en 8.5 met GRR en erreur 500 (vu le 26/10/2026).
-- **Basculer** = dans « Mes sites », modifier le dossier racine du site de `www` vers `narbonnaise-v2/actuelle/public`. **Revenir à GRR** = remettre `www`. C'est aussi ce que font les deux répétitions de nuit avant la bascule.
+- **Basculer** : OVH refuse de changer le dossier racine dans « Mes sites » (vu le 11/11/2026). On passe donc par SFTP : `rename www www-grr` puis `symlink narbonnaise-v2/actuelle/public www`. **Revenir à GRR** : `rm www` (le lien seulement) puis `rename www-grr www`. C'est aussi ce que font les répétitions de nuit (`deploiement/BASCULE.md`).
 - **Tâche planifiée OVH**, à créer dans l'espace client :
   - script : `narbonnaise-v2/actuelle/artisan`, argument `schedule:run` ;
   - langage PHP 8.5, toutes les heures (c'est le minimum) ;
   - OVH coupe une exécution au bout de 60 minutes et désactive la tâche après 10 échecs consécutifs ;
   - le rapport d'erreur n'arrive qu'une fois par jour, la nuit. `/sante` signale un retard de plus de 2 heures.
-- **Envoi des e-mails.** Ils partent par le SMTP MX Plan (`ssl0.ovh.net:465`). OVH ne publie pas de plafond officiel ; la communauté cite environ 200 envois par heure et par compte. L'application s'en tient à 150 par heure (file `emails_sortants`).
+- **Envoi des e-mails.** Ils partent par le SMTP MX Plan (`ssl0.ovh.net:465`). OVH ne publie pas de plafond officiel ; la communauté cite environ 200 envois par heure et par compte. L'application s'en tient à 150 par heure (file `emails_sortants`). Ceux d'une réservation partent tout de suite ; la tâche planifiée reprend les autres. L'écran **Admin → E-mails** montre les derniers envois et leurs erreurs, envoie un e-mail de test et règle la redirection des essais (sinon `MAIL_REDIRIGER_VERS`).
 
 ## Déployer
 
@@ -201,9 +201,9 @@ Avant la bascule (`SITE_SERVI=non`), le script envoie la version et la range dan
 Après la bascule (`SITE_SERVI=oui`), `deploiement/deployer.sh` enchaîne ces étapes :
 
 1. Il envoie la version dans `releases/<sha>/`, en ne transférant que les fichiers changés quand il trouve sur le serveur une version complète avec son manifeste (`precedente/`, sinon une version restée dans `releases/`).
-2. Il met le site en maintenance et bascule : l'ancienne `precedente` part à la corbeille (`releases/corbeille-…`), `actuelle` devient `precedente`, puis la nouvelle version devient `actuelle`. Ce ne sont que des renommages : effacer une version fichier par fichier en SFTP prend plus d'un quart d'heure.
+2. Il met le site en maintenance (dès le début, avant l'envoi, les nuits de répétition et de bascule, quand `SITE_SERVI` et `REPRISE_GRR` valent `oui`) et bascule : l'ancienne `precedente` part à la corbeille (`releases/corbeille-…`), `actuelle` devient `precedente`, puis la nouvelle version devient `actuelle`. Ce ne sont que des renommages : effacer une version fichier par fichier en SFTP prend plus d'un quart d'heure.
 3. Il lance les migrations par `POST /_deploiement/migrer`, avec un jeton à usage unique dont seule l'empreinte est déposée sur le serveur.
-4. Il lève la maintenance et fait le test de fumée : `/sante`, puis les en-têtes CSP et HSTS de `/login`.
+4. Il lève la maintenance et fait le test de fumée : `/sante` (base et cache bloquants ; une tâche planifiée qui n'a jamais tourné n'est qu'un avertissement), puis les en-têtes CSP et HSTS de `/login`.
 5. Une fois la version en place (dans les deux modes), il efface la corbeille pendant 8 minutes au plus ; ce qui reste est effacé au déploiement suivant.
 6. Si le test échoue, il fait le renommage inverse. Les migrations ne sont jamais annulées automatiquement. Elles doivent donc rester compatibles avec la version précédente.
 

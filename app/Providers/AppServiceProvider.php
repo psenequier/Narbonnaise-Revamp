@@ -33,6 +33,12 @@ class AppServiceProvider extends ServiceProvider
                 explode(',', (string) config('chamrousse.statistiques_lignees')),
             )), true));
 
+        // Redirection des e-mails pendant les essais : réglage de l'écran Admin → E-mails, sinon
+        // MAIL_REDIRIGER_VERS. Appliquée juste avant le premier envoi de la requête.
+        $this->app->afterResolving('mail.manager', function (): void {
+            app(\App\Domain\Emails\Redirection::class)->appliquer();
+        });
+
         // US-604-P1 : chaque connexion (mot de passe ou Google) est tracée.
         \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Login::class, function (\Illuminate\Auth\Events\Login $e) {
             if ($e->user instanceof User) {

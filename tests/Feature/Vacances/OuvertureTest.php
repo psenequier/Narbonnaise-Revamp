@@ -81,3 +81,21 @@ it('US-402-N2 ne crée aucun créneau de vacances à l\'état « libre »', func
         expect($situations[$cle]->etat)->not->toBe(EtatCreneau::Libre);
     }
 });
+
+it('annonce deux années ouvertes ensemble en un seul e-mail', function () {
+    $annees = array_map(fn ($l) => AnneeScolaire::query()->create(['libelle' => $l, 'debut' => substr($l, 0, 4).'-09-01', 'fin' => substr($l, 5, 4).'-08-31']), ['2026-2027', '2027-2028']);
+
+    app(\App\Domain\Vacances\AnnoncesVacances::class)->ouvertures($annees);
+
+    $annonces = Mail::sent(MessageSite::class, fn ($m) => $m->gabarit === 'vacances.ouverture')->values();
+    expect($annonces)->toHaveCount(2)
+        ->and($annonces[0]->hasTo('admin@example.test'))->toBeTrue()
+        ->and($annonces[1]->hasBcc('membre@example.test'))->toBeTrue()
+        ->and($annonces[1]->render())->toContain('2026-2027')->toContain('2027-2028');
+});
+
+it('n\'annonce rien quand aucune année n\'est ouverte', function () {
+    app(\App\Domain\Vacances\AnnoncesVacances::class)->ouvertures([]);
+
+    Mail::assertNothingSent();
+});

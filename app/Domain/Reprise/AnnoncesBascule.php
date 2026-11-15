@@ -45,7 +45,7 @@ final class AnnoncesBascule
      * Données de l'e-mail d'annonce, aussi affichées en aperçu sur l'écran admin
      * (date encore inconnue : « [date de la bascule] »).
      *
-     * @return array{date: string, duree: string, lien: string, souvenirs: array{depuis: string, ans: int, reservations: int, creneaux: int, nuits: int, membres: int}|null, mise_a_jour: string}
+     * @return array{date: string, duree: string, lien: string, souvenirs: array{depuis: string, ans: int, reservations: int, creneaux: int, nuits: int, membres: int}|null, mise_a_jour: string, expediteur: string, texte_libre: string}
      */
     public function contenuAnnonce(?DateTimeImmutable $bascule, string $duree, DateTimeImmutable $aujourdhui): array
     {
@@ -60,7 +60,27 @@ final class AnnoncesBascule
             'date' => $date, 'duree' => $duree, 'lien' => route('login'),
             'souvenirs' => $this->souvenirs($aujourdhui),
             'mise_a_jour' => trim((string) config('chamrousse.grr_mise_a_jour_majeure')),
+            'expediteur' => (string) config('mail.from.address'),
+            // Texte écrit par un admin sur l'écran Reprise ; vide : texte d'origine.
+            'texte_libre' => app(\App\Domain\Parametres::class)->lire('bascule.annonce_texte'),
         ];
+    }
+
+    /**
+     * Texte d'origine en texte brut (paragraphes séparés par une ligne vide), pour préremplir
+     * la zone de modification de l'écran Reprise. {date} et {duree} restent à remplacer.
+     */
+    public function texteParDefaut(DateTimeImmutable $aujourdhui): string
+    {
+        $d = ['texte_libre' => '', 'date' => '{date}', 'duree' => '{duree}'] + $this->contenuAnnonce(null, '{duree}', $aujourdhui);
+        $html = view('emails._bascule-annonce-texte', ['d' => $d])->render();
+        $paragraphes = preg_split('#</p>#', $html) ?: [];
+        $propres = array_map(
+            fn (string $p) => trim((string) preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($p), ENT_QUOTES | ENT_HTML5, 'UTF-8'))),
+            $paragraphes,
+        );
+
+        return implode("\n\n", array_values(array_filter($propres, fn (string $p) => $p !== '')));
     }
 
     /**

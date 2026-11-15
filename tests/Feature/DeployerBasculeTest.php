@@ -236,3 +236,19 @@ it('revient en arrière quand la base ne répond pas au test de fumée', functio
     expect($r['code'])->toBe(1)
         ->and($r['journal'])->toContain('-echec');
 });
+
+it('pose la maintenance avant l\'envoi les nuits de répétition et de bascule', function () {
+    $r = deployer($this, 'oui', 'oui', '{"migre":true,"reprise":{"valide":true}}');
+
+    $avantEnvoi = substr($r['journal'], 0, (int) strpos($r['journal'], 'mirror'));
+    expect($r['code'])->toBe(0)
+        ->and($avantEnvoi)->toContain('partage/storage/framework/down');
+});
+
+it('ne pose pas la maintenance avant l\'envoi pour un déploiement ordinaire', function () {
+    $r = deployer($this, 'oui', 'non', '{"migre":true}');
+
+    $avantEnvoi = substr($r['journal'], 0, (int) strpos($r['journal'], 'mirror'));
+    expect($r['code'])->toBe(0)
+        ->and($avantEnvoi)->not->toContain('framework/down');
+});

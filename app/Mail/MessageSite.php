@@ -32,6 +32,7 @@ final class MessageSite extends Mailable
         'admin.rappel_attributions' => 'Vacances à attribuer',
         'admin.suppression_demandee' => 'Demande de suppression de compte',
         'admin.panne' => 'Alerte : un problème sur le site de réservation',
+        'admin.test' => 'E-mail de test du site de réservation',
         'vacances.ouverture' => 'Une nouvelle année est ouverte à la réservation',
         'vacances.attributions' => 'Attribution des vacances aux lignées',
         'bascule.annonce' => 'Le site de réservation de l\'appartement change',

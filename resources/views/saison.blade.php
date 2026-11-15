@@ -56,8 +56,13 @@
         @foreach ($mois as $cle => $jours)
             @php($nomMois = \Illuminate\Support\Carbon::parse($cle.'-01')->locale('fr')->translatedFormat('F'))
             <div class="grid grid-cols-[84px_minmax(0,1fr)] items-start gap-2.5">
-                <div class="flex flex-col pt-3.5"><span class="text-base font-extrabold first-letter:uppercase">{{ $nomMois }}</span><span class="text-xs text-gris">{{ substr($cle, 0, 4) }}</span></div>
-                <div class="grid grid-cols-31 grid-rows-[auto_auto_38px_38px] gap-[3px]">
+                {{-- Mois, puis repères des deux lignes de barres (demande du 15 nov. 2026). --}}
+                <div class="grid grid-rows-[20px_20px_38px_38px] gap-[3px]" data-reperes-jour-nuit>
+                    <div class="row-span-2 flex flex-col justify-center leading-tight"><span class="text-base font-extrabold first-letter:uppercase">{{ $nomMois }}</span><span class="text-xs text-gris">{{ substr($cle, 0, 4) }}</span></div>
+                    <span class="flex items-center text-xs font-bold whitespace-nowrap text-gris" aria-hidden="true">☀ Jour</span>
+                    <span class="flex items-center text-xs font-bold whitespace-nowrap text-gris" aria-hidden="true">☾ Nuit</span>
+                </div>
+                <div class="grid grid-cols-31 grid-rows-[20px_20px_38px_38px] gap-[3px]">
                     @foreach ($jours as $i => $jour)
                         @php($date = $jour->format('Y-m-d'))
                         @php($weekEnd = in_array($jour->format('N'), ['6', '7'], true))
@@ -93,7 +98,7 @@
     @can('admin')
         <p class="text-sm text-gris" data-aide-attribution><strong>Admin :</strong> cliquez sur un créneau « En attente » puis sur un second pour attribuer ces vacances à une lignée ; cliquez sur un créneau attribué pour changer sa lignée, ses dates, ou retirer l'attribution.</p>
     @endcan
-    <p class="text-sm text-gris">Barre du haut = journée, barre du bas = nuit. Chaque barre porte le réservant, le nombre de personnes et le début du commentaire (initiales et nombre sur un seul créneau) ; tout le détail s'affiche au survol de la souris. Un créneau attribué n'affiche que la lignée. Cliquez sur un créneau pour le sélectionner, recliquez pour le désélectionner, cliquez sur un second créneau pour choisir la période. Cliquez sur le numéro du jour pour voir le détail. Les week-ends sont en gras.</p>
+    <p class="text-sm text-gris">Ligne du haut (☀ Jour) = la journée, ligne du bas (☾ Nuit) = la nuit. Chaque barre porte le réservant, le nombre de personnes et le début du commentaire (initiales et nombre sur un seul créneau) ; tout le détail s'affiche au survol de la souris. Un créneau attribué n'affiche que la lignée. Cliquez sur un créneau pour le sélectionner, recliquez pour le désélectionner, cliquez sur un second créneau pour choisir la période. Cliquez sur le numéro du jour pour voir le détail. Les week-ends sont en gras.</p>
 @endif
 
 @include('partiels.popup-reservation')

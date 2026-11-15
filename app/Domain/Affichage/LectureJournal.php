@@ -44,6 +44,7 @@ final class LectureJournal
         'annee.supprimee' => 'Saison supprimée',
         'vacances.consultation' => 'Calendrier scolaire consulté',
         'parametre.modifie' => 'Paramètre modifié',
+        'email.test' => 'E-mail de test envoyé',
         'lignee.modifiee' => 'Lignée renommée',
         'compte.cree' => 'Compte créé',
         'compte.desactive' => 'Compte désactivé',

@@ -39,6 +39,23 @@
             @include('emails._bascule-annonce-texte', ['d' => $annonce])
         </div>
     </details>
+    <details class="text-sm" @if ($errors->has('texte')) open @endif>
+        <summary class="cursor-pointer font-bold">Modifier le texte de l'annonce</summary>
+        <form method="POST" action="{{ route('admin.reprise.annonce-texte') }}" class="mt-2 flex max-w-xl flex-col gap-2">
+            @csrf
+            @method('PUT')
+            <p class="text-gris">Une ligne vide sépare deux paragraphes. <strong>{date}</strong> et <strong>{duree}</strong> sont remplacés par la date et la durée saisies au moment de l'envoi. Les liens et la mise en forme ne sont pas repris : le texte part tel quel.</p>
+            <label for="texte-annonce" class="sr-only">Texte de l'annonce</label>
+            <textarea id="texte-annonce" name="texte" rows="16" maxlength="10000" class="rounded-lg border border-bord p-3 text-base leading-relaxed">{{ old('texte', $annonce['texte_libre'] !== '' ? $annonce['texte_libre'] : $annonceParDefaut) }}</textarea>
+            @error('texte')<p class="text-erreur">{{ $message }}</p>@enderror
+            <div class="flex flex-wrap gap-2">
+                <button class="h-11 rounded-lg bg-sapin px-3 font-bold text-white">Enregistrer le texte</button>
+                @if ($annonce['texte_libre'] !== '')
+                    <button name="origine" value="1" class="h-11 rounded-lg border border-bord px-3 font-bold">Revenir au texte d'origine</button>
+                @endif
+            </div>
+        </form>
+    </details>
     <form method="POST" action="{{ route('admin.reprise.mise-en-service') }}">
         @csrf
         <button class="h-11 rounded-lg bg-sapin px-3 text-sm font-bold text-white">Jour J : envoyer la nouvelle adresse et les liens de mot de passe</button>

@@ -32,6 +32,11 @@ final class Parametres
         // Dates d'ouverture et de fermeture du domaine, par saison (modifiables dans Paramètres).
         'station.ouverture.2026-2027' => '2026-12-05',
         'station.fermeture.2026-2027' => '2027-04-11',
+        // Texte de l'annonce de la bascule écrit par un admin (vide : texte d'origine). {date}, {duree}.
+        'bascule.annonce_texte' => '',
+        // Redirection de tous les e-mails vers une seule adresse pendant les essais (écran E-mails).
+        // Absente de la base : MAIL_REDIRIGER_VERS de partage/.env ; « aucune » : pas de redirection.
+        'emails.redirection' => '',
     ];
 
     public function lire(string $cle): string

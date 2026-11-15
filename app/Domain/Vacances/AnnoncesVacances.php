@@ -22,11 +22,30 @@ final class AnnoncesVacances
     /** US-402-P2, US-504-P2 : les admins d'abord, puis les membres qui le souhaitent. */
     public function ouverture(AnneeScolaire $annee): void
     {
-        $donnees = [
-            'annee' => $annee->libelle,
-            'periodes' => $annee->periodes()->orderBy('premiere_nuit')->get()
+        $this->ouvertures([$annee]);
+    }
+
+    /**
+     * Plusieurs années ouvertes d'un coup (lecture de la source officielle, nuit de bascule) :
+     * un seul e-mail qui les cite toutes, pas un par année (répétition du 15 nov. 2026).
+     *
+     * @param  list<AnneeScolaire>  $annees
+     */
+    public function ouvertures(array $annees): void
+    {
+        if ($annees === []) {
+            return;
+        }
+        $detail = array_map(fn (AnneeScolaire $a) => [
+            'annee' => $a->libelle,
+            'periodes' => $a->periodes()->orderBy('premiere_nuit')->get()
                 ->map(fn ($p) => $p->libelle().' : du '.$p->premiere_nuit->format('d/m/Y').' (nuit) au '.$p->dernier_jour->format('d/m/Y').' (jour)')
                 ->all(),
+        ], $annees);
+        $donnees = [
+            'annee' => implode(' et ', array_column($detail, 'annee')),
+            'annees' => $detail,
+            'periodes' => array_merge(...array_column($detail, 'periodes')),
             'lien' => route('calendrier'),
         ];
         $admins = BoiteEnvoi::adressesAdmins();
