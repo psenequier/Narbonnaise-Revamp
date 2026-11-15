@@ -15,7 +15,7 @@ use Illuminate\Support\Carbon;
  * utilisés par la sélection par clics (resources/js/calendrier.js).
  *
  * Le commentaire est visible de tous, même sur une exclusive ; les invités extérieurs
- * ne sont jamais envoyés (US-204-N2, US-201-N6). Un créneau attribué n'affiche que la lignée.
+ * (champ retiré le 15 nov. 2026, colonne gardée) ne sont jamais envoyés (US-204-N2, US-201-N6). Un créneau attribué n'affiche que la lignée.
  */
 final readonly class AffichageCreneau
 {

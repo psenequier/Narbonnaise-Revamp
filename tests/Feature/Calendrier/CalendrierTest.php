@@ -178,7 +178,7 @@ it('ouvre en édition dans la pop-up un créneau de ma réservation, jamais celu
     $case = fn (string $cle) => preg_match('/<div class="case[^>]*data-cle="'.$cle.'"[^>]*>/s', $html, $m) === 1 ? $m[0] : '';
 
     expect($case('2026-11-14-N'))->toContain('data-dispo="mienne"')->toContain('data-mienne="'.$mienne->id.'"')
-        ->toContain('data-creneaux="2026-11-14-J,2026-11-14-N"')->toContain('data-nb="3"')->toContain('data-invites="Paul"')
+        ->toContain('data-creneaux="2026-11-14-J,2026-11-14-N"')->toContain('data-nb="3"')->not->toContain('data-invites')
         ->and($case('2026-11-20-N'))->toContain('data-dispo="non"')->not->toContain('data-mienne');
     // Bruno ne reçoit ni l'édition ni les invités d'Alice.
     $this->actingAs($this->bruno)->get('/calendrier/2026-11')->assertDontSee('data-mienne="'.$mienne->id.'"', false)->assertDontSee('Paul');
@@ -290,14 +290,14 @@ it('US-204-N1 n\'affiche que le nom de la lignée sur un créneau attribué', fu
         ->assertDontSee('data-reservation', false);
 });
 
-it('US-204-N2 masque les invités d\'une réservation d\'un autre membre, mais montre le commentaire à tous', function () {
+it('US-204-N2 n\'affiche plus les invités extérieurs (champ retiré), même au réservant, mais montre le commentaire à tous', function () {
     reserverPour($this->bruno, ['2026-11-15-N'], 'exclusive', ['invites' => 'Invité Secret', 'commentaire' => 'Commentaire visible']);
     reserverPour($this->bruno, ['2026-11-16-N'], 'ouverte', ['invites' => 'Autre Invité']);
 
     $this->actingAs($this->alice)->get('/jour/2026-11-15')->assertOk()
         ->assertSee('Bruno')->assertDontSee('Invité Secret')->assertSee('Commentaire visible');
     $this->actingAs($this->alice)->get('/jour/2026-11-16')->assertDontSee('Autre Invité');
-    $this->actingAs($this->bruno)->get('/jour/2026-11-15')->assertSee('Invité Secret')->assertSee('Commentaire visible');
+    $this->actingAs($this->bruno)->get('/jour/2026-11-15')->assertDontSee('Invité Secret')->assertSee('Commentaire visible');
 });
 
 it('US-204-N3 renvoie 404 pour une date mal formée', function (string $date) {

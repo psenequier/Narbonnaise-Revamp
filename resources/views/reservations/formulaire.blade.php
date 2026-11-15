@@ -95,9 +95,6 @@
             <input type="number" name="nombre_personnes" min="1" max="{{ \App\Domain\Reservations\ServiceReservation::PERSONNES_MAX }}" required
                    value="{{ old('nombre_personnes', $modifiee?->nombre_personnes ?? 1) }}" class="{{ $champ }}">
         </label>
-        <label class="flex flex-col gap-1 text-sm font-bold">Invités extérieurs <span class="font-normal text-gris">(facultatif)</span>
-            <input name="invites" maxlength="500" value="{{ old('invites', $modifiee?->invites) }}" class="{{ $champ }}">
-        </label>
         <label class="flex flex-col gap-1 text-sm font-bold sm:col-span-2">Commentaire <span class="font-normal text-gris">(facultatif)</span>
             <textarea name="commentaire" maxlength="200" rows="2" class="rounded-lg border border-bord p-3 font-normal">{{ old('commentaire', $modifiee?->commentaire) }}</textarea>
         </label>

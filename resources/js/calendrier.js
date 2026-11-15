@@ -187,7 +187,6 @@ function demarrer() {
             form.querySelector(`input[name=mode][value=${edition.dataset.mode === 'exclusive' ? 'exclusive' : 'ouverte'}]`).checked = true;
             form.elements.nombre_personnes.value = edition.dataset.nb || 2;
             form.elements.commentaire.value = edition.dataset.commentaire ?? '';
-            form.elements.invites.value = edition.dataset.invites ?? '';
         }
 
         popup.showModal();

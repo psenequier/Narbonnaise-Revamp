@@ -61,7 +61,7 @@ final class ReservationController
         try {
             $reservation = $this->service->reserver(
                 $membre, $donnees['creneaux'], $donnees['mode'], $donnees['commentaire'],
-                $this->maintenant(), $donnees['nombre_personnes'], $donnees['invites'],
+                $this->maintenant(), $donnees['nombre_personnes'],
             );
         } catch (ReservationRefusee $refus) {
             return back()->withInput()->withErrors(['reservation' => $refus->getMessage()]);
@@ -132,7 +132,8 @@ final class ReservationController
         try {
             $reservation = $this->service->modifier(
                 $reservation, $donnees['creneaux'], $donnees['mode'], $donnees['commentaire'],
-                $this->maintenant(), $donnees['nombre_personnes'], $donnees['invites'], $motif,
+                // Champ « Invités extérieurs » retiré : une ancienne valeur est gardée telle quelle.
+                $this->maintenant(), $donnees['nombre_personnes'], $reservation->invites, $motif,
             );
         } catch (ReservationRefusee $refus) {
             return back()->withInput()->withErrors(['reservation' => $refus->getMessage()]);
@@ -203,7 +204,7 @@ final class ReservationController
     }
 
     /**
-     * @return array{creneaux: list<Creneau>, mode: string, commentaire: ?string, invites: ?string, nombre_personnes: int}
+     * @return array{creneaux: list<Creneau>, mode: string, commentaire: ?string, nombre_personnes: int}
      */
     private function valider(Request $request): array
     {
@@ -214,7 +215,6 @@ final class ReservationController
             'creneaux.*' => ['required', 'string', 'regex:/^\d{4}-\d{2}-\d{2}-[JN]$/'],
             'mode' => ['required', 'in:ouverte,exclusive'],
             'nombre_personnes' => ['required', 'integer', 'between:1,'.ServiceReservation::PERSONNES_MAX],
-            'invites' => ['nullable', 'string', 'max:500'],
             'commentaire' => ['nullable', 'string', 'max:200'],
         ], [
             'fin.after_or_equal' => 'La date de fin doit être postérieure ou égale à la date de début.',
@@ -240,7 +240,6 @@ final class ReservationController
             'creneaux' => $creneaux,
             'mode' => (string) $valide['mode'],
             'commentaire' => isset($valide['commentaire']) ? (string) $valide['commentaire'] : null,
-            'invites' => isset($valide['invites']) ? (string) $valide['invites'] : null,
             'nombre_personnes' => (int) $valide['nombre_personnes'],
         ];
     }

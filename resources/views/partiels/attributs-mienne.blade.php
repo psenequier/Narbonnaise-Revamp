@@ -3,7 +3,7 @@
     data-mienne="{{ $a->mienne->id }}" data-action="{{ route('reservations.mettre-a-jour', $a->mienne) }}"
     data-page-modifier="{{ route('reservations.modifier', $a->mienne) }}"
     data-mode="{{ $a->mienne->mode }}" data-nb="{{ $a->mienne->nombre_personnes }}"
-    data-commentaire="{{ $a->mienne->commentaire }}" data-invites="{{ $a->mienne->invites }}"
+    data-commentaire="{{ $a->mienne->commentaire }}"
     data-creneaux="{{ $a->creneauxMienne() }}"
 @endif
 {{-- Admin : un créneau attribué ouvre la pop-up d'attribution en édition (plage entière). --}}
